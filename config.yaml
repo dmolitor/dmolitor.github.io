@@ -4,13 +4,13 @@ defaultContentLanguage: en
 title: Home
 summaryLength: 0
 author:
-  bio: 'Associate Data Scientist working on policy projects at RIPL'
   image: img/profile_pic.jpg
   links:
     - github: https://github.com/dmolitor
     - twitter: https://twitter.com/dmol97
     - linkedin: https://www.linkedin.com/in/molitor-daniel/
   name: Daniel Molitor
+  bio: Associate Data Scientist
 taxonomies:
   tag: tags
 params:

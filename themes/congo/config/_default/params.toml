@@ -20,7 +20,7 @@ description = "Personal website"
 [article]
   showDate = false
   dateFormat = "2 January 2006"
-  showAuthor = false
+  showAuthor = true
   showBreadcrumbs = true
   showDraftLabel = false
   showEdit = false
