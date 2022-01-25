@@ -1,0 +1,11 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I am currently a pre-doctoral research fellow at [RIPL](https://www.ripl.org). My work has primarily revolved around reskilling and the labor force; both evaluting existing reskilling methods, such as labor training programs, and developing tools to help people identify and acheive success in high-demand occupations that fit their skillsets.
+
+I like working with and making open source software in general, but am particularly interested in all things R. To see some of the projects that I've worked on, check out my [Github](https://github.com/dmolitor)!

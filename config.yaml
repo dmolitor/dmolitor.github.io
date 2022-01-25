@@ -1,0 +1,54 @@
+theme: congo
+languageCode: en-AU
+defaultContentLanguage: en
+title: Home
+summaryLength: 0
+author:
+  bio: 'Associate Data Scientist working on policy projects at RIPL'
+  image: img/profile_pic.jpg
+  links:
+    - github: https://github.com/dmolitor
+    - twitter: https://twitter.com/dmol97
+    - linkedin: https://www.linkedin.com/in/molitor-daniel/
+  name: Daniel Molitor
+taxonomies:
+  tag: tags
+params:
+  article:
+    editAppendPath: no
+    # editURL: 
+    showBreadcrumbs: yes
+    showEdit: no
+  homepage:
+    layout: profile
+    mainSections: 
+    showRecent: no
+  list:
+    groupByYear: no
+    showBreadcrumbs: yes
+menu:
+  main:
+    - name: About
+      pageRef: about
+      weight: 10
+    - name: CV
+      pageRef: /cv
+      weight: 10
+    - name: Musings
+      pageRef: post
+      weight: 10
+    # - name: Samples
+    #   pageRef: samples
+    #   weight: 20
+    # - name: Users
+    #   pageRef: users
+    #   weight: 30
+    # - name: GitHub
+    #   url: https://github.com/jpanther/congo
+    #   weight: 40
+markup:
+  goldmark:
+    renderer:
+      unsafe: yes
+  highlight:
+    noClasses: no
