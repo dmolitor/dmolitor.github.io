@@ -32,7 +32,7 @@ menu:
       pageRef: about
       weight: 10
     - name: CV
-      pageRef: /cv
+      url: https://drive.google.com/file/d/1-7-2ymEASVbEcNgt05xEDHP_eGHMx8SP/view?usp=sharing
       weight: 10
     - name: Musings
       pageRef: post
