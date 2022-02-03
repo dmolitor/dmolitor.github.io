@@ -3,14 +3,7 @@ title: "Housing Prices Prediction"
 summary: "The goal of this short project is to document a fairly realistic ML pipeline, including data cleaning, data visualization, and model development, in both R and Python."
 author: "Daniel Molitor"
 date: "`r Sys.Date()`"
-output:
-  html_document:
-    df_print: paged
-    highlight: breezedark
-    theme: journal
-    toc: yes
-    toc_depth: 4
-    toc_float: yes
+output: md_document
 categories: ["R", "Python", "ML"]
 image:
   caption: ""
@@ -20,7 +13,8 @@ image:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = TRUE,
+knitr::opts_chunk$set(comment = "#",
+                      eval = TRUE,
                       echo = TRUE,
                       warning = FALSE,
                       message = FALSE)

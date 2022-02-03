@@ -3,14 +3,7 @@ title: "Housing Prices Prediction"
 summary: "The goal of this short project is to document a fairly realistic ML pipeline, including data cleaning, data visualization, and model development, in both R and Python."
 author: "Daniel Molitor"
 date: "2022-02-03"
-output:
-  html_document:
-    df_print: paged
-    highlight: breezedark
-    theme: journal
-    toc: yes
-    toc_depth: 4
-    toc_float: yes
+output: md_document
 categories: ["R", "Python", "ML"]
 image:
   caption: ""
@@ -49,36 +42,36 @@ from sklearn.tree import DecisionTreeRegressor</code></pre>
 
 # Get data structure
 housing.info()</code></pre>
-<pre><code>## &lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-## RangeIndex: 20640 entries, 0 to 20639
-## Data columns (total 10 columns):
-##  #   Column              Non-Null Count  Dtype  
-## ---  ------              --------------  -----  
-##  0   longitude           20640 non-null  float64
-##  1   latitude            20640 non-null  float64
-##  2   housing_median_age  20640 non-null  float64
-##  3   total_rooms         20640 non-null  float64
-##  4   total_bedrooms      20433 non-null  float64
-##  5   population          20640 non-null  float64
-##  6   households          20640 non-null  float64
-##  7   median_income       20640 non-null  float64
-##  8   median_house_value  20640 non-null  float64
-##  9   ocean_proximity     20640 non-null  object 
-## dtypes: float64(9), object(1)
-## memory usage: 1.6+ MB</code></pre>
+<pre><code># &lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+# RangeIndex: 20640 entries, 0 to 20639
+# Data columns (total 10 columns):
+#  #   Column              Non-Null Count  Dtype  
+# ---  ------              --------------  -----  
+#  0   longitude           20640 non-null  float64
+#  1   latitude            20640 non-null  float64
+#  2   housing_median_age  20640 non-null  float64
+#  3   total_rooms         20640 non-null  float64
+#  4   total_bedrooms      20433 non-null  float64
+#  5   population          20640 non-null  float64
+#  6   households          20640 non-null  float64
+#  7   median_income       20640 non-null  float64
+#  8   median_house_value  20640 non-null  float64
+#  9   ocean_proximity     20640 non-null  object 
+# dtypes: float64(9), object(1)
+# memory usage: 1.6+ MB</code></pre>
 <p>We can also quickly summarize the housing data.</p>
 <pre class="python"><code>housing.describe()</code></pre>
-<pre><code>##           longitude      latitude  ...  median_income  median_house_value
-## count  20640.000000  20640.000000  ...   20640.000000        20640.000000
-## mean    -119.569704     35.631861  ...       3.870671       206855.816909
-## std        2.003532      2.135952  ...       1.899822       115395.615874
-## min     -124.350000     32.540000  ...       0.499900        14999.000000
-## 25%     -121.800000     33.930000  ...       2.563400       119600.000000
-## 50%     -118.490000     34.260000  ...       3.534800       179700.000000
-## 75%     -118.010000     37.710000  ...       4.743250       264725.000000
-## max     -114.310000     41.950000  ...      15.000100       500001.000000
-## 
-## [8 rows x 9 columns]</code></pre>
+<pre><code>#           longitude      latitude  ...  median_income  median_house_value
+# count  20640.000000  20640.000000  ...   20640.000000        20640.000000
+# mean    -119.569704     35.631861  ...       3.870671       206855.816909
+# std        2.003532      2.135952  ...       1.899822       115395.615874
+# min     -124.350000     32.540000  ...       0.499900        14999.000000
+# 25%     -121.800000     33.930000  ...       2.563400       119600.000000
+# 50%     -118.490000     34.260000  ...       3.534800       179700.000000
+# 75%     -118.010000     37.710000  ...       4.743250       264725.000000
+# max     -114.310000     41.950000  ...      15.000100       500001.000000
+# 
+# [8 rows x 9 columns]</code></pre>
 <p>Now that we have a quick overview of the data, we can plot a histogram of all
 numeric values.</p>
 <pre class="python"><code>housing.hist(bins = 50, figsize = (30, 15));
@@ -230,8 +223,8 @@ lin_reg_scores = np.sqrt(
 
 # Summarize score info
 metrics_summary(lin_reg_scores)</code></pre>
-<pre><code>## Mean:  68005.1
-## Standard Dev.:  2417.76</code></pre>
+<pre><code># Mean:  68005.1
+# Standard Dev.:  2417.76</code></pre>
 </div>
 <div id="decision-tree" class="section level3">
 <h3>Decision Tree</h3>
@@ -249,8 +242,8 @@ tree_reg = np.sqrt(
 
 # Summarize score info
 metrics_summary(tree_reg)</code></pre>
-<pre><code>## Mean:  71664.76
-## Standard Dev.:  2834.25</code></pre>
+<pre><code># Mean:  71631.6
+# Standard Dev.:  2614.03</code></pre>
 </div>
 <div id="random-forest" class="section level3">
 <h3>Random Forest</h3>
@@ -268,8 +261,8 @@ forest_reg = np.sqrt(
 
 # Summarize score info
 metrics_summary(forest_reg)</code></pre>
-<pre><code>## Mean:  51513.23
-## Standard Dev.:  1759.08</code></pre>
+<pre><code># Mean:  51298.21
+# Standard Dev.:  1698.51</code></pre>
 <p>And finally, we will tune our random forest model via grid search.</p>
 <pre class="python"><code># Fit model
 forest_reg_grid = GridSearchCV(
@@ -293,8 +286,8 @@ cv_results = forest_reg_grid_fit.cv_results_
 for mean_sc, param in zip(cv_results[&quot;mean_test_score&quot;], cv_results[&quot;params&quot;]):
   print(&quot;Mean: &quot;, np.sqrt(-mean_sc).round(2))
   print(&quot;Parameters: &quot;, param)</code></pre>
-<pre><code>## Mean:  51444.91
-## Parameters:  {&#39;max_features&#39;: &#39;sqrt&#39;, &#39;min_samples_leaf&#39;: 5, &#39;n_estimators&#39;: 30}</code></pre>
+<pre><code># Mean:  51821.79
+# Parameters:  {&#39;max_features&#39;: &#39;sqrt&#39;, &#39;min_samples_leaf&#39;: 5, &#39;n_estimators&#39;: 30}</code></pre>
 </div>
 </div>
 <div id="final-predictions" class="section level2">
@@ -309,7 +302,7 @@ final_preds = final_model.predict(test)
 print(
   &quot;Test RMSE: &quot;, np.sqrt(mean_squared_error(test_labels, final_preds)).round(2)
 )</code></pre>
-<pre><code>## Test RMSE:  50893.3</code></pre>
+<pre><code># Test RMSE:  50810.13</code></pre>
 </div>
 </div>
 <div id="r" class="section level1">
@@ -337,44 +330,44 @@ library(yardstick)</code></pre>
 
 # Get data structure
 glimpse(housing)</code></pre>
-<pre><code>## Rows: 20,640
-## Columns: 10
-## $ longitude          &lt;dbl&gt; -122.23, -122.22, -122.24, -122.25, -122.25, -122.2~
-## $ latitude           &lt;dbl&gt; 37.88, 37.86, 37.85, 37.85, 37.85, 37.85, 37.84, 37~
-## $ housing_median_age &lt;dbl&gt; 41, 21, 52, 52, 52, 52, 52, 52, 42, 52, 52, 52, 52,~
-## $ total_rooms        &lt;dbl&gt; 880, 7099, 1467, 1274, 1627, 919, 2535, 3104, 2555,~
-## $ total_bedrooms     &lt;dbl&gt; 129, 1106, 190, 235, 280, 213, 489, 687, 665, 707, ~
-## $ population         &lt;dbl&gt; 322, 2401, 496, 558, 565, 413, 1094, 1157, 1206, 15~
-## $ households         &lt;dbl&gt; 126, 1138, 177, 219, 259, 193, 514, 647, 595, 714, ~
-## $ median_income      &lt;dbl&gt; 8.3252, 8.3014, 7.2574, 5.6431, 3.8462, 4.0368, 3.6~
-## $ median_house_value &lt;dbl&gt; 452600, 358500, 352100, 341300, 342200, 269700, 299~
-## $ ocean_proximity    &lt;chr&gt; &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NE~</code></pre>
+<pre><code># Rows: 20,640
+# Columns: 10
+# $ longitude          &lt;dbl&gt; -122.23, -122.22, -122.24, -122.25, -122.25, -122.2~
+# $ latitude           &lt;dbl&gt; 37.88, 37.86, 37.85, 37.85, 37.85, 37.85, 37.84, 37~
+# $ housing_median_age &lt;dbl&gt; 41, 21, 52, 52, 52, 52, 52, 52, 42, 52, 52, 52, 52,~
+# $ total_rooms        &lt;dbl&gt; 880, 7099, 1467, 1274, 1627, 919, 2535, 3104, 2555,~
+# $ total_bedrooms     &lt;dbl&gt; 129, 1106, 190, 235, 280, 213, 489, 687, 665, 707, ~
+# $ population         &lt;dbl&gt; 322, 2401, 496, 558, 565, 413, 1094, 1157, 1206, 15~
+# $ households         &lt;dbl&gt; 126, 1138, 177, 219, 259, 193, 514, 647, 595, 714, ~
+# $ median_income      &lt;dbl&gt; 8.3252, 8.3014, 7.2574, 5.6431, 3.8462, 4.0368, 3.6~
+# $ median_house_value &lt;dbl&gt; 452600, 358500, 352100, 341300, 342200, 269700, 299~
+# $ ocean_proximity    &lt;chr&gt; &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NEAR BAY&quot;, &quot;NE~</code></pre>
 <p>Now, to get a quick summary of the data.</p>
 <pre class="r"><code>summary(housing)</code></pre>
-<pre><code>##    longitude         latitude     housing_median_age  total_rooms   
-##  Min.   :-124.3   Min.   :32.54   Min.   : 1.00      Min.   :    2  
-##  1st Qu.:-121.8   1st Qu.:33.93   1st Qu.:18.00      1st Qu.: 1448  
-##  Median :-118.5   Median :34.26   Median :29.00      Median : 2127  
-##  Mean   :-119.6   Mean   :35.63   Mean   :28.64      Mean   : 2636  
-##  3rd Qu.:-118.0   3rd Qu.:37.71   3rd Qu.:37.00      3rd Qu.: 3148  
-##  Max.   :-114.3   Max.   :41.95   Max.   :52.00      Max.   :39320  
-##                                                                     
-##  total_bedrooms     population      households     median_income    
-##  Min.   :   1.0   Min.   :    3   Min.   :   1.0   Min.   : 0.4999  
-##  1st Qu.: 296.0   1st Qu.:  787   1st Qu.: 280.0   1st Qu.: 2.5634  
-##  Median : 435.0   Median : 1166   Median : 409.0   Median : 3.5348  
-##  Mean   : 537.9   Mean   : 1425   Mean   : 499.5   Mean   : 3.8707  
-##  3rd Qu.: 647.0   3rd Qu.: 1725   3rd Qu.: 605.0   3rd Qu.: 4.7432  
-##  Max.   :6445.0   Max.   :35682   Max.   :6082.0   Max.   :15.0001  
-##  NA&#39;s   :207                                                        
-##  median_house_value ocean_proximity   
-##  Min.   : 14999     Length:20640      
-##  1st Qu.:119600     Class :character  
-##  Median :179700     Mode  :character  
-##  Mean   :206856                       
-##  3rd Qu.:264725                       
-##  Max.   :500001                       
-## </code></pre>
+<pre><code>#    longitude         latitude     housing_median_age  total_rooms   
+#  Min.   :-124.3   Min.   :32.54   Min.   : 1.00      Min.   :    2  
+#  1st Qu.:-121.8   1st Qu.:33.93   1st Qu.:18.00      1st Qu.: 1448  
+#  Median :-118.5   Median :34.26   Median :29.00      Median : 2127  
+#  Mean   :-119.6   Mean   :35.63   Mean   :28.64      Mean   : 2636  
+#  3rd Qu.:-118.0   3rd Qu.:37.71   3rd Qu.:37.00      3rd Qu.: 3148  
+#  Max.   :-114.3   Max.   :41.95   Max.   :52.00      Max.   :39320  
+#                                                                     
+#  total_bedrooms     population      households     median_income    
+#  Min.   :   1.0   Min.   :    3   Min.   :   1.0   Min.   : 0.4999  
+#  1st Qu.: 296.0   1st Qu.:  787   1st Qu.: 280.0   1st Qu.: 2.5634  
+#  Median : 435.0   Median : 1166   Median : 409.0   Median : 3.5348  
+#  Mean   : 537.9   Mean   : 1425   Mean   : 499.5   Mean   : 3.8707  
+#  3rd Qu.: 647.0   3rd Qu.: 1725   3rd Qu.: 605.0   3rd Qu.: 4.7432  
+#  Max.   :6445.0   Max.   :35682   Max.   :6082.0   Max.   :15.0001  
+#  NA&#39;s   :207                                                        
+#  median_house_value ocean_proximity   
+#  Min.   : 14999     Length:20640      
+#  1st Qu.:119600     Class :character  
+#  Median :179700     Mode  :character  
+#  Mean   :206856                       
+#  3rd Qu.:264725                       
+#  Max.   :500001                       
+# </code></pre>
 <p>Now that we have a quick overview of the data, we can plot a histogram of all
 numeric values.</p>
 <pre class="r"><code>housing |&gt;
@@ -552,8 +545,8 @@ lin_reg_scores = map_dbl(
 
 # Summarize score info
 metrics_summary(lin_reg_scores)</code></pre>
-<pre><code>## [1] &quot;Mean: 68071.59&quot;
-## [1] &quot;Standard Dev.: 2677.06&quot;</code></pre>
+<pre><code># [1] &quot;Mean: 68071.59&quot;
+# [1] &quot;Standard Dev.: 2677.06&quot;</code></pre>
 </div>
 <div id="decision-tree-1" class="section level3">
 <h3>Decision Tree</h3>
@@ -570,8 +563,8 @@ tree_reg_scores = map_dbl(
 
 # Summarize score info
 metrics_summary(tree_reg_scores)</code></pre>
-<pre><code>## [1] &quot;Mean: 72015.68&quot;
-## [1] &quot;Standard Dev.: 2842.71&quot;</code></pre>
+<pre><code># [1] &quot;Mean: 72015.68&quot;
+# [1] &quot;Standard Dev.: 2842.71&quot;</code></pre>
 </div>
 <div id="random-forest-1" class="section level3">
 <h3>Random Forest</h3>
@@ -588,8 +581,8 @@ forest_reg_scores = map_dbl(
 
 # Summarize score info
 metrics_summary(tree_reg_scores)</code></pre>
-<pre><code>## [1] &quot;Mean: 72015.68&quot;
-## [1] &quot;Standard Dev.: 2842.71&quot;</code></pre>
+<pre><code># [1] &quot;Mean: 72015.68&quot;
+# [1] &quot;Standard Dev.: 2842.71&quot;</code></pre>
 <p>And finally, we will tune our random forest model via grid search.</p>
 <pre class="r"><code># Create grid
 param_grid &lt;- expand.grid(num.trees = 100, mtry = 5, min.node.size = 3)
@@ -633,8 +626,8 @@ forest_reg_grid_fit = ranger(
 
 # Summarize score info
 walk(forest_reg_grid, metrics_summary)</code></pre>
-<pre><code>## [1] &quot;Mean: 48819.23&quot;
-## [1] &quot;Standard Dev.: 1829.59&quot;</code></pre>
+<pre><code># [1] &quot;Mean: 48819.23&quot;
+# [1] &quot;Standard Dev.: 1829.59&quot;</code></pre>
 </div>
 </div>
 <div id="final-predictions-1" class="section level2">
@@ -649,6 +642,6 @@ final_preds = predict(final_model, test)$predictions
 cat(
   &quot;Test RMSE:&quot;, rmse_vec(test$median_house_value, final_preds)
 )</code></pre>
-<pre><code>## Test RMSE: 49288.67</code></pre>
+<pre><code># Test RMSE: 49288.67</code></pre>
 </div>
 </div>

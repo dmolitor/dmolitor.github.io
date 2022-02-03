@@ -5,7 +5,7 @@
 
 # Appearance
 
-theme: dark
+theme: apogee
 day_night: false
 font: 'rose'
 font_size: M
@@ -74,11 +74,12 @@ address_format: en-us
 
 # Site features
 
-highlight: true
+highlight: false
 highlight_languages:
   - r
   - python
   - latex
+highlight_style: "monokai"
 math: false
 diagram: false
 privacy_pack: false
