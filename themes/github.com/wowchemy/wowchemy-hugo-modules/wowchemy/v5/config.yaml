@@ -47,8 +47,9 @@ module:
     - source: archetypes
       target: archetypes
 params:
-  theme: minimal
-  font: native
+  theme: dark
+  font: rose
+  font_size: M
   date_format: 'Jan 2, 2006'
   time_format: '3:04 PM'
   address_format: en-us
