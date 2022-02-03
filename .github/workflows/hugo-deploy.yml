@@ -22,7 +22,8 @@ jobs:
       - name: Setup Hugo
         uses: benmatselby/hugo-deploy-gh-pages@master # peaceiris/actions-hugo@v2
         with:
-          hugo-version: "latest"
+          hugo_version: "latest"
+          # hugo-version: "latest"
 
       - name: Build
         run: hugo # --minify
