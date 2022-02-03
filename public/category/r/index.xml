@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R | Daniel Molitor</title>
+    <link>https://dmolitor.com/category/r/</link>
+      <atom:link href="https://dmolitor.com/category/r/index.xml" rel="self" type="application/rss+xml" />
+    <description>R</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 03 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url>
+      <title>R</title>
+      <link>https://dmolitor.com/category/r/</link>
+    </image>
+    
+    <item>
+      <title>Housing Prices Prediction</title>
+      <link>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</link>
+      <pubDate>Thu, 03 Feb 2022 00:00:00 +0000</pubDate>
+      <guid>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</guid>
+      <description>
+&lt;script src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;The goal of this short project is to document a fairly realistic ML pipeline, including data cleaning, data visualization, and model development, in both R and Python.&lt;/p&gt;
+&lt;div id=&#34;python&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Python&lt;/h1&gt;
+&lt;div id=&#34;requisite-modules&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Requisite modules&lt;/h2&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scipy
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score, GridSearchCV, StratifiedShuffleSplit
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.tree import DecisionTreeRegressor&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;import-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Import data&lt;/h2&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;housing = pd.read_csv(
+  &amp;quot;https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv&amp;quot;
+)
+
+# Get data structure
+housing.info()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## &amp;lt;class &amp;#39;pandas.core.frame.DataFrame&amp;#39;&amp;gt;
+## RangeIndex: 20640 entries, 0 to 20639
+## Data columns (total 10 columns):
+##  #   Column              Non-Null Count  Dtype  
+## ---  ------              --------------  -----  
+##  0   longitude           20640 non-null  float64
+##  1   latitude            20640 non-null  float64
+##  2   housing_median_age  20640 non-null  float64
+##  3   total_rooms         20640 non-null  float64
+##  4   total_bedrooms      20433 non-null  float64
+##  5   population          20640 non-null  float64
+##  6   households          20640 non-null  float64
+##  7   median_income       20640 non-null  float64
+##  8   median_house_value  20640 non-null  float64
+##  9   ocean_proximity     20640 non-null  object 
+## dtypes: float64(9), object(1)
+## memory usage: 1.6+ MB&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can also quickly summarize the housing data.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;housing.describe()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##           longitude      latitude  ...  median_income  median_house_value
+## count  20640.000000  20640.000000  ...   20640.000000        20640.000000
+## mean    -119.569704     35.631861  ...       3.870671       206855.816909
+## std        2.003532      2.135952  ...       1.899822       115395.615874
+## min     -124.350000     32.540000  ...       0.499900        14999.000000
+## 25%     -121.800000     33.930000  ...       2.563400       119600.000000
+## 50%     -118.490000     34.260000  ...       3.534800       179700.000000
+## 75%     -118.010000     37.710000  ...       4.743250       264725.000000
+## max     -114.310000     41.950000  ...      15.000100       500001.000000
+## 
+## [8 rows x 9 columns]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now that we have a quick overview of the data, we can plot a histogram of all
+numeric values.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;housing.hist(bins = 50, figsize = (30, 15));
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Numeric%20Hist-1.png&#34; width=&#34;2880&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re going to bin the &lt;code&gt;median_income&lt;/code&gt; variable to allow for stratified sampling
+within income bins.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;housing[&amp;quot;median_income_bin&amp;quot;] = pd.cut(
+  housing[&amp;quot;median_income&amp;quot;],
+  bins = [0, 1.5, 3, 4.5, 6, np.inf],
+  labels = [1, 2, 3, 4, 5]
+)
+
+# Plot histogram of counts
+housing[&amp;quot;median_income_bin&amp;quot;].hist();
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Cut%20Income-3.png&#34; width=&#34;2880&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualize-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualize data&lt;/h2&gt;
+&lt;p&gt;Now, let’s visualize the median house prices by plotting them geographically.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;(
+  housing.
+  rename(columns = {&amp;quot;median_house_value&amp;quot;: &amp;quot;Median House Value&amp;quot;}).
+  plot(
+    kind = &amp;quot;scatter&amp;quot;,
+    x = &amp;quot;longitude&amp;quot;,
+    y = &amp;quot;latitude&amp;quot;,
+    alpha = 0.1,
+    s = housing[&amp;quot;population&amp;quot;]/100,
+    c = &amp;quot;Median House Value&amp;quot;,
+    colormap = plt.get_cmap(&amp;quot;jet&amp;quot;),
+    colorbar = True,
+    title = &amp;quot;Median House Prices by Population&amp;quot;,
+    xlabel = &amp;quot;Longitude&amp;quot;,
+    ylabel = &amp;quot;Latitude&amp;quot;
+  )
+)
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Prices%20Geo-5.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Let’s also look at the correlation between a few of our numeric variables.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;pd.plotting.scatter_matrix(
+  housing[
+    [
+     &amp;quot;median_house_value&amp;quot;,
+     &amp;quot;median_income&amp;quot;,
+     &amp;quot;total_rooms&amp;quot;,
+     &amp;quot;housing_median_age&amp;quot;
+    ]
+  ],
+  alpha = 0.1,
+  figsize = (15, 8)
+);
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Cor%20Plot-7.png&#34; width=&#34;1440&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Let’s specifically take a look at the relationship between &lt;code&gt;median_income&lt;/code&gt; and
+&lt;code&gt;median_house_value&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;(
+  housing.
+  rename(
+    columns = {
+      &amp;quot;median_income&amp;quot;: &amp;quot;Median Income&amp;quot;,
+      &amp;quot;median_house_value&amp;quot;: &amp;quot;Median House Value&amp;quot;
+    }
+  ).
+  plot(
+    kind = &amp;quot;scatter&amp;quot;,
+    x = &amp;quot;Median Income&amp;quot;,
+    y = &amp;quot;Median House Value&amp;quot;,
+    alpha = 0.1
+  )
+)
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Income%20House%20Value-9.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;feature-engineering&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Feature engineering&lt;/h2&gt;
+&lt;p&gt;We want to create a couple new features: &lt;code&gt;rooms_per_household&lt;/code&gt; and
+&lt;code&gt;bedrooms_per_room&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;housing[&amp;quot;rooms_per_household&amp;quot;] = housing[&amp;quot;total_rooms&amp;quot;]/housing[&amp;quot;households&amp;quot;]
+housing[&amp;quot;bedrooms_per_room&amp;quot;] = housing[&amp;quot;total_bedrooms&amp;quot;]/housing[&amp;quot;total_rooms&amp;quot;]
+housing[&amp;quot;pop_per_household&amp;quot;] = housing[&amp;quot;population&amp;quot;]/housing[&amp;quot;households&amp;quot;]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;modeling-prep&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Modeling prep&lt;/h2&gt;
+&lt;p&gt;Let’s do an 70-30 split of the data initially.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;split = StratifiedShuffleSplit(
+  n_splits = 1,
+  test_size = 0.3,
+  random_state = 123
+)
+
+for train_idx, test_idx in split.split(housing, housing[&amp;quot;median_income_bin&amp;quot;]):
+  train = housing.loc[train_idx].drop(
+    [&amp;quot;median_income_bin&amp;quot;, &amp;quot;median_house_value&amp;quot;],
+    axis = 1
+  )
+  train_labels = housing.loc[train_idx, &amp;quot;median_house_value&amp;quot;]
+  test = housing.loc[test_idx].drop(
+    [&amp;quot;median_income_bin&amp;quot;, &amp;quot;median_house_value&amp;quot;],
+    axis = 1
+  )
+  test_labels = housing.loc[test_idx, &amp;quot;median_house_value&amp;quot;]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, let’s prep the data for modeling.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Numeric transformations
+num_transform = Pipeline(
+  [
+    (&amp;quot;imputer&amp;quot;, SimpleImputer(strategy = &amp;quot;median&amp;quot;)),
+    (&amp;quot;scaler&amp;quot;, StandardScaler())
+  ]
+)
+
+full_transform = ColumnTransformer(
+  [
+    (
+     &amp;quot;numeric&amp;quot;,
+     num_transform,
+     list(train.drop(&amp;quot;ocean_proximity&amp;quot;, axis = 1).columns)
+    ),
+    (&amp;quot;categorical&amp;quot;, OneHotEncoder(), [&amp;quot;ocean_proximity&amp;quot;])
+  ]
+)
+
+train = full_transform.fit_transform(train)
+test = full_transform.transform(test)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;train-models&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Train models&lt;/h2&gt;
+&lt;p&gt;Let’s quick chalk up a function to print CV metrics.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;def metrics_summary(scores):
+  print(&amp;quot;Mean: &amp;quot;, scores.mean().round(2))
+  print(&amp;quot;Standard Dev.: &amp;quot;, scores.std().round(2))&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;linear-regression&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Linear Regression&lt;/h3&gt;
+&lt;p&gt;The first model is a simple linear regression model.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Fit model
+lin_reg_scores = np.sqrt(
+  -cross_val_score(
+     LinearRegression(),
+     train,
+     train_labels,
+     scoring = &amp;quot;neg_mean_squared_error&amp;quot;,
+     cv = 10
+   )
+)
+
+# Summarize score info
+metrics_summary(lin_reg_scores)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Mean:  68005.1
+## Standard Dev.:  2417.76&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;decision-tree&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Decision Tree&lt;/h3&gt;
+&lt;p&gt;The next model is a single decision tree model.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Fit model
+tree_reg = np.sqrt(
+  -cross_val_score(
+     DecisionTreeRegressor(),
+     train,
+     train_labels,
+     scoring = &amp;quot;neg_mean_squared_error&amp;quot;,
+     cv = 10
+   )
+)
+
+# Summarize score info
+metrics_summary(tree_reg)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Mean:  71664.76
+## Standard Dev.:  2834.25&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;random-forest&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Random Forest&lt;/h3&gt;
+&lt;p&gt;Now, we will run a random forest model.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Fit model
+forest_reg = np.sqrt(
+  -cross_val_score(
+     RandomForestRegressor(n_estimators = 30),
+     train,
+     train_labels,
+     scoring = &amp;quot;neg_mean_squared_error&amp;quot;,
+     cv = 10
+   )
+)
+
+# Summarize score info
+metrics_summary(forest_reg)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Mean:  51513.23
+## Standard Dev.:  1759.08&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And finally, we will tune our random forest model via grid search.&lt;/p&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Fit model
+forest_reg_grid = GridSearchCV(
+  RandomForestRegressor(),
+  param_grid = {
+    &amp;quot;n_estimators&amp;quot;: [30],
+    &amp;quot;min_samples_leaf&amp;quot;: [5],
+    &amp;quot;max_features&amp;quot;: [&amp;quot;sqrt&amp;quot;]
+  },
+  scoring = &amp;quot;neg_mean_squared_error&amp;quot;,
+  cv = 5,
+  return_train_score = True
+)
+
+forest_reg_grid_fit = forest_reg_grid.fit(train, train_labels)
+
+# Get CV results
+cv_results = forest_reg_grid_fit.cv_results_
+
+# Summarize score info
+for mean_sc, param in zip(cv_results[&amp;quot;mean_test_score&amp;quot;], cv_results[&amp;quot;params&amp;quot;]):
+  print(&amp;quot;Mean: &amp;quot;, np.sqrt(-mean_sc).round(2))
+  print(&amp;quot;Parameters: &amp;quot;, param)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Mean:  51444.91
+## Parameters:  {&amp;#39;max_features&amp;#39;: &amp;#39;sqrt&amp;#39;, &amp;#39;min_samples_leaf&amp;#39;: 5, &amp;#39;n_estimators&amp;#39;: 30}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;final-predictions&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Final predictions&lt;/h2&gt;
+&lt;pre class=&#34;python&#34;&gt;&lt;code&gt;# Extract model
+final_model = forest_reg_grid_fit.best_estimator_
+
+# Make predictions
+final_preds = final_model.predict(test)
+
+# Final RMSE
+print(
+  &amp;quot;Test RMSE: &amp;quot;, np.sqrt(mean_squared_error(test_labels, final_preds)).round(2)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Test RMSE:  50893.3&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;r&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;R&lt;/h1&gt;
+&lt;div id=&#34;requisite-packages&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Requisite packages&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(dplyr)
+library(ggplot2)
+library(purrr)
+library(ranger)
+library(readr)
+library(rpart)
+library(rsample)
+library(sf)
+library(tidyr)
+library(viridis)
+library(yardstick)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;import-data-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Import data&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing &amp;lt;- read_csv(
+  &amp;quot;https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv&amp;quot;,
+  show_col_types = FALSE
+)
+
+# Get data structure
+glimpse(housing)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Rows: 20,640
+## Columns: 10
+## $ longitude          &amp;lt;dbl&amp;gt; -122.23, -122.22, -122.24, -122.25, -122.25, -122.2~
+## $ latitude           &amp;lt;dbl&amp;gt; 37.88, 37.86, 37.85, 37.85, 37.85, 37.85, 37.84, 37~
+## $ housing_median_age &amp;lt;dbl&amp;gt; 41, 21, 52, 52, 52, 52, 52, 52, 42, 52, 52, 52, 52,~
+## $ total_rooms        &amp;lt;dbl&amp;gt; 880, 7099, 1467, 1274, 1627, 919, 2535, 3104, 2555,~
+## $ total_bedrooms     &amp;lt;dbl&amp;gt; 129, 1106, 190, 235, 280, 213, 489, 687, 665, 707, ~
+## $ population         &amp;lt;dbl&amp;gt; 322, 2401, 496, 558, 565, 413, 1094, 1157, 1206, 15~
+## $ households         &amp;lt;dbl&amp;gt; 126, 1138, 177, 219, 259, 193, 514, 647, 595, 714, ~
+## $ median_income      &amp;lt;dbl&amp;gt; 8.3252, 8.3014, 7.2574, 5.6431, 3.8462, 4.0368, 3.6~
+## $ median_house_value &amp;lt;dbl&amp;gt; 452600, 358500, 352100, 341300, 342200, 269700, 299~
+## $ ocean_proximity    &amp;lt;chr&amp;gt; &amp;quot;NEAR BAY&amp;quot;, &amp;quot;NEAR BAY&amp;quot;, &amp;quot;NEAR BAY&amp;quot;, &amp;quot;NEAR BAY&amp;quot;, &amp;quot;NE~&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, to get a quick summary of the data.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(housing)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    longitude         latitude     housing_median_age  total_rooms   
+##  Min.   :-124.3   Min.   :32.54   Min.   : 1.00      Min.   :    2  
+##  1st Qu.:-121.8   1st Qu.:33.93   1st Qu.:18.00      1st Qu.: 1448  
+##  Median :-118.5   Median :34.26   Median :29.00      Median : 2127  
+##  Mean   :-119.6   Mean   :35.63   Mean   :28.64      Mean   : 2636  
+##  3rd Qu.:-118.0   3rd Qu.:37.71   3rd Qu.:37.00      3rd Qu.: 3148  
+##  Max.   :-114.3   Max.   :41.95   Max.   :52.00      Max.   :39320  
+##                                                                     
+##  total_bedrooms     population      households     median_income    
+##  Min.   :   1.0   Min.   :    3   Min.   :   1.0   Min.   : 0.4999  
+##  1st Qu.: 296.0   1st Qu.:  787   1st Qu.: 280.0   1st Qu.: 2.5634  
+##  Median : 435.0   Median : 1166   Median : 409.0   Median : 3.5348  
+##  Mean   : 537.9   Mean   : 1425   Mean   : 499.5   Mean   : 3.8707  
+##  3rd Qu.: 647.0   3rd Qu.: 1725   3rd Qu.: 605.0   3rd Qu.: 4.7432  
+##  Max.   :6445.0   Max.   :35682   Max.   :6082.0   Max.   :15.0001  
+##  NA&amp;#39;s   :207                                                        
+##  median_house_value ocean_proximity   
+##  Min.   : 14999     Length:20640      
+##  1st Qu.:119600     Class :character  
+##  Median :179700     Mode  :character  
+##  Mean   :206856                       
+##  3rd Qu.:264725                       
+##  Max.   :500001                       
+## &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now that we have a quick overview of the data, we can plot a histogram of all
+numeric values.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing |&amp;gt;
+  select(where(is.numeric)) |&amp;gt;
+  pivot_longer(
+    cols = everything(),
+    names_to = &amp;quot;variable&amp;quot;,
+    values_to = &amp;quot;values&amp;quot;
+  ) |&amp;gt;
+  ggplot(aes(x = values)) +
+  geom_histogram(fill = &amp;quot;lightblue&amp;quot;, bins = 50) +
+  facet_wrap(
+    ~ variable,
+    nrow = 3,
+    scales = &amp;quot;free&amp;quot;
+  ) +
+  labs(
+    x = &amp;quot;&amp;quot;,
+    y = &amp;quot;&amp;quot;
+  ) +
+  theme_minimal()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Numeric%20Hist%202-1.png&#34; width=&#34;1440&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re going to bin the &lt;code&gt;median_income&lt;/code&gt; variable to allow for stratified sampling
+within income bins.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing &amp;lt;- housing |&amp;gt;
+  mutate(
+    median_income_bin = cut(
+      median_income,
+      breaks = c(0, 1.5, 3, 4.5, 6, Inf),
+      labels = c(1, 2, 3, 4, 5)
+    )
+  )
+
+# Plot histogram of counts
+hist(
+  as.numeric(housing$median_income_bin),
+  main = &amp;quot;&amp;quot;,
+  xlab = &amp;quot;Median Income Bin&amp;quot;,
+  ylab = &amp;quot;Count&amp;quot;,
+  ylim = c(0, 8000)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Cut%20Income%202-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualize-data-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualize data&lt;/h2&gt;
+&lt;p&gt;Now, let’s visualize the median house prices by plotting them geographically.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing |&amp;gt;
+  rename(
+    &amp;quot;Population&amp;quot; = &amp;quot;population&amp;quot;,
+    &amp;quot;Median House Value&amp;quot; = &amp;quot;median_house_value&amp;quot;
+  ) |&amp;gt;
+  st_as_sf(coords = c(&amp;quot;longitude&amp;quot;, &amp;quot;latitude&amp;quot;)) |&amp;gt;
+  st_set_crs(value = 4326) |&amp;gt;
+  ggplot(
+    aes(
+      size = Population,
+      color = `Median House Value`
+    )
+  ) +
+  geom_sf(alpha = 0.1) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(face = &amp;quot;bold&amp;quot;),
+    legend.title = element_text(face = &amp;quot;bold&amp;quot;),
+    plot.title = element_text(hjust = 0.5, face = &amp;quot;bold&amp;quot;)
+  ) +
+  scale_color_viridis(option = &amp;quot;B&amp;quot;) +
+  guides(size = &amp;quot;none&amp;quot;) +
+  labs(
+    title = &amp;quot;Median House Prices by Population&amp;quot;,
+    x = &amp;quot;Longitude&amp;quot;,
+    y = &amp;quot;Latitude&amp;quot;
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Prices%20Geo%202-1.png&#34; width=&#34;1152&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Let’s also look at the correlation between a few of our numeric variables.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(
+  select(
+    housing,
+    c(
+      &amp;quot;median_house_value&amp;quot;,
+      &amp;quot;median_income&amp;quot;,
+      &amp;quot;total_rooms&amp;quot;,
+      &amp;quot;housing_median_age&amp;quot;
+    )
+  ),
+  col = rgb(red = 0, green = 0, blue = 0, alpha = 0.1)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Cor%20Plot%202-1.png&#34; width=&#34;1152&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Let’s specifically take a look at the relationship between &lt;code&gt;median_income&lt;/code&gt; and
+&lt;code&gt;median_house_value&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing |&amp;gt;
+  ggplot(aes(x = median_income, y = median_house_value)) +
+  geom_point(alpha = 0.1) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(face = &amp;quot;bold&amp;quot;),
+    plot.title = element_text(hjust = 0.5, face = &amp;quot;bold&amp;quot;)
+  ) +
+  labs(x = &amp;quot;Median Income&amp;quot;, y = &amp;quot;Median House Value&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/figure-html/Income%20House%20Value%202-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;feature-engineering-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Feature engineering&lt;/h2&gt;
+&lt;p&gt;We want to create a couple new features: &lt;code&gt;rooms_per_household&lt;/code&gt; and
+&lt;code&gt;bedrooms_per_room&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;housing &amp;lt;- housing |&amp;gt;
+  mutate(
+    rooms_per_household = total_rooms/households,
+    bedrooms_per_room = total_bedrooms/total_rooms,
+    pop_per_household = population/households
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;modeling-prep-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Modeling prep&lt;/h2&gt;
+&lt;p&gt;Let’s do an 70-30 split of the data initially.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(123)
+split &amp;lt;- initial_split(
+  data = housing,
+  prop = 0.7,
+  strata = &amp;quot;median_income_bin&amp;quot;
+)
+
+train &amp;lt;- training(split) |&amp;gt; select(-median_income_bin)
+test &amp;lt;- testing(split) |&amp;gt; select(-median_income_bin)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, let’s prep the data for modeling.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Get median values from training data
+medians &amp;lt;- suppressWarnings(
+  lapply(train, median, na.rm = TRUE)
+)
+
+# Median impute
+train &amp;lt;- map2_df(
+    .x = train,
+    .y = medians,
+    .f = ~ case_when(
+      is.numeric(.x) ~ replace_na(.x, .y),
+      TRUE ~ .x
+    )
+) |&amp;gt;
+  mutate(ocean_proximity = sort_factor(ocean_proximity))
+
+test &amp;lt;- map2_df(
+    .x = test,
+    .y = medians,
+    .f = ~ case_when(
+      is.numeric(.x) ~ replace_na(.x, .y),
+      TRUE ~ .x
+    )
+) |&amp;gt;
+  mutate(ocean_proximity = sort_factor(ocean_proximity))&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;train-models-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Train models&lt;/h2&gt;
+&lt;p&gt;First, let’s split the training data into a 10-fold CV split and make a quick
+function to print CV metrics.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;train_cv &amp;lt;- vfold_cv(train, v = 10)
+
+# Summarise CV metrics
+metrics_summary &amp;lt;- function(scores) {
+  print(paste0(&amp;quot;Mean: &amp;quot;, round(mean(scores), 2)))
+  print(paste0(&amp;quot;Standard Dev.: &amp;quot;, round(sd(scores), 2)))
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;linear-regression-1&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Linear Regression&lt;/h3&gt;
+&lt;p&gt;The first model is a simple linear regression model.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit model
+lin_reg_scores = map_dbl(
+  train_cv$splits,
+  function(i) {
+    lin_mod &amp;lt;- lm(median_house_value ~ ., data = i$data[i$in_id, ])
+    lin_preds &amp;lt;- predict(lin_mod, i$data[-i$in_id, ])
+    rmse_vec(i$data[-i$in_id, ][[&amp;quot;median_house_value&amp;quot;]], lin_preds)
+  }
+)
+
+# Summarize score info
+metrics_summary(lin_reg_scores)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Mean: 68071.59&amp;quot;
+## [1] &amp;quot;Standard Dev.: 2677.06&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;decision-tree-1&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Decision Tree&lt;/h3&gt;
+&lt;p&gt;The next model is a single decision tree model.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit model
+tree_reg_scores = map_dbl(
+  train_cv$splits,
+  function(i) {
+    tree_mod &amp;lt;- rpart(median_house_value ~ ., data = i$data[i$in_id, ])
+    tree_preds &amp;lt;- predict(tree_mod, i$data[-i$in_id, ])
+    rmse_vec(i$data[-i$in_id, ][[&amp;quot;median_house_value&amp;quot;]], tree_preds)
+  }
+)
+
+# Summarize score info
+metrics_summary(tree_reg_scores)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Mean: 72015.68&amp;quot;
+## [1] &amp;quot;Standard Dev.: 2842.71&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;random-forest-1&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Random Forest&lt;/h3&gt;
+&lt;p&gt;Now, we will run a random forest model.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Fit model
+forest_reg_scores = map_dbl(
+  train_cv$splits,
+  function(i) {
+    forest_mod &amp;lt;- ranger(median_house_value ~ ., data = i$data[i$in_id, ], 100)
+    forest_preds &amp;lt;- predict(forest_mod, i$data[-i$in_id, ])$predictions
+    rmse_vec(i$data[-i$in_id, ][[&amp;quot;median_house_value&amp;quot;]], forest_preds)
+  }
+)
+
+# Summarize score info
+metrics_summary(tree_reg_scores)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Mean: 72015.68&amp;quot;
+## [1] &amp;quot;Standard Dev.: 2842.71&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And finally, we will tune our random forest model via grid search.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Create grid
+param_grid &amp;lt;- expand.grid(num.trees = 100, mtry = 5, min.node.size = 3)
+
+# Fit model
+forest_reg_grid &amp;lt;- map(
+  1:nrow(param_grid),
+  function(grid_idx) {
+    map_dbl(
+      train_cv$splits,
+      function(cv_fold) {
+        # LOO CV Model
+        forest_mod &amp;lt;- ranger(
+          median_house_value ~ .,
+          data = cv_fold$data[cv_fold$in_id, ],
+          num.trees = param_grid[grid_idx, ]$num.trees,
+          mtry = param_grid[grid_idx, ]$mtry,
+          min.node.size = param_grid[grid_idx, ]$min.node.size
+        )
+        # OOS Predictions
+        forest_preds &amp;lt;- predict(forest_mod, cv_fold$data[-cv_fold$in_id, ])$predictions
+        # Calculate RMSE
+        rmse_vec(
+          truth = cv_fold$data[-cv_fold$in_id, ][[&amp;quot;median_house_value&amp;quot;]],
+          estimate = forest_preds
+        )
+      }
+    )
+  }
+)
+
+# Get best model
+best_mod &amp;lt;- which.min(map_dbl(forest_reg_grid, mean))
+forest_reg_grid_fit = ranger(
+  median_house_value ~ .,
+  data = train,
+  num.trees = param_grid[best_mod, ]$num.trees,
+  mtry = param_grid[best_mod, ]$mtry,
+  min.node.size = param_grid[best_mod, ]$min.node.size
+)
+
+# Summarize score info
+walk(forest_reg_grid, metrics_summary)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Mean: 48819.23&amp;quot;
+## [1] &amp;quot;Standard Dev.: 1829.59&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;final-predictions-1&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Final predictions&lt;/h2&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Extract model
+final_model = forest_reg_grid_fit
+
+# Make predictions
+final_preds = predict(final_model, test)$predictions
+
+# Final RMSE
+cat(
+  &amp;quot;Test RMSE:&amp;quot;, rmse_vec(test$median_house_value, final_preds)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Test RMSE: 49288.67&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
