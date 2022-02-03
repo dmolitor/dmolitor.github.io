@@ -20,7 +20,7 @@ jobs:
           # fetch-depth: 0
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+        uses: benmatselby/hugo-deploy-gh-pages@master # peaceiris/actions-hugo@v2
         with:
           hugo-version: "latest"
 
