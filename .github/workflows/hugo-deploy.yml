@@ -23,6 +23,7 @@ jobs:
         uses: benmatselby/hugo-deploy-gh-pages@master
         env:
           HUGO_VERSION: 0.88.0
+          HUGO_ARGS: '-t dark'
           TARGET_REPO: dmolitor/dmolitor.github.io
           TARGET_BRANCH: gh-pages
           TOKEN: ${{ secrets.HUGO_TOKEN }}
