@@ -1,0 +1,341 @@
+<!doctype html><html lang=en-us>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Wowchemy 5.4.0 for Hugo">
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=preload as=style href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Lora:wght@400;700&family=Roboto:wght@400;700&display=swap&display=swap">
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Lora:wght@400;700&family=Roboto:wght@400;700&display=swap&display=swap" media=print onload="this.media='all'">
+<meta name=author content="Daniel Molitor">
+<meta name=description content="This document will outline the process of setting up Shiny Server in a Linux-based virtual machine.">
+<link rel=alternate hreflang=en-us href=https://dmolitor.com/post/2022-02-03-shiny-server-setup/>
+<meta name=theme-color content="hsl(339, 90%, 68%)">
+<link rel=stylesheet href=/css/vendor-bundle.min.f1ecf783c14edc00c9320c205831ad8e.css media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/atom-one-dark-reasonable.min.css crossorigin=anonymous title=hl-light media=print onload="this.media='all'">
+<link rel=stylesheet href=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/atom-one-dark-reasonable.min.css crossorigin=anonymous title=hl-dark media=print onload="this.media='all'" disabled>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.css integrity crossorigin=anonymous media=print onload="this.media='all'">
+<link rel=stylesheet href=/css/wowchemy.ec90f5daff304f2516554c1fa6fbc308.css>
+<link rel=manifest href=/manifest.webmanifest>
+<link rel=icon type=image/png href=/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_180x180_fill_lanczos_center_3.png>
+<link rel=canonical href=https://dmolitor.com/post/2022-02-03-shiny-server-setup/>
+<meta property="twitter:card" content="summary_large_image">
+<meta property="og:site_name" content="Daniel Molitor">
+<meta property="og:url" content="https://dmolitor.com/post/2022-02-03-shiny-server-setup/">
+<meta property="og:title" content="Shiny Server Setup | Daniel Molitor">
+<meta property="og:description" content="This document will outline the process of setting up Shiny Server in a Linux-based virtual machine."><meta property="og:image" content="https://dmolitor.com/post/2022-02-03-shiny-server-setup/featured.png">
+<meta property="twitter:image" content="https://dmolitor.com/post/2022-02-03-shiny-server-setup/featured.png"><meta property="og:locale" content="en-us">
+<meta property="article:published_time" content="2022-02-04T00:00:00+00:00">
+<meta property="article:modified_time" content="2022-02-04T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://dmolitor.com/post/2022-02-03-shiny-server-setup/"},"headline":"Shiny Server Setup","image":["https://dmolitor.com/post/2022-02-03-shiny-server-setup/featured.png"],"datePublished":"2022-02-04T00:00:00Z","dateModified":"2022-02-04T00:00:00Z","author":{"@type":"Person","name":"Daniel Molitor"},"publisher":{"@type":"Organization","name":"Daniel Molitor","logo":{"@type":"ImageObject","url":"https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_192x192_fill_lanczos_center_3.png"}},"description":"This document will outline the process of setting up Shiny Server in a Linux-based virtual machine."}</script>
+<title>Shiny Server Setup | Daniel Molitor</title>
+</head>
+<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents class="page-wrapper dark" data-wc-page-id=ee24d4adcdba256700b9223a4ee0e53e>
+<script src=/js/wowchemy-init.min.b0e67c88a5da645111c4840aa68f1002.js></script>
+<aside class=search-modal id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Search</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=# aria-label=Close><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search class=form-control aria-label=Search...>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<header class=header--fixed>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container-xl>
+<div class="d-none d-lg-inline-flex">
+<a class=navbar-brand href=/>Daniel Molitor</a>
+</div>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar-content aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+<a class=navbar-brand href=/>Daniel Molitor</a>
+</div>
+<div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class="nav-link active" href=/post><span>Musings</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+</ul>
+</div>
+</nav>
+</header>
+</div>
+<div class=page-body>
+<article class=article>
+<div class="article-container pt-3">
+<h1>Shiny Server Setup</h1>
+<div class=article-metadata>
+<span class=article-date>
+Feb 4, 2022
+</span>
+<span class=middot-divider></span>
+<span class=article-reading-time>
+4 min read
+</span>
+<span class=middot-divider></span>
+<span class=article-categories>
+<i class="fas fa-folder mr-1"></i><a href=/category/r/>R</a>, <a href=/category/shiny/>Shiny</a>, <a href=/category/linux/>Linux</a></span>
+</div>
+</div>
+<div class="article-header container featured-image-wrapper mt-4 mb-4" style=max-width:235px;max-height:235px>
+<div style=position:relative>
+<img src=/post/2022-02-03-shiny-server-setup/featured_hub639ad09a1ed1a2200f41ea6cf8ea532_10096_1200x2500_fit_q75_h2_lanczos_3.webp width=235 height=235 alt class=featured-image>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<script src=https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js></script>
+<p>Because of the number of computing platforms and the varied processes involved
+in setting up a virtual machine (VM) on each of them, this tutorial will begin
+under the assumption that you have already established and connected to a
+suitable VM. For my own personal uses I am using a Digital Ocean VM with
+Ubuntu 20.04 as the OS.</p>
+<p>Additionally, this document is effectively just a personal wiki and some steps
+are pretty specific to my own setup so mileage may vary.</p>
+<div id=install-rshiny-server-and-all-dependencies class="section level2">
+<h2>Install R/Shiny Server and all dependencies</h2>
+<p>The first step is to install the most recent version of R, as well as a robust
+set of the most important R packages.
+<div class="alert alert-note">
+<div>
+This installation will take >= 2 hrs on most VMs.
+</div>
+</div>
+</p>
+<pre><code># Install the dependencies necessary to add a new repository over HTTPS:
+sudo apt-get -y install \
+    dirmngr \
+    gnupg \
+    apt-transport-https \
+    ca-certificates \
+    software-properties-common
+
+# Add the CRAN repository to your system sources list:
+sudo apt-key adv \
+    --keyserver keyserver.ubuntu.com \
+    --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo add-apt-repository &#39;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&#39;
+
+# Install base R and dependencies for full set of R packages
+sudo apt-get -y install \
+    r-base \
+    r-base-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libcairo2-dev \
+    libgmp3-dev \
+    libmpfr-dev \
+    libv8-dev \
+    unixodbc-dev \
+    libpq-dev \
+    libudunits2-dev \
+    libgdal-dev \
+    gsl-bin \
+    libgsl0-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    cmake
+
+# Install R packages
+sudo R -e &#39;install_pkgs &lt;- function(pkgs) invisible(lapply(pkgs, function(i) { if (!requireNamespace(i, quietly = TRUE)) install.packages(i) })); install_pkgs(read.table(&quot;link/to/RIPL/toolkit/R/packages&quot;)[[&quot;V1&quot;]])&#39;</code></pre>
+<p>Once R and the packages have been installed, the next step is to install Shiny
+Server and all its dependencies.</p>
+<pre><code># Install Shiny Server and dependencies
+sudo apt-get -y install gdebi-core
+wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.17.973-amd64.deb
+sudo gdebi -n shiny-server-1.5.17.973-amd64.deb</code></pre>
+</div>
+<div id=verify-shiny-server-is-running class="section level2">
+<h2>Verify Shiny Server is running</h2>
+<p>Locate the public IP of your VM and in your web browser enter
+<code>http://vm.public.ip:3838/</code>. If Shiny Server is active and running correctly,
+you should see something like the following:
+<img src=shiny-welcome.png></p>
+</div>
+<div id=configure-shiny-server-as-git-repo class="section level2">
+<h2>Configure Shiny Server as Git repo</h2>
+<pre><code># Ensure shiny-server directory has full read/write permissions
+sudo chmod -R 777 /srv/shiny-server
+
+# Generate new SSH key for connecting to Github (just hit enter for all prompts)
+ssh-keygen -t ed25519
+eval &quot;$(ssh-agent -s)&quot;
+ssh-add ~/.ssh/id_ed25519</code></pre>
+<p>The steps above generate a new SSH key, but now you must add this SSH key to
+your Github account. To do so, follow the steps in
+<a href=https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account>this article</a> closely. Now that you’ve added the SSH key to your Github account,
+it’s time to configure your Github credentials and clone your Shiny Server repo
+to the VM. To do this, execute:</p>
+<pre><code># Configure git credentials
+git config --global user.email &quot;you@example.com&quot;
+git config --global user.name &quot;Your Name&quot;
+
+# Navigate to shiny-server directory
+cd /srv/shiny-server
+sudo rm -r *
+git init
+
+# Clone repo
+git remote add origin git@github.com:path-to-repo-head.git
+git pull origin master
+git branch --set-upstream-to=origin/master master
+cd ~</code></pre>
+</div>
+<div id=install-and-configure-nginx class="section level2">
+<h2>Install and configure nginx</h2>
+<pre><code># Install nginx
+sudo apt-get -y install nginx
+
+# Edit nginx config
+sudo vi /etc/nginx/sites-enabled/default</code></pre>
+<p>This will open the <code>nginx</code> config file. Add the following lines <strong>above</strong> the
+line that reads <code>server {</code></p>
+<pre><code>map $http_upgrade $connection_upgrade {
+  default upgrade;
+  &#39;&#39;      close;
+}</code></pre>
+<p>And add the following lines right <strong>after</strong> the line that reads <code>server_name _;</code></p>
+<pre><code>location /shiny/ {
+  proxy_pass http://127.0.0.1:3838/;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection $connection_upgrade;
+  rewrite ^(/shiny/[^/]+)$ $1/ permanent;
+}</code></pre>
+<p>Now, save the changes. Since you edited the <code>nginx</code> config file you will need to
+restart the service with <code>sudo service nginx restart</code>. Now, instead of accessing
+Shiny Server with <code>http://vm.public.ip:3838</code> you should be able to access it
+with <code>http://vm.public.ip/shiny</code>.</p>
+<p>The final step in configuring <code>nginx</code> is to overwrite the default .html landing
+page with a personalized landing page.
+<div class="alert alert-note">
+<div>
+This assumes that you have a file named
+<code>index.nginx-debian.html</code> in the root of your <code>shiny-server</code> github repo.
+</div>
+</div>
+</p>
+<pre><code>sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/</code></pre>
+<p>Now, when you access <code>http://vm.public.ip</code>, you should see a pretty landing
+page.</p>
+</div>
+<div id=conclusion class="section level2">
+<h2>conclusion</h2>
+<p>You have now configured Shiny Server and can view it at
+<code>http://vm.public.ip/shiny/</code>! 🎉🥳</p>
+</div>
+</div>
+<div class="media author-card content-widget-hr">
+<a href=https://dmolitor.com><img class="avatar mr-3 avatar-circle" src=/author/daniel-molitor/avatar_hu3bdbe7bd9380974ee4c49e4fa9e4a1b5_1768872_270x270_fill_q75_lanczos_center.jpg alt="Daniel Molitor"></a>
+<div class=media-body>
+<h5 class=card-title><a href=https://dmolitor.com>Daniel Molitor</a></h5>
+<h6 class=card-subtitle>Associate Data Scientist</h6>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=mailto:molitdj97@gmail.com>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/dmol97 target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/dmolitor target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://www.linkedin.com/in/molitor-daniel target=_blank rel=noopener>
+<i class="fab fa-linkedin"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+</div>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Published with <a href="https://wowchemy.com/?utm_campaign=poweredby" target=_blank rel=noopener>Wowchemy</a> — the free, <a href=https://github.com/wowchemy/wowchemy-hugo-themes target=_blank rel=noopener>open source</a> website builder that empowers creators.
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Cite</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copy
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+<script src=/js/vendor-bundle.min.b73dfaac3b6499dc997741748a7c3fe2.js></script>
+<script src=https://cdn.jsdelivr.net/gh/desandro/imagesloaded@v4.1.4/imagesloaded.pkgd.min.js integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/metafizzy/isotope@v3.0.6/dist/isotope.pkgd.min.js integrity="sha512-Zq2BOxyhvnRFXu0+WE6ojpZLOU2jdnqbrM1hmVdGzyeCa1DgM3X5Q4A/Is9xA1IkbUeDd7755dNNI/PzSf2Pew==" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js integrity="sha512-Ypjm0o7jOxAd4hpdoppSEN0TQOC19UtPAqD+4s5AlXmUvbmmS/YMxYqAqarQYyxTnB6/rqip9qcxlNB/3U9Wdg==" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/r.min.js crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/python.min.js crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/languages/latex.min.js crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js integrity crossorigin=anonymous></script>
+<script id=search-hit-fuse-template type=text/x-template>
+        <div class="search-hit" id="summary-{{key}}">
+          <div class="search-hit-content">
+            <div class="search-hit-name">
+              <a href="{{relpermalink}}">{{title}}</a>
+              <div class="article-metadata search-hit-type">{{type}}</div>
+              <p class="search-hit-description">{{snippet}}</p>
+            </div>
+          </div>
+        </div>
+      </script>
+<script src=https://cdn.jsdelivr.net/gh/krisk/Fuse@v3.2.1/dist/fuse.min.js integrity="sha512-o38bmzBGX+hD3JHWUFCDA09btWaqrNmoJ3RXLlrysA7PP01Kgs4UlE4MhelE1v5dJR3+cxlR4qQlotsW7jKsnw==" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/gh/julmot/mark.js@8.11.1/dist/jquery.mark.min.js integrity="sha512-mhbv5DqBMgrWL+32MmsDOt/OAvqr/cHimk6B8y/bx/xS88MVkYGPiVv2ixKVrkywF2qHplNRUvFsAHUdxZ3Krg==" crossorigin=anonymous></script>
+<script id=page-data type=application/json>{"use_headroom":true}</script>
+<script src=/js/wowchemy-headroom.1cb9e2fc8399acee94eab837265b73bf.js type=module></script>
+<script src=/en/js/wowchemy.min.247fd8f54253895301106e3006f53f38.js></script>
+<script async defer src=https://buttons.github.io/buttons.js></script>
+</body>
+</html>

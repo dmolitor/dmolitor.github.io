@@ -1,4 +1,139 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts | Daniel Molitor</title><link>https://dmolitor.com/post/</link><atom:link href="https://dmolitor.com/post/index.xml" rel="self" type="application/rss+xml"/><description>Posts</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 03 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Posts</title><link>https://dmolitor.com/post/</link></image><item><title>Housing Prices Prediction</title><link>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</link><pubDate>Thu, 03 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</guid><description>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts | Daniel Molitor</title><link>https://dmolitor.com/post/</link><atom:link href="https://dmolitor.com/post/index.xml" rel="self" type="application/rss+xml"/><description>Posts</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 04 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Posts</title><link>https://dmolitor.com/post/</link></image><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 04 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
+&lt;script src="https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;p>Because of the number of computing platforms and the varied processes involved
+in setting up a virtual machine (VM) on each of them, this tutorial will begin
+under the assumption that you have already established and connected to a
+suitable VM. For my own personal uses I am using a Digital Ocean VM with
+Ubuntu 20.04 as the OS.&lt;/p>
+&lt;p>Additionally, this document is effectively just a personal wiki and some steps
+are pretty specific to my own setup so mileage may vary.&lt;/p>
+&lt;div id="install-rshiny-server-and-all-dependencies" class="section level2">
+&lt;h2>Install R/Shiny Server and all dependencies&lt;/h2>
+&lt;p>The first step is to install the most recent version of R, as well as a robust
+set of the most important R packages.
+&lt;div class="alert alert-note">
+&lt;div>
+This installation will take &amp;gt;= 2 hrs on most VMs.
+&lt;/div>
+&lt;/div>
+&lt;/p>
+&lt;pre>&lt;code># Install the dependencies necessary to add a new repository over HTTPS:
+sudo apt-get -y install \
+dirmngr \
+gnupg \
+apt-transport-https \
+ca-certificates \
+software-properties-common
+# Add the CRAN repository to your system sources list:
+sudo apt-key adv \
+--keyserver keyserver.ubuntu.com \
+--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo add-apt-repository &amp;#39;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&amp;#39;
+# Install base R and dependencies for full set of R packages
+sudo apt-get -y install \
+r-base \
+r-base-dev \
+libssl-dev \
+libcurl4-openssl-dev \
+libxml2-dev \
+libfontconfig1-dev \
+libcairo2-dev \
+libgmp3-dev \
+libmpfr-dev \
+libv8-dev \
+unixodbc-dev \
+libpq-dev \
+libudunits2-dev \
+libgdal-dev \
+gsl-bin \
+libgsl0-dev \
+libharfbuzz-dev \
+libfribidi-dev \
+cmake
+# Install R packages
+sudo R -e &amp;#39;install_pkgs &amp;lt;- function(pkgs) invisible(lapply(pkgs, function(i) { if (!requireNamespace(i, quietly = TRUE)) install.packages(i) })); install_pkgs(read.table(&amp;quot;link/to/RIPL/toolkit/R/packages&amp;quot;)[[&amp;quot;V1&amp;quot;]])&amp;#39;&lt;/code>&lt;/pre>
+&lt;p>Once R and the packages have been installed, the next step is to install Shiny
+Server and all its dependencies.&lt;/p>
+&lt;pre>&lt;code># Install Shiny Server and dependencies
+sudo apt-get -y install gdebi-core
+wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.17.973-amd64.deb
+sudo gdebi -n shiny-server-1.5.17.973-amd64.deb&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="verify-shiny-server-is-running" class="section level2">
+&lt;h2>Verify Shiny Server is running&lt;/h2>
+&lt;p>Locate the public IP of your VM and in your web browser enter
+&lt;code>http://vm.public.ip:3838/&lt;/code>. If Shiny Server is active and running correctly,
+you should see something like the following:
+&lt;img src="shiny-welcome.png" />&lt;/p>
+&lt;/div>
+&lt;div id="configure-shiny-server-as-git-repo" class="section level2">
+&lt;h2>Configure Shiny Server as Git repo&lt;/h2>
+&lt;pre>&lt;code># Ensure shiny-server directory has full read/write permissions
+sudo chmod -R 777 /srv/shiny-server
+# Generate new SSH key for connecting to Github (just hit enter for all prompts)
+ssh-keygen -t ed25519
+eval &amp;quot;$(ssh-agent -s)&amp;quot;
+ssh-add ~/.ssh/id_ed25519&lt;/code>&lt;/pre>
+&lt;p>The steps above generate a new SSH key, but now you must add this SSH key to
+your Github account. To do so, follow the steps in
+&lt;a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account">this article&lt;/a> closely. Now that you’ve added the SSH key to your Github account,
+it’s time to configure your Github credentials and clone your Shiny Server repo
+to the VM. To do this, execute:&lt;/p>
+&lt;pre>&lt;code># Configure git credentials
+git config --global user.email &amp;quot;you@example.com&amp;quot;
+git config --global user.name &amp;quot;Your Name&amp;quot;
+# Navigate to shiny-server directory
+cd /srv/shiny-server
+sudo rm -r *
+git init
+# Clone repo
+git remote add origin git@github.com:path-to-repo-head.git
+git pull origin master
+git branch --set-upstream-to=origin/master master
+cd ~&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="install-and-configure-nginx" class="section level2">
+&lt;h2>Install and configure nginx&lt;/h2>
+&lt;pre>&lt;code># Install nginx
+sudo apt-get -y install nginx
+# Edit nginx config
+sudo vi /etc/nginx/sites-enabled/default&lt;/code>&lt;/pre>
+&lt;p>This will open the &lt;code>nginx&lt;/code> config file. Add the following lines &lt;strong>above&lt;/strong> the
+line that reads &lt;code>server {&lt;/code>&lt;/p>
+&lt;pre>&lt;code>map $http_upgrade $connection_upgrade {
+default upgrade;
+&amp;#39;&amp;#39; close;
+}&lt;/code>&lt;/pre>
+&lt;p>And add the following lines right &lt;strong>after&lt;/strong> the line that reads &lt;code>server_name _;&lt;/code>&lt;/p>
+&lt;pre>&lt;code>location /shiny/ {
+proxy_pass http://127.0.0.1:3838/;
+proxy_http_version 1.1;
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection $connection_upgrade;
+rewrite ^(/shiny/[^/]+)$ $1/ permanent;
+}&lt;/code>&lt;/pre>
+&lt;p>Now, save the changes. Since you edited the &lt;code>nginx&lt;/code> config file you will need to
+restart the service with &lt;code>sudo service nginx restart&lt;/code>. Now, instead of accessing
+Shiny Server with &lt;code>http://vm.public.ip:3838&lt;/code> you should be able to access it
+with &lt;code>http://vm.public.ip/shiny&lt;/code>.&lt;/p>
+&lt;p>The final step in configuring &lt;code>nginx&lt;/code> is to overwrite the default .html landing
+page with a personalized landing page.
+&lt;div class="alert alert-note">
+&lt;div>
+This assumes that you have a file named
+&lt;code>index.nginx-debian.html&lt;/code> in the root of your &lt;code>shiny-server&lt;/code> github repo.
+&lt;/div>
+&lt;/div>
+&lt;/p>
+&lt;pre>&lt;code>sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/&lt;/code>&lt;/pre>
+&lt;p>Now, when you access &lt;code>http://vm.public.ip&lt;/code>, you should see a pretty landing
+page.&lt;/p>
+&lt;/div>
+&lt;div id="conclusion" class="section level2">
+&lt;h2>conclusion&lt;/h2>
+&lt;p>You have now configured Shiny Server and can view it at
+&lt;code>http://vm.public.ip/shiny/&lt;/code>! 🎉🥳&lt;/p>
+&lt;/div></description></item><item><title>Housing Prices Prediction</title><link>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</link><pubDate>Thu, 03 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-02-housing-price-prediction/</guid><description>
 &lt;script src="https://dmolitor.com/post/2022-02-02-housing-price-prediction/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>The goal of this short project is to document a fairly realistic ML pipeline, including data cleaning, data visualization, and model development, in both R and Python.&lt;/p>
 &lt;div id="python" class="section level1">
