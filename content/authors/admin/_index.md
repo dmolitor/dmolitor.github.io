@@ -5,7 +5,7 @@ title: Daniel Molitor
 superuser: true
 
 # Role/position/tagline
-role: Associate Data Scientist
+role: Pre-Doctoral Research Fellow
 
 # Organizations/Affiliations to show in About widget
 organizations:
@@ -63,10 +63,10 @@ email: ""
 highlight_name: true
 ---
 
-I am currently an Associate Data Scientist at RIPL. My work has primarily 
+I am currently a Pre-Doctoral Research Fellow at RIPL. My work has primarily 
 revolved around reskilling and the labor force; applying causal machine learning
-methods to evaluting existing reskilling methods, such as labor training 
-programs, and developing tools to help people identify and acheive success in 
+methods to evaluating existing reskilling methods, such as labor training 
+programs, and developing tools to help people identify and achieve success in 
 high-demand occupations that fit their skillsets.
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/Daniel-Molitor-CV.pdf" "newtab" >}}resumé{{< /staticref >}}.

@@ -175,7 +175,7 @@ sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/
 Now, when you access `http://vm.public.ip`, you should see a pretty landing 
 page.
 
-## conclusion
+## Conclusion
 
 You have now configured Shiny Server and can view it at 
 `http://vm.public.ip/shiny/`! 🎉🥳
