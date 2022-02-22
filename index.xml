@@ -75,7 +75,7 @@ Click on the &lt;strong>Slides&lt;/strong> button above to view the built-in sli
 &lt;li>&lt;strong>Upload&lt;/strong> an existing slide deck to &lt;code>static/&lt;/code> and link using &lt;code>url_slides&lt;/code> parameter in the front matter of the talk file&lt;/li>
 &lt;li>&lt;strong>Embed&lt;/strong> your slides (e.g. Google Slides) or presentation video on this page using &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">shortcodes&lt;/a>.&lt;/li>
 &lt;/ul>
-&lt;p>Further event details, including &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">page elements&lt;/a> such as image galleries, can be added to the body of this page.&lt;/p></description></item><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 04 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
+&lt;p>Further event details, including &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">page elements&lt;/a> such as image galleries, can be added to the body of this page.&lt;/p></description></item><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
 &lt;script src="https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>Because of the number of computing platforms and the varied processes involved
 in setting up a virtual machine (VM) on each of them, this tutorial will begin
@@ -207,7 +207,7 @@ This assumes that you have a file named
 page.&lt;/p>
 &lt;/div>
 &lt;div id="conclusion" class="section level2">
-&lt;h2>conclusion&lt;/h2>
+&lt;h2>Conclusion&lt;/h2>
 &lt;p>You have now configured Shiny Server and can view it at
 &lt;code>http://vm.public.ip/shiny/&lt;/code>! 🎉🥳&lt;/p>
 &lt;/div></description></item><item><title>Welcome to Wowchemy, the website builder for Hugo</title><link>https://dmolitor.com/post-examples/getting-started/</link><pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post-examples/getting-started/</guid><description>&lt;h2 id="overview">Overview&lt;/h2>
@@ -279,7 +279,7 @@ data.head()
 &lt;p>Academic supports the popular &lt;a href="https://plot.ly/" target="_blank" rel="noopener">Plotly&lt;/a> chart format.&lt;/p>
 &lt;p>Save your Plotly JSON in your page folder, for example &lt;code>chart.json&lt;/code>, and then add the &lt;code>{{&amp;lt; chart data=&amp;quot;chart&amp;quot; &amp;gt;}}&lt;/code> shortcode where you would like the chart to appear.&lt;/p>
 &lt;p>Demo:&lt;/p>
-&lt;div id="chart-243618957" class="chart">&lt;/div>
+&lt;div id="chart-943721865" class="chart">&lt;/div>
 &lt;script>
 (function() {
 let a = setInterval( function() {
@@ -288,7 +288,7 @@ return;
 }
 clearInterval( a );
 Plotly.d3.json("./line-chart.json", function(chart) {
-Plotly.plot('chart-243618957', chart.data, chart.layout, {responsive: true});
+Plotly.plot('chart-943721865', chart.data, chart.layout, {responsive: true});
 });
 }, 500 );
 })();

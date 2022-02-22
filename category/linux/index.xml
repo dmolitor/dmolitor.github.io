@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux | Daniel Molitor</title><link>https://dmolitor.com/category/linux/</link><atom:link href="https://dmolitor.com/category/linux/index.xml" rel="self" type="application/rss+xml"/><description>Linux</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 04 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Linux</title><link>https://dmolitor.com/category/linux/</link></image><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 04 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux | Daniel Molitor</title><link>https://dmolitor.com/category/linux/</link><atom:link href="https://dmolitor.com/category/linux/index.xml" rel="self" type="application/rss+xml"/><description>Linux</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Linux</title><link>https://dmolitor.com/category/linux/</link></image><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
 &lt;script src="https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>Because of the number of computing platforms and the varied processes involved
 in setting up a virtual machine (VM) on each of them, this tutorial will begin
@@ -130,7 +130,7 @@ This assumes that you have a file named
 page.&lt;/p>
 &lt;/div>
 &lt;div id="conclusion" class="section level2">
-&lt;h2>conclusion&lt;/h2>
+&lt;h2>Conclusion&lt;/h2>
 &lt;p>You have now configured Shiny Server and can view it at
 &lt;code>http://vm.public.ip/shiny/&lt;/code>! 🎉🥳&lt;/p>
 &lt;/div></description></item></channel></rss>
