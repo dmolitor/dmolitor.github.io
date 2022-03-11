@@ -26,7 +26,7 @@ Because of the number of computing platforms and the varied processes involved
 in setting up a virtual machine (VM) on each of them, this tutorial will begin 
 under the assumption that you have already established and connected to a 
 suitable VM. For my own personal uses I am using a Digital Ocean VM with 
-Ubuntu 20.04 as the OS.
+Ubuntu 20.04 Focal Fossa as the OS.
 
 Additionally, this document is effectively just a personal wiki and some steps
 are pretty specific to my own setup so mileage may vary.
@@ -39,6 +39,9 @@ set of the most important R packages.
 This installation will take >= 2 hrs on most VMs.
 {{% /callout %}}
 ```
+# Update indices
+sudo apt update -y -qq
+
 # Install the dependencies necessary to add a new repository over HTTPS:
 sudo apt-get -y install \
     dirmngr \
@@ -48,10 +51,12 @@ sudo apt-get -y install \
     software-properties-common
 
 # Add the CRAN repository to your system sources list:
-sudo apt-key adv \
-    --keyserver keyserver.ubuntu.com \
-    --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'
+#   - Add the signing key (by Michael Rutter) for these repos
+#     To verify key, run gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc 
+#     Fingerprint: 298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+#   - Add the R 4.0 repo from CRAN
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/"
 
 # Install base R and dependencies for full set of R packages
 sudo apt-get -y install \
@@ -76,7 +81,7 @@ sudo apt-get -y install \
     cmake
 
 # Install R packages
-sudo R -e 'install_pkgs <- function(pkgs) invisible(lapply(pkgs, function(i) { if (!requireNamespace(i, quietly = TRUE)) install.packages(i) })); install_pkgs(read.table("link/to/RIPL/toolkit/R/packages")[["V1"]])'
+sudo R -e 'install.packages(read.table("https://gist.githubusercontent.com/dmolitor/f88b3edd1fd02716ff08888a815db35a/raw/8298cc7d28aa0c03a7e0330e338fa7c85d0ee782/r-packages.txt")[["V1"]], Ncpus = parallel::detectCores())'
 ```
 
 Once R and the packages have been installed, the next step is to install Shiny
@@ -174,6 +179,55 @@ sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/
 ```
 Now, when you access `http://vm.public.ip`, you should see a pretty landing 
 page.
+
+## Bonus Stuff (Configuring Basic Authentication)
+
+Obviously, setting up some form of basic authentication will depend on your
+desired level of privacy. Also this will probably keep the average person from
+accessing your apps but definitely is a fairly light level of security.
+Anywho, let's proceed...
+```
+# Install necessary dependency
+sudo apt-get install apache2-utils
+
+# Shut down Shiny Server and nginx
+sudo service nginx stop
+sudo service shiny-server stop
+
+# Edit nginx default config
+sudo vi /etc/nginx/sites-available/default
+```
+
+Once you are in the file, you will tweak the existing server function as
+follows:
+```
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        ### Authentication ###     <------ YOU MUST COPY/PASTE IN THIS WHOLE AUTH CHUNK
+        auth_basic "Username and Password are required";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        ######################
+```
+Then, within the `location /shiny/ {` chunk, enter the following:
+```
+auth_basic on;
+```
+Now, save and exit the file. Next you need to create a `username` user and 
+corresponding password `user-password` at the hint like:
+```
+cd /etc/nginx
+sudo htpasswd -c /etc/nginx/.htpasswd username
+
+# Restart the services!
+cd ~
+sudo service nginx start
+sudo service shiny-server start
+```
+You have now established basic authentication and when you access any page on
+your server you should see something like the following:
+![](./basic-auth.png)
 
 ## Conclusion
 

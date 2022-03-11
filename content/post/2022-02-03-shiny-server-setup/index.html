@@ -2,7 +2,7 @@
 title: "Shiny Server Setup"
 summary: "This document will outline the process of setting up Shiny Server in a Linux-based virtual machine."
 author: Daniel Molitor
-date: "2022-02-22"
+date: "2022-03-11"
 output: md_document
 categories: ["R", "Shiny", "Linux"]
 image:
@@ -19,7 +19,7 @@ image:
 in setting up a virtual machine (VM) on each of them, this tutorial will begin
 under the assumption that you have already established and connected to a
 suitable VM. For my own personal uses I am using a Digital Ocean VM with
-Ubuntu 20.04 as the OS.</p>
+Ubuntu 20.04 Focal Fossa as the OS.</p>
 <p>Additionally, this document is effectively just a personal wiki and some steps
 are pretty specific to my own setup so mileage may vary.</p>
 <div id="install-rshiny-server-and-all-dependencies" class="section level2">
@@ -29,7 +29,10 @@ set of the most important R packages.
 {{% callout note %}}
 This installation will take &gt;= 2 hrs on most VMs.
 {{% /callout %}}</p>
-<pre><code># Install the dependencies necessary to add a new repository over HTTPS:
+<pre><code># Update indices
+sudo apt update -y -qq
+
+# Install the dependencies necessary to add a new repository over HTTPS:
 sudo apt-get -y install \
     dirmngr \
     gnupg \
@@ -38,10 +41,12 @@ sudo apt-get -y install \
     software-properties-common
 
 # Add the CRAN repository to your system sources list:
-sudo apt-key adv \
-    --keyserver keyserver.ubuntu.com \
-    --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-sudo add-apt-repository &#39;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&#39;
+#   - Add the signing key (by Michael Rutter) for these repos
+#     To verify key, run gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc 
+#     Fingerprint: 298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+#   - Add the R 4.0 repo from CRAN
+sudo add-apt-repository &quot;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&quot;
 
 # Install base R and dependencies for full set of R packages
 sudo apt-get -y install \
@@ -66,7 +71,7 @@ sudo apt-get -y install \
     cmake
 
 # Install R packages
-sudo R -e &#39;install_pkgs &lt;- function(pkgs) invisible(lapply(pkgs, function(i) { if (!requireNamespace(i, quietly = TRUE)) install.packages(i) })); install_pkgs(read.table(&quot;link/to/RIPL/toolkit/R/packages&quot;)[[&quot;V1&quot;]])&#39;</code></pre>
+sudo R -e &#39;install.packages(read.table(&quot;https://gist.githubusercontent.com/dmolitor/f88b3edd1fd02716ff08888a815db35a/raw/8298cc7d28aa0c03a7e0330e338fa7c85d0ee782/r-packages.txt&quot;)[[&quot;V1&quot;]], Ncpus = parallel::detectCores())&#39;</code></pre>
 <p>Once R and the packages have been installed, the next step is to install Shiny
 Server and all its dependencies.</p>
 <pre><code># Install Shiny Server and dependencies
@@ -144,6 +149,46 @@ This assumes that you have a file named
 <pre><code>sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/</code></pre>
 <p>Now, when you access <code>http://vm.public.ip</code>, you should see a pretty landing
 page.</p>
+</div>
+<div id="bonus-stuff-configuring-basic-authentication" class="section level2">
+<h2>Bonus Stuff (Configuring Basic Authentication)</h2>
+<p>Obviously, setting up some form of basic authentication will depend on your
+desired level of privacy. Also this will probably keep the average person from
+accessing your apps but definitely is a fairly light level of security.
+Anywho, let’s proceed…</p>
+<pre><code># Install necessary dependency
+sudo apt-get install apache2-utils
+
+# Shut down Shiny Server and nginx
+sudo service nginx stop
+sudo service shiny-server stop
+
+# Edit nginx default config
+sudo vi /etc/nginx/sites-available/default</code></pre>
+<p>Once you are in the file, you will tweak the existing server function as
+follows:</p>
+<pre><code>server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        ### Authentication ###     &lt;------ YOU MUST COPY/PASTE IN THIS WHOLE AUTH CHUNK
+        auth_basic &quot;Username and Password are required&quot;;
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        ######################</code></pre>
+<p>Then, within the <code>location /shiny/ {</code> chunk, enter the following:</p>
+<pre><code>auth_basic on;</code></pre>
+<p>Now, save and exit the file. Next you need to create a <code>username</code> user and
+corresponding password <code>user-password</code> at the hint like:</p>
+<pre><code>cd /etc/nginx
+sudo htpasswd -c /etc/nginx/.htpasswd username
+
+# Restart the services!
+cd ~
+sudo service nginx start
+sudo service shiny-server start</code></pre>
+<p>You have now established basic authentication and when you access any page on
+your server you should see something like the following:
+<img src="basic-auth.png" /></p>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
