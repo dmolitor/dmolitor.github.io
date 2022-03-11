@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux | Daniel Molitor</title><link>https://dmolitor.com/category/linux/</link><atom:link href="https://dmolitor.com/category/linux/index.xml" rel="self" type="application/rss+xml"/><description>Linux</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Linux</title><link>https://dmolitor.com/category/linux/</link></image><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux | Daniel Molitor</title><link>https://dmolitor.com/category/linux/</link><atom:link href="https://dmolitor.com/category/linux/index.xml" rel="self" type="application/rss+xml"/><description>Linux</description><generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 11 Mar 2022 00:00:00 +0000</lastBuildDate><image><url>https://dmolitor.com/media/icon_hucde9d3bf436934aea32678e4ee07e929_14509_512x512_fill_lanczos_center_3.png</url><title>Linux</title><link>https://dmolitor.com/category/linux/</link></image><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 11 Mar 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
 &lt;script src="https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>Because of the number of computing platforms and the varied processes involved
 in setting up a virtual machine (VM) on each of them, this tutorial will begin
 under the assumption that you have already established and connected to a
 suitable VM. For my own personal uses I am using a Digital Ocean VM with
-Ubuntu 20.04 as the OS.&lt;/p>
+Ubuntu 20.04 Focal Fossa as the OS.&lt;/p>
 &lt;p>Additionally, this document is effectively just a personal wiki and some steps
 are pretty specific to my own setup so mileage may vary.&lt;/p>
 &lt;div id="install-rshiny-server-and-all-dependencies" class="section level2">
@@ -17,7 +17,9 @@ This installation will take &amp;gt;= 2 hrs on most VMs.
 &lt;/div>
 &lt;/div>
 &lt;/p>
-&lt;pre>&lt;code># Install the dependencies necessary to add a new repository over HTTPS:
+&lt;pre>&lt;code># Update indices
+sudo apt update -y -qq
+# Install the dependencies necessary to add a new repository over HTTPS:
 sudo apt-get -y install \
 dirmngr \
 gnupg \
@@ -25,10 +27,12 @@ apt-transport-https \
 ca-certificates \
 software-properties-common
 # Add the CRAN repository to your system sources list:
-sudo apt-key adv \
---keyserver keyserver.ubuntu.com \
---recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-sudo add-apt-repository &amp;#39;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&amp;#39;
+# - Add the signing key (by Michael Rutter) for these repos
+# To verify key, run gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+# Fingerprint: 298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+# - Add the R 4.0 repo from CRAN
+sudo add-apt-repository &amp;quot;deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/&amp;quot;
 # Install base R and dependencies for full set of R packages
 sudo apt-get -y install \
 r-base \
@@ -51,7 +55,7 @@ libharfbuzz-dev \
 libfribidi-dev \
 cmake
 # Install R packages
-sudo R -e &amp;#39;install_pkgs &amp;lt;- function(pkgs) invisible(lapply(pkgs, function(i) { if (!requireNamespace(i, quietly = TRUE)) install.packages(i) })); install_pkgs(read.table(&amp;quot;link/to/RIPL/toolkit/R/packages&amp;quot;)[[&amp;quot;V1&amp;quot;]])&amp;#39;&lt;/code>&lt;/pre>
+sudo R -e &amp;#39;install.packages(read.table(&amp;quot;https://gist.githubusercontent.com/dmolitor/f88b3edd1fd02716ff08888a815db35a/raw/8298cc7d28aa0c03a7e0330e338fa7c85d0ee782/r-packages.txt&amp;quot;)[[&amp;quot;V1&amp;quot;]], Ncpus = parallel::detectCores())&amp;#39;&lt;/code>&lt;/pre>
 &lt;p>Once R and the packages have been installed, the next step is to install Shiny
 Server and all its dependencies.&lt;/p>
 &lt;pre>&lt;code># Install Shiny Server and dependencies
@@ -128,6 +132,42 @@ This assumes that you have a file named
 &lt;pre>&lt;code>sudo cp -rf /srv/shiny-server/index.nginx-debian.html /var/www/html/&lt;/code>&lt;/pre>
 &lt;p>Now, when you access &lt;code>http://vm.public.ip&lt;/code>, you should see a pretty landing
 page.&lt;/p>
+&lt;/div>
+&lt;div id="bonus-stuff-configuring-basic-authentication" class="section level2">
+&lt;h2>Bonus Stuff (Configuring Basic Authentication)&lt;/h2>
+&lt;p>Obviously, setting up some form of basic authentication will depend on your
+desired level of privacy. Also this will probably keep the average person from
+accessing your apps but definitely is a fairly light level of security.
+Anywho, let’s proceed…&lt;/p>
+&lt;pre>&lt;code># Install necessary dependency
+sudo apt-get install apache2-utils
+# Shut down Shiny Server and nginx
+sudo service nginx stop
+sudo service shiny-server stop
+# Edit nginx default config
+sudo vi /etc/nginx/sites-available/default&lt;/code>&lt;/pre>
+&lt;p>Once you are in the file, you will tweak the existing server function as
+follows:&lt;/p>
+&lt;pre>&lt;code>server {
+listen 80 default_server;
+listen [::]:80 default_server;
+### Authentication ### &amp;lt;------ YOU MUST COPY/PASTE IN THIS WHOLE AUTH CHUNK
+auth_basic &amp;quot;Username and Password are required&amp;quot;;
+auth_basic_user_file /etc/nginx/.htpasswd;
+######################&lt;/code>&lt;/pre>
+&lt;p>Then, within the &lt;code>location /shiny/ {&lt;/code> chunk, enter the following:&lt;/p>
+&lt;pre>&lt;code>auth_basic on;&lt;/code>&lt;/pre>
+&lt;p>Now, save and exit the file. Next you need to create a &lt;code>username&lt;/code> user and
+corresponding password &lt;code>user-password&lt;/code> at the hint like:&lt;/p>
+&lt;pre>&lt;code>cd /etc/nginx
+sudo htpasswd -c /etc/nginx/.htpasswd username
+# Restart the services!
+cd ~
+sudo service nginx start
+sudo service shiny-server start&lt;/code>&lt;/pre>
+&lt;p>You have now established basic authentication and when you access any page on
+your server you should see something like the following:
+&lt;img src="basic-auth.png" />&lt;/p>
 &lt;/div>
 &lt;div id="conclusion" class="section level2">
 &lt;h2>Conclusion&lt;/h2>
