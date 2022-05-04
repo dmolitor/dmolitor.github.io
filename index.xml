@@ -75,7 +75,80 @@ Click on the &lt;strong>Slides&lt;/strong> button above to view the built-in sli
 &lt;li>&lt;strong>Upload&lt;/strong> an existing slide deck to &lt;code>static/&lt;/code> and link using &lt;code>url_slides&lt;/code> parameter in the front matter of the talk file&lt;/li>
 &lt;li>&lt;strong>Embed&lt;/strong> your slides (e.g. Google Slides) or presentation video on this page using &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">shortcodes&lt;/a>.&lt;/li>
 &lt;/ul>
-&lt;p>Further event details, including &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">page elements&lt;/a> such as image galleries, can be added to the body of this page.&lt;/p></description></item><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 11 Mar 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
+&lt;p>Further event details, including &lt;a href="https://wowchemy.com/docs/writing-markdown-latex/" target="_blank" rel="noopener">page elements&lt;/a> such as image galleries, can be added to the body of this page.&lt;/p></description></item><item><title>Building Python from Source</title><link>https://dmolitor.com/post/2022-05-04-python-from-source/</link><pubDate>Wed, 04 May 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-05-04-python-from-source/</guid><description>
+&lt;script src="https://dmolitor.com/post/2022-05-04-python-from-source/index_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;p>This document will walk through building Python from source and (for my own
+personal utility) setting up a comprehensive global Python environment. It draws
+largely &lt;a href="https://tttapa.github.io/Pages/Ubuntu/Software-Installation/Python.html">from this document&lt;/a>. &lt;strong>Note&lt;/strong>: my current OS is Ubuntu, 22.04, LTS Jammy Jellyfish.&lt;/p>
+&lt;div id="build-python" class="section level2">
+&lt;h2>Build Python&lt;/h2>
+&lt;div id="install-dependencies" class="section level3">
+&lt;h3>Install Dependencies&lt;/h3>
+&lt;pre>&lt;code>sudo apt -y update
+sudo apt -y install gcc \
+g++ \
+make \
+wget \
+zlib1g-dev \
+libbz2-dev \
+libssl-dev \
+uuid-dev \
+libffi-dev \
+libreadline-dev \
+libsqlite3-dev \
+tk-dev \
+libbz2-dev \
+libncurses5-dev \
+libreadline6-dev \
+libgdbm-dev \
+liblzma-dev \
+libgdbm-compat-dev&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="download-and-extract-source" class="section level3">
+&lt;h3>Download and Extract Source&lt;/h3>
+&lt;p>The current latest version of python is &lt;code>3.10.4&lt;/code>.&lt;/p>
+&lt;pre class="shell">&lt;code>cd /tmp
+sudo wget &amp;quot;https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz&amp;quot;
+sudo tar xf Python-3.10.4.tgz&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="configure-build-settings" class="section level3">
+&lt;h3>Configure Build Settings&lt;/h3>
+&lt;p>The installation location is &lt;code>~/.local&lt;/code>.&lt;/p>
+&lt;pre>&lt;code>cd Python-3.10.4
+./configure --prefix=&amp;quot;$HOME/.local&amp;quot; \
+--enable-ipv6 \
+--enable-shared \
+--with-lto --enable-optimizations \
+&amp;#39;LDFLAGS=-Wl,-rpath,\$$ORIGIN/../lib&amp;#39;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="build-python-1" class="section level3">
+&lt;h3>Build Python&lt;/h3>
+&lt;p>This will build in parallel with as many cores as the system has available.&lt;/p>
+&lt;pre>&lt;code>make -j$(nproc)&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="install-python" class="section level3">
+&lt;h3>Install Python&lt;/h3>
+&lt;pre>&lt;code>make install&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;div id="create-environment" class="section level2">
+&lt;h2>Create Environment&lt;/h2>
+&lt;div id="create-global-python-virtual-env" class="section level3">
+&lt;h3>Create Global Python Virtual Env&lt;/h3>
+&lt;p>I will create a default Python virtual environment at &lt;code>~/.venv/default&lt;/code>.&lt;/p>
+&lt;pre>&lt;code>mkdir ~/.venv
+cd ~/.venv
+~/.local/bin/python3 -m venv default
+source default/bin/activate&lt;/code>&lt;/pre>
+&lt;p>Assuming you have a url to a text file containing all Python modules you want to
+install (which I do), download that package list as follows:&lt;/p>
+&lt;pre>&lt;code>python -c &amp;quot;import urllib.request; import os; packages = urllib.request.urlopen(&amp;#39;url-to-package-list.txt&amp;#39;).read().decode(&amp;#39;utf-8&amp;#39;); filename = os.path.expanduser(&amp;#39;~&amp;#39;) + &amp;#39;/packages.txt&amp;#39;; file_ = open(filename, &amp;#39;w&amp;#39;); file_.write(packages); file_.close()&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>Now, pip install all the specified modules.&lt;/p>
+&lt;pre>&lt;code>pip install -r ../packages.txt --upgrade --force-reinstall --no-cache-dir
+deactivate&lt;/code>&lt;/pre>
+&lt;p>And voila, there you have it!&lt;/p>
+&lt;/div>
+&lt;/div></description></item><item><title>Shiny Server Setup</title><link>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</link><pubDate>Fri, 11 Mar 2022 00:00:00 +0000</pubDate><guid>https://dmolitor.com/post/2022-02-03-shiny-server-setup/</guid><description>
 &lt;script src="https://dmolitor.com/post/2022-02-03-shiny-server-setup/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>Because of the number of computing platforms and the varied processes involved
 in setting up a virtual machine (VM) on each of them, this tutorial will begin
@@ -319,7 +392,7 @@ data.head()
 &lt;p>Academic supports the popular &lt;a href="https://plot.ly/" target="_blank" rel="noopener">Plotly&lt;/a> chart format.&lt;/p>
 &lt;p>Save your Plotly JSON in your page folder, for example &lt;code>chart.json&lt;/code>, and then add the &lt;code>{{&amp;lt; chart data=&amp;quot;chart&amp;quot; &amp;gt;}}&lt;/code> shortcode where you would like the chart to appear.&lt;/p>
 &lt;p>Demo:&lt;/p>
-&lt;div id="chart-467589213" class="chart">&lt;/div>
+&lt;div id="chart-816742935" class="chart">&lt;/div>
 &lt;script>
 (function() {
 let a = setInterval( function() {
@@ -328,7 +401,7 @@ return;
 }
 clearInterval( a );
 Plotly.d3.json("./line-chart.json", function(chart) {
-Plotly.plot('chart-467589213', chart.data, chart.layout, {responsive: true});
+Plotly.plot('chart-816742935', chart.data, chart.layout, {responsive: true});
 });
 }, 500 );
 })();
