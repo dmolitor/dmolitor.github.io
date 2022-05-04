@@ -1,0 +1,106 @@
+---
+title: "Building Python from Source"
+summary: "This document will walk through building Python from source and (for my own
+personal utility) setting up a comprehensive global Python environment."
+author: Daniel Molitor
+date: "`r Sys.Date()`"
+output: md_document
+categories: ["Python", "Linux"]
+image:
+  caption: ""
+  focal_point: ""
+  placement: 2
+  preview_only: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE,
+                      echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+set.seed(123) # for replicating the results
+```
+
+This document will walk through building Python from source and (for my own
+personal utility) setting up a comprehensive global Python environment. It draws
+largely [from this document](https://tttapa.github.io/Pages/Ubuntu/Software-Installation/Python.html). **Note**: my current OS is Ubuntu, 22.04, LTS Jammy Jellyfish.
+
+## Build Python
+
+### Install Dependencies
+```
+sudo apt -y update
+sudo apt -y install gcc \
+    g++ \
+    make \
+    wget \
+    zlib1g-dev \
+    libbz2-dev \
+    libssl-dev \
+    uuid-dev \
+    libffi-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    tk-dev \
+    libbz2-dev \
+    libncurses5-dev \
+    libreadline6-dev \
+    libgdbm-dev \
+    liblzma-dev \
+    libgdbm-compat-dev
+```
+
+### Download and Extract Source
+The current latest version of python is `3.10.4`.
+```shell
+cd /tmp
+sudo wget "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz"
+sudo tar xf Python-3.10.4.tgz
+```
+
+### Configure Build Settings
+The installation location is `~/.local`.
+```
+cd Python-3.10.4
+./configure --prefix="$HOME/.local" \
+    --enable-ipv6 \
+    --enable-shared \
+    --with-lto --enable-optimizations \
+    'LDFLAGS=-Wl,-rpath,\$$ORIGIN/../lib'
+```
+
+### Build Python
+This will build in parallel with as many cores as the system has available.
+```
+make -j$(nproc)
+```
+
+### Install Python
+```
+make install
+```
+
+## Create Environment
+
+### Create Global Python Virtual Env
+I will create a default Python virtual environment at `~/.venv/default`.
+```
+mkdir ~/.venv
+cd ~/.venv
+~/.local/bin/python3 -m venv default
+source default/bin/activate
+```
+
+Assuming you have a url to a text file containing all Python modules you want to
+install (which I do), download that package list as follows:
+```
+python -c "import urllib.request; import os; packages = urllib.request.urlopen('url-to-package-list.txt').read().decode('utf-8'); filename = os.path.expanduser('~') + '/packages.txt'; file_ = open(filename, 'w'); file_.write(packages); file_.close()"
+```
+
+Now, pip install all the specified modules.
+```
+pip install -r ../packages.txt --upgrade --force-reinstall --no-cache-dir
+deactivate
+```
+
+And voila, there you have it!
