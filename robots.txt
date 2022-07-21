@@ -1,3 +1,1 @@
-User-agent: *
-
-Sitemap: https://dmolitor.com/sitemap.xml
+Sitemap: www.dmolitor.com/sitemap.xml

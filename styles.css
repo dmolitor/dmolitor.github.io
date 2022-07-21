@@ -1,0 +1,22 @@
+/* css styles */
+.about-image {
+  float: left;
+  height: 40%;
+  margin: 10px;
+  padding-right: 50px;
+  text-align: left;
+  width: 40%;
+}
+
+.about-text {
+  text-align: justify;
+  text-indent: 40px;
+  padding-top: 10%;
+}
+
+.profile-image {
+  height: 20%;
+  padding-top: 2%;
+  vertical-align: middle;
+  width: 20%;
+}
