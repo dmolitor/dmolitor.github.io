@@ -6,7 +6,7 @@ website:
   search: false
   site-url: https://dmolitor.com
   repo-url: https://github.com/dmolitor/dmolitor.github.io
-  favicon: "_favicon.png"
+  favicon: "media/_favicon.png"
   navbar:
     right: 
       - href: about.qmd
