@@ -40,3 +40,6 @@ docs
 .Renviron
 .Rproj.user
 
+# Quarto files
+.quarto/
+_site/

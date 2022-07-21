@@ -1,0 +1,13 @@
+/* css styles */
+.about-image {
+  float: left;
+  height: 35%;
+  margin: 10px;
+  width: 35%;
+}
+
+.profile-image {
+  height: 20%;
+  padding-top: 2%;
+  width: 20%;
+}

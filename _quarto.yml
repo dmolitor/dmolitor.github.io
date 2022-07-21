@@ -1,0 +1,32 @@
+project:
+  type: website
+
+website:
+  title: "Daniel Molitor"
+  search: false
+  site-url: https://dmolitor.com
+  repo-url: https://github.com/dmolitor/dmolitor.github.io
+  favicon: "_favicon.png"
+  navbar:
+    right: 
+      - href: about.qmd
+        text: About
+    search: false
+    pinned: true
+    collapse-below: md
+  page-footer:
+    center:
+      - href: https://quarto.org/
+        text: "Built with Quarto"
+
+format:
+  html:
+    theme: 
+      light: minty
+      dark: morph
+    css: styles.css
+    toc: true
+    page-layout: full
+
+
+
