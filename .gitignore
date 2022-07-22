@@ -44,3 +44,5 @@ docs
 .quarto/
 _site/
 
+
+/.quarto/
