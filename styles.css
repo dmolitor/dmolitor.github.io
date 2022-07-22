@@ -1,22 +1,23 @@
 /* css styles */
 .about-image {
   float: left;
-  height: 40vh;
+  height: auto;
   margin: 10px;
+  width: 40%;
+  min-width: 250px;
   padding-right: 50px;
   text-align: left;
-  width: 40vw;
 }
 
 .about-text {
-  text-align: justify;
-  text-indent: 40px;
+  text-align: left;
   padding-top: 10%;
 }
 
 .profile-image {
-  height: 20vh;
-  padding-top: 2%;
+  height: auto;
+  padding-top: 1%;
   vertical-align: middle;
-  width: 20vw;
+  width: 25%;
+  min-width: 200px;
 }
