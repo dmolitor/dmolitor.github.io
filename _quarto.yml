@@ -2,21 +2,18 @@ project:
   type: website
 
 website:
-  title: "Daniel Molitor"
   search: false
   site-url: https://dmolitor.com
   repo-url: https://github.com/dmolitor/dmolitor.github.io
   google-analytics: "UA-154890377-1"
   favicon: "media/_favicon.png"
-  navbar:
-    right:
-      - href: about.qmd
-        text: About
-      - href: "media/_cv.pdf"
-        text: CV
-    search: false
-    pinned: true
-    collapse-below: md
+  # navbar:
+  #   right:
+  #     - href: about.qmd
+  #       text: About
+  #   search: false
+  #   pinned: true
+  #   collapse-below: md
   page-footer:
     center:
       - href: https://quarto.org/
