@@ -10,13 +10,26 @@
 }
 
 .about-text {
+  font-size: 20px;
   text-align: left;
-  padding-top: 10%;
+  padding-left: 15%;
+  padding-right: 15%;
+}
+
+.button {
+  border: 2px solid;
+  border-radius: 4px;
+  margin-left: 10px;
+  padding: 12px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }
 
 .profile-image {
   height: auto;
   vertical-align: middle;
-  width: 30%;
+  width: 25%;
   min-width: 250px;
 }

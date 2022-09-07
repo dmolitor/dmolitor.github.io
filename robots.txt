@@ -1,1 +1,1 @@
-Sitemap: www.dmolitor.com/sitemap.xml
+Sitemap: https://dmolitor.com/sitemap.xml
