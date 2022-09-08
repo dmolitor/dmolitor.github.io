@@ -17,7 +17,7 @@
 <a href="https://twitter.com/danieljmolitor"><i class="bi-twitter"></i></a>
 &nbsp;&nbsp;
 <a href="https://www.linkedin.com/in/molitor-daniel/"><i class="bi-linkedin"></i></a> -->
-<p><hr style="width:70%; margin-left:15%; margin-right:15%;"></p>
+<p><hr style="width:80%; margin-left:10%; margin-right:10%;"></p>
 <p style="text-align:center;padding-left:15%;padding-right:15%;">
 <a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a>
 <a href="https://twitter.com/danieljmolitor" class="button"><i class="bi-twitter icon-lg"></i></a>
