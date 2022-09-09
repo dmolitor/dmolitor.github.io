@@ -10,13 +10,6 @@
 <br/>
 <span style="font-size:20px">PhD Student<a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span>
 <br/>
-<!-- <a href="https://github.com/dmolitor"><i class="bi-github"></i></a>
-&nbsp;&nbsp;
-<a href="mailto:molitdj97@gmail.com"><i class="bi-envelope-fill"></i></a>
-&nbsp;&nbsp;
-<a href="https://twitter.com/danieljmolitor"><i class="bi-twitter"></i></a>
-&nbsp;&nbsp;
-<a href="https://www.linkedin.com/in/molitor-daniel/"><i class="bi-linkedin"></i></a> -->
 <p><hr style="width:80%; margin-left:10%; margin-right:10%;"></p>
 <p style="text-align:center;padding-left:15%;padding-right:15%;">
 <a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a>
