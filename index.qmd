@@ -8,7 +8,7 @@
 <p style="text-align:center;">
 <b style="font-size:40px">Daniel Molitor</b>
 <br/>
-<span style="font-size:20px">PhD Student<a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span>
+<span style="font-size:20px">PhD Student <a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span>
 <br/>
 <p><hr style="width:80%; margin-left:10%; margin-right:10%;"></p>
 <p style="text-align:center;padding-left:15%;padding-right:15%;">
