@@ -17,6 +17,4 @@
 <a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a>
 </p>
 </br>
-<p class="about-text">I'm a first-year PhD student at Cornell's School of Information Science. My interests are centered broadly in Machine Learning, Data Science, and Causal Inference. I'm a big fan of working with and developing open source software.</p>
-<p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-</p>
+<p class="about-text">I enjoy exploring how causal relationships shape our world. I am particularly interested in how we can apply computational and Machine Learning methods to uncovering and estimating these causal relationships. I'm a first-year PhD student at Cornell's School of Information Science. My interests are centered broadly in Machine Learning, Data Science, and Causal Inference. I'm a big fan of working with and developing open source software.</p>
