@@ -17,6 +17,6 @@
 <a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a>
 </p>
 </br>
-<p class="about-text">I'm a first-year PhD student at Cornell's School of Information Science. My interests are centered broadly in Machine Learning, Data Science, and Causal Inference. I'm a big fan of working with and developing open source software.</p>
-<p class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-</p>
+<p class="about-text">Hello there! I'm a first-year PhD student at Cornell's School of Information Science. I'm fascinated by causal relationships and enjoy exploring how they shape our world. My interests are broadly centered in the area of Computational Social Science, and are specifically focused on how we can apply computational and Machine Learning methods to uncover and estimate causal relationships.</p>
+<p class="about-text">I'm equally excited about developing tools that address common problems that surface in computational software—software that is open-source (freely available), transparent in its algorithmic choices, has an intuitive user interface, is scalable, and is easily extensible!</p>
+<p class="about-text">In my free time, I'm a committed enthusiast of experiencing emotional pain (aka Minnesorta sports teams), getting outdoors, and appreciating good food and music.</p>
