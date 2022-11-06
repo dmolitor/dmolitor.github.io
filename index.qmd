@@ -19,4 +19,4 @@
 </br>
 <p class="about-text">Hello there! I'm a first-year PhD student at Cornell's School of Information Science. I'm fascinated by causal relationships and enjoy exploring how they shape our world. My interests are broadly centered in the area of Computational Social Science, and are specifically focused on how we can apply computational and Machine Learning methods to uncover and estimate causal relationships.</p>
 <p class="about-text">I'm equally excited about developing tools that address common problems that surface in computational software—software that is open-source (freely available), transparent in its algorithmic choices, has an intuitive user interface, is scalable, and is easily extensible!</p>
-<p class="about-text">In my free time, I'm a committed enthusiast of experiencing emotional pain (aka Minnesorta sports teams), getting outdoors, and appreciating good food and music.</p>
+<p class="about-text">In my free time, I'm a committed enthusiast of experiencing emotional pain (aka Minnesota sports teams), getting outdoors, and appreciating good food and music.</p>
