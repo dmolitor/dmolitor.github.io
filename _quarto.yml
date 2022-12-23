@@ -22,6 +22,7 @@ website:
 
 format:
   html:
+    mainfont: verdana
     theme: 
       light: minty
     css: styles.css
