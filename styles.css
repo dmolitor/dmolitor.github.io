@@ -25,17 +25,25 @@
   }
 }
 
+@media (max-width: 480px) {
+  .icon-box {
+    text-align: center;
+  }
+}
+
+@media (min-width: 481px) {
+  .icon-box {
+    padding-top:20%;
+    padding-bottom:10%;
+    text-align: center;
+  }
+}
+
 .icon-img {
   border-radius: 2%;
   width: 80%;
   height: auto;
   min-width: 250px;
-}
-
-.icon-box {
-  padding-top:20%;
-  padding-bottom:10%;
-  text-align: center;
 }
 
 .icon-lg {
