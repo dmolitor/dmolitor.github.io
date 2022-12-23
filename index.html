@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.251">
+<meta name="generator" content="quarto-1.2.280">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -74,7 +74,7 @@ ga('send', {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
@@ -84,18 +84,24 @@ ga('send', {
 
 <!-- Allow for insertion of Bootstrap icons -->
 <p><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.0/font/bootstrap-icons.css"></p>
+<div class="grid">
+<div class="g-col-12 g-col-md-6">
+<div class="icon-box">
+<img class="icon-img" src="media/_profile2.jpg" alt="profile pic">
 <p style="text-align:center;">
-<img src="media/_profile.png" alt="Profile Pic" class="profile-image">
+<strong style="font-size:36px;">Daniel Molitor</strong><br> <span style="font-size:20px">PhD Student <a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span><br> <a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a> <a href="https://dmolitor.com/blog" class="button"><i class="bi-book-fill icon-lg"></i></a> <a href="https://twitter.com/danieljmolitor" class="button"><i class="bi-twitter icon-lg"></i></a> <a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a>
 </p>
-<p style="text-align:center;">
-<b style="font-size:40px">Daniel Molitor</b> <br> <span style="font-size:20px">PhD Student <a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span> <br>
-</p><p>
-</p><hr style="width:80%; margin-left:10%; margin-right:10%;">
-<p></p>
-<p style="text-align:center;padding-left:15%;padding-right:15%;">
-<a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a> <a href="https://dmolitor.com/blog" class="button"><i class="bi-book-fill icon-lg"></i></a> <a href="https://twitter.com/danieljmolitor" class="button"><i class="bi-twitter icon-lg"></i></a> <a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a>
-</p>
-<br>
+</div>
+</div>
+<!-- ::: {.g-col-0 .g-col-md-1} -->
+<!-- ::: -->
+<div class="g-col-0 g-col-md-1">
+<div style="border-left:1px solid #212122;height:100%">
+
+</div>
+</div>
+<div class="g-col-12 g-col-md-5">
+<div class="icon-box">
 <p class="about-text">
 Hello there! I’m a first-year PhD student at Cornell’s School of Information Science. I’m fascinated by causal relationships and enjoy exploring how they shape our world. My interests are broadly centered in the area of Computational Social Science, and are specifically focused on how we can apply computational and Machine Learning methods to uncover and estimate causal relationships.
 </p>
@@ -105,6 +111,9 @@ I’m equally excited about developing tools that address common problems that s
 <p class="about-text">
 In my free time, I’m a committed enthusiast of experiencing emotional pain (aka Minnesota sports teams), getting outdoors, and appreciating good food and music.
 </p>
+</div>
+</div>
+</div>
 
 
 
@@ -150,7 +159,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -186,24 +212,42 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>
