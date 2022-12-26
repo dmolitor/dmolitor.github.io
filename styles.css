@@ -9,7 +9,27 @@
   text-align: left;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+  .name-text {
+    font-size: 24px;
+  }
+  
+  .what-i-do {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 641px) {
+  .name-text {
+    font-size: 36px;
+  }
+  
+  .what-i-do {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 640px) {
   .about-text {
     font-size: 16px;
     text-align: justify;
@@ -17,7 +37,7 @@
   }
 }
 
-@media (min-width: 481px) {
+@media (min-width: 641px) {
   .about-text {
     font-size: 16px;
     text-align: justify;
@@ -25,16 +45,16 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .icon-box {
     text-align: center;
   }
 }
 
-@media (min-width: 481px) {
+@media (min-width: 641px) {
   .icon-box {
-    padding-top:20%;
-    padding-bottom:10%;
+    /*padding-top:20%;
+    padding-bottom:10%;*/
     text-align: center;
   }
 }
