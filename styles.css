@@ -1,4 +1,8 @@
 /* css styles */
+html * {
+  font-family: Trebuchet MS;
+}
+
 .about-image {
   float: left;
   height: auto;
@@ -53,8 +57,10 @@
 
 @media (min-width: 641px) {
   .icon-box {
-    padding-top:20%;
-    padding-bottom:10%;
+    padding-top:5%;
+    padding-bottom:5%;
+    margin-left:15%;
+    margin-right:15%;
     text-align: center;
   }
 }

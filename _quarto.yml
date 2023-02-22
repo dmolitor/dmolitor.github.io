@@ -8,13 +8,15 @@ website:
   repo-url: https://github.com/dmolitor/dmolitor.github.io
   google-analytics: "UA-154890377-1"
   favicon: "media/_favicon.png"
-  # navbar:
-  #   right:
-  #     - href: about.qmd
-  #       text: About
-  #   search: false
-  #   pinned: true
-  #   collapse-below: md
+  navbar:
+    # right:
+    #   - href: about.qmd
+    #     text: "About"
+    search: false
+    pinned: true
+    collapse-below: md
+    background: "#FFFFFF"
+    foreground: "primary"
   page-footer:
     center:
       - href: https://quarto.org/
@@ -22,12 +24,8 @@ website:
 
 format:
   html:
-    mainfont: verdana
     theme: 
       light: minty
     css: styles.css
     toc: true
     page-layout: full
-
-
-
