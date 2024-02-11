@@ -36,7 +36,7 @@ html * {
 @media (max-width: 640px) {
   .about-text {
     font-size: 18px;
-    text-align: left;
+    text-align: justify;
     text-justify: inter-word;
   }
 }
