@@ -6,15 +6,14 @@
 <p style="text-align:center;">
 <strong class="name-text">Daniel Molitor</strong><br>
 <span class="what-i-do">PhD Student <a href="https://infosci.cornell.edu/phd">@ Cornell Information Science</a></span><br>
-<!-- <a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a> -->
+<a href="https://github.com/dmolitor" class="button"><i class="bi-github icon-lg"></i></a>
 <!-- <a href="https://dmolitor.com/blog" class="button"><i class="bi-book-fill icon-lg"></i></a> -->
 <!-- <a href="https://twitter.com/danieljmolitor" class="button"><i class="bi-twitter icon-lg"></i></a> -->
-<!-- <a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a> -->
+<a href="mailto:molitdj97@gmail.com" class="button"><i class="bi-envelope-fill icon-lg"></i></a>
 <hr>
 </p>
 
-<p class="about-text">
-Hello there! I'm a first-year PhD student at Cornell's School of Information Science. I'm fascinated by causal relationships and enjoy exploring how they shape our world. My interests are broadly centered in the area of Computational Social Science, and are specifically focused on how we can apply computational and Machine Learning methods to uncover and estimate causal relationships.
+<!-- I'm fascinated by causal relationships and enjoy exploring how they shape our world. My interests are broadly centered in the area of Computational Social Science, and are specifically focused on how we can apply computational and Machine Learning methods to uncover and estimate causal relationships. -->
 </p>
 <!-- <p class="about-text"> -->
 <!-- I'm equally excited about developing tools that address common problems that surface in computational software—software that is open-source (freely available), transparent in its algorithmic choices, has an intuitive user interface, is scalable, and is easily extensible! -->
@@ -22,4 +21,15 @@ Hello there! I'm a first-year PhD student at Cornell's School of Information Sci
 <!-- <p class="about-text"> -->
 <!-- In my free time, I'm a committed enthusiast of experiencing emotional pain (aka Minnesota sports teams), getting outdoors, and appreciating good food and music. -->
 <!-- </p> -->
+</div>
+
+<div class="about-text">
+<p>
+Hello there! I'm a second-year PhD student at Cornell's School of Information Science. My research
+interests are centered in the Computational Social Sciences and I have a particular interest
+in causal inference and how computational methods can help us do better causal inference. On the
+side, I love open source software and enjoy building tools and learning new technologies whenever I can.
+I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/>supported by an NSF Graduate Research Fellowship</a>!
+
+<p>You can access my <a href="https://drive.google.com/file/d/1rFz-q_Sw29GhW20zp67P_rlnt6XXDG6N/view?usp=sharing">CV here</a>.</p>
 </div>
