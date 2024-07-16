@@ -9,8 +9,6 @@ description: |
 hide-description: true
 ---
 
-<!-- Allow for insertion of Bootstrap icons -->
-
 <div class="icon-box">
 <img class="icon-img" src="media/_profile2.jpg" alt="profile pic" style="width:70%;">
 </div>
