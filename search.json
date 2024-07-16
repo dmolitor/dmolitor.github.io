@@ -5,5 +5,33 @@
     "title": "Daniel Molitor",
     "section": "",
     "text": "Hello there! I’m a second-year PhD student at Cornell’s School of Information Science. My research interests center primarily on policy-relevant applications of adaptive/online experimentation and causal inference methods. I love open source software and enjoy building tools and learning new technologies whenever I can. I’m very thankful to have my work supported by an NSF Graduate Research Fellowship!"
+  },
+  {
+    "objectID": "src/research/index.html",
+    "href": "src/research/index.html",
+    "title": "Daniel Molitor",
+    "section": "",
+    "text": "The Causal Effect of Parent Occupation on Child Occupation: A Multivalued Treatment with Positivity Constraints. Ian Lundberg, Jennie Brand, Daniel Molitor. Conditionally accepted, Sociological Methods and Research.\nEstimating Value-added Returns to Labor Training Programs with Causal Machine Learning. Mintaka Angell, et al. OSF Pre-prints."
+  },
+  {
+    "objectID": "src/research/index.html#pre-prints",
+    "href": "src/research/index.html#pre-prints",
+    "title": "Daniel Molitor",
+    "section": "",
+    "text": "The Causal Effect of Parent Occupation on Child Occupation: A Multivalued Treatment with Positivity Constraints. Ian Lundberg, Jennie Brand, Daniel Molitor. Conditionally accepted, Sociological Methods and Research.\nEstimating Value-added Returns to Labor Training Programs with Causal Machine Learning. Mintaka Angell, et al. OSF Pre-prints."
+  },
+  {
+    "objectID": "src/research/index.html#publications",
+    "href": "src/research/index.html#publications",
+    "title": "Daniel Molitor",
+    "section": "Publications",
+    "text": "Publications\nDelivering Unemployment Assistance in Times of Crisis: Scalable Cloud Solutions Can Keep Essential Government Programs Running and Supporting Those in Need. Mintaka Angell, et al. (2020). Digital Government: Research and Practice."
+  },
+  {
+    "objectID": "src/research/index.html#works-in-progress",
+    "href": "src/research/index.html#works-in-progress",
+    "title": "Daniel Molitor",
+    "section": "Works in Progress",
+    "text": "Works in Progress\nData-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination. Jennah Gosciak, Daniel Molitor, Ian Lundberg."
   }
 ]
