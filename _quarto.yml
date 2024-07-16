@@ -9,15 +9,32 @@ website:
   google-analytics: "UA-154890377-1"
   favicon: "media/_favicon.png"
   navbar:
-    # right:
-    #   - href: about.qmd
-    #     text: "About"
+    background: light
+    title: "**Daniel Molitor**"
     search: false
     pinned: true
     collapse-below: md
-    background: "#FFFFFF"
-    foreground: "primary"
+    foreground: primary
+    left: 
+      - text: "**Research**"
+        href: docs/research/index.qmd
+      - text: "**CV**"
+        href: media/_cv.pdf
+      - text: "**Scratchpad**"
+        href: docs/blog/index.qmd
+    tools:
+        - icon: github
+          href: https://github.com/dmolitor
+          text: Daniel's GitHub
+        - icon: twitter-x
+          href: https://x.com/danieljmolitor
+          text: Daniel's Twitter
+        - icon: envelope-fill
+          href: mailto:molitdj97@gmail.com
+          text: Daniel's Email
   page-footer:
+    border: false
+    background: light 
     center:
       - href: https://quarto.org/
         text: "Built with Quarto"

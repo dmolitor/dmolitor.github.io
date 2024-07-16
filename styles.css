@@ -33,7 +33,7 @@ html * {
   }
 }
 
-@media (max-width: 640px) {
+/* @media (max-width: 640px) {
   .about-text {
     font-size: 18px;
     text-align: justify;
@@ -44,34 +44,28 @@ html * {
 @media (min-width: 641px) {
   .about-text {
     font-size: 18px;
-    /*padding-top:5%;
-    padding-bottom:5%;*/
+    padding-top:5%;
+    padding-bottom:5%;
     margin-left:15%;
     margin-right:15%;
-    text-align: left;
+    text-align: justify;
     text-justify: inter-word;
   }
+} */
+
+.about-text {
+  font-size: 18px;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
-@media (max-width: 640px) {
-  .icon-box {
-    text-align: center;
-  }
-}
-
-@media (min-width: 641px) {
-  .icon-box {
-    /*padding-top:5%;
-    padding-bottom:5%;*/
-    margin-left:15%;
-    margin-right:15%;
-    text-align: center;
-  }
+.icon-box {
+  text-align: center;
 }
 
 .icon-img {
   border-radius: 2%;
-  width: 80%;
+  width: 100%;
   height: auto;
   min-width: 250px;
 }
