@@ -1,0 +1,19 @@
+---
+pagetitle: "Research"
+toc: false
+page-layout: article
+---
+
+## Pre-prints
+
+<a href="https://files.osf.io/v1/resources/rkw3e/providers/osfstorage/65b132bbebe5e6067ff5e720?action=download&direct&version=1" style="text-decoration: none;"><b>The Causal Effect of Parent Occupation on Child Occupation: A Multivalued Treatment with Positivity Constraints</b></a>. Ian Lundberg, Jennie Brand, Daniel Molitor. Conditionally accepted, <i>Sociological Methods and Research</i>.
+
+<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al. <i>OSF Pre-prints</i>.
+
+## Publications
+
+<a href="https://doi.org/10.1145/3428125" style="text-decoration: none;"><b>Delivering Unemployment Assistance in Times of Crisis: Scalable Cloud Solutions Can Keep Essential Government Programs Running and Supporting Those in Need</b></a>. Mintaka Angell, et al. (2020). <i>Digital Government: Research and Practice</i>.
+
+## Works in Progress
+
+<a href="https://osf.io/pa65k/" style="text-decoration: none;"><b>Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg.

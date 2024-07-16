@@ -17,11 +17,11 @@ website:
     foreground: primary
     left: 
       - text: "**Research**"
-        href: docs/research/index.qmd
+        href: src/research/index.qmd
       - text: "**CV**"
         href: media/_cv.pdf
       - text: "**Scratchpad**"
-        href: docs/blog/index.qmd
+        href: src/blog/index.qmd
     tools:
         - icon: github
           href: https://github.com/dmolitor

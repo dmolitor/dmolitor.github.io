@@ -1,0 +1,15 @@
+---
+title: "Building and Deploying Custom Surveys with Shiny"
+description: "A case study on how Shiny + Docker + AWS can help researchers build and deploy highly customized and dynamic user surveys."
+date: "7/16/2024"
+draft: true
+format:
+  html:
+    toc: true
+    toc-location: right
+    code-overflow: scroll
+    highlight: espresso
+page-layout: article
+categories: [AWS, Bandits, Shiny]
+image: "./thumbnail.jpg"
+---
