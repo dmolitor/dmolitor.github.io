@@ -9,12 +9,7 @@ table td, table th {
   border: none;
 }
 
-details summary {
-  list-style: none;
-}
-
 details summary::before {
-  content: "+";
   display: inline-block;
   width: 0.5em;
   text-align: right;
@@ -23,7 +18,6 @@ details summary::before {
 }
 
 details[open] summary::before {
-  content: "–";
   display: inline-block;
   width: 0.5em;
   text-align: right;
