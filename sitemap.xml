@@ -2,14 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://dmolitor.com/index.html</loc>
-    <lastmod>2024-07-16T23:18:58.404Z</lastmod>
+    <lastmod>2024-07-18T21:33:17.599Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
+    <lastmod>2024-07-18T21:33:17.595Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/research/index.html</loc>
-    <lastmod>2024-07-16T23:18:58.424Z</lastmod>
+    <lastmod>2024-07-18T21:33:17.623Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/index.html</loc>
-    <lastmod>2024-07-16T23:18:58.404Z</lastmod>
+    <lastmod>2024-07-18T21:33:17.595Z</lastmod>
   </url>
 </urlset>

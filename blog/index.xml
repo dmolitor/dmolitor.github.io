@@ -9,7 +9,391 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.5.54</generator>
-<lastBuildDate>Tue, 16 Jul 2024 23:19:11 GMT</lastBuildDate>
+<generator>quarto-1.5.55</generator>
+<lastBuildDate>Wed, 17 Jul 2024 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Building and Deploying Adaptive Experiments with Shiny</title>
+  <link>https://dmolitor.com/blog/posts/dynamic_surveys/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Understanding discriminatory human choices are of central interest across the social sciences. Typically when studying such questions, researchers employ standard designs such as experimental audit studies or conjoint analyses. Recent advances in the adaptive experimentation literature have explored how multi-arm bandit (MAB) algorithms can be used to answer the same questions with lower cost and greater data efficiency while also mitigating ethical concerns that may arise in some randomized experiments (e.g.&nbsp;assigning participants to harmful treatment arms)<span class="citation" data-cites="offerwestort_adaptive_2021"><sup>1</sup></span> <span class="citation" data-cites="kaibel_rethinking_2021"><sup>2</sup></span>.</p>
+<p>Although MAB methods can provide significant improvements over standard experimental methods, implementing adaptive experiments or surveys can pose a challenge. There are many survey platforms at the researcher’s disposal such as Qualtrics, Google Forms, etc. that can quickly accomodate standard survey designs, but these platforms do not easily support the design of adaptive surveys. Without such tools at their disposal, the researcher is stuck needing to design their own custom solution. This is the exact situation that my research team and I ran into a few months ago.</p>
+<p>It began with a straightforward enough question. We would like to know, for example, how American adults in the U.S. discriminate on the basis of education when choosing which immigrants to prioritize for immigrant visas?<span class="citation" data-cites="hainmueller_causal_2014"><sup>3</sup></span> Our goal was to explore how we could adopt methods from the adaptive experimentation literature to answer these questions more efficiently than standard methods.</p>
+<p>To this end, we framed the question as a stochastic multi-arm bandit problem. Each arm of the bandit was defined as one set of immigrant characteristics and the outcome of interest (reward) was whether the survey respondent chose to prioritize the immigrant with higher education, given that set of characteristics. We wanted to understand under which set of characteristics American adults are the most likely to discriminate against an immigrant who has lower education.</p>
+<p>To uncover the set of characteristics with the most discrimination, we employed a classic algorithm from the adaptive literature in Thompson Sampling (TS)<span class="citation" data-cites="thompson_likelihood_1933"><sup>4</sup></span>. TS is a dynamic algorithm. It starts out by assuming that the probability of discrimination is the same across all sets of immigrant characteristics. Every time a new survey respondent takes the survey, it assigns them to the set of characteristics that has the highest probability of resulting in a discriminatory response. TS then observes whether or not that respondent discriminates, and it updates the probability of discrimination for the set of characteristics which they were assigned to. As the algorithm learns which sets of characteristics are most likely to elicit discriminatory responses, the algorithm progressively assigns more respondents to those arms and stops assigning respondents to characteristics that fail to elicit a discriminatory response.</p>
+</section>
+<section id="necessity-of-a-custom-survey-form" class="level2">
+<h2 class="anchored" data-anchor-id="necessity-of-a-custom-survey-form">Necessity of a custom survey form</h2>
+<p>Given the dynamic nature of TS, we needed a survey form that would allow us to estimate a variety of parameters and update historical data every time a new user connected to our form or submitted a survey response. At first we were bullish on Qualtrics for meeting our needs. In fact, the Qualtrics API surfaces endpoints that allow the researcher to deploy certain actions every time a user submits a survey response. Unfortunately, we quickly discovered that this functionality is only available to users with special access. When using an account under an institutional subscription (which is the case at Cornell and probably most universities), you don’t have this special access and so this was a non-starter for us. It also seemed undesirable to be downloading thousands of user responses and manually updating algorithmic parameters.</p>
+<p>Not to be deterred, I confidently announced that it would be no problem to build such a survey with <a href="https://shiny.posit.co/py/">Shiny</a> 😬. It turned out to be harder than I initially imagined, but it was indeed possible!</p>
+</section>
+<section id="architecture" class="level2">
+<h2 class="anchored" data-anchor-id="architecture">Architecture</h2>
+<p>As I began sketching out the codebase for our survey, I split the structure into three main services:</p>
+<ul>
+<li><strong>Database</strong>: We needed some form of database to store algorithmic parameters and user responses throughout the duration of the survey. For our application we opted for <a href="https://hub.docker.com/_/postgres">PostgreSQL</a>, though pretty much any database solution would have worked.</li>
+<li><strong>API</strong>: The API was built with <a href="https://fastapi.tiangolo.com/">FastAPI</a> and was the workhorse of the application, handling all interactions between the survey form and the database. When a new user would connect to our application, the API would retrieve the historical data from the database, perform an iteration of the TS algorithm, and update the survey form with necessary information such as which bandit arm the user would be assigned to. When the user had finished and submitted the survey, the API would update the corresponding tables and parameters in the database in preparation for new survey respondents.</li>
+<li><strong>Frontend</strong>: The frontend was built with Shiny and was the actual survey form. This survey form was not in charge any computational steps, but instead collected all user response data and orchestrated the communication between the API and the database.</li>
+</ul>
+<p>After creating a working survey application, the next step was to deploy this survey so that it could actually be used by real survey respondents.</p>
+</section>
+<section id="deployment" class="level2">
+<h2 class="anchored" data-anchor-id="deployment">Deployment</h2>
+<section id="containerization" class="level3">
+<h3 class="anchored" data-anchor-id="containerization">Containerization</h3>
+<p>I began by taking each of the three services described above and putting it in its own Docker container. With our services containerized, we could easily deploy our application on any cloud services that support Docker.</p>
+</section>
+<section id="aws" class="level3">
+<h3 class="anchored" data-anchor-id="aws">AWS</h3>
+<p>Our cloud provider of choice is AWS, so the next step was to build a simple custom AMI based on Ubuntu that had Docker installed. With our AMI in hand, the final piece of the puzzle was to scale our survey appropriately. There are many tools that could have served our purposes including Kubernetes, AWS Fargate, AWS ECS/EKS, and Docker Swarm. For our purposes, I opted to go with Docker Swarm as this struck a balance between serving our scaling needs while not becoming overly complex.</p>
+</section>
+<section id="docker-swarm-mode" class="level3">
+<h3 class="anchored" data-anchor-id="docker-swarm-mode">Docker Swarm mode</h3>
+<p>For our survey, we recruited participants from <a href="https://www.prolific.com/">Prolific</a> and budgeted for a maximum of 10,000 participants. From past Prolific surveys, we expected to see ~1,000 respondents per hour with anywhere between 30-50 concurrent users at all times. To ensure that our survey could easily handle any realistic level of traffic, I deployed our containerized services on a Docker Swarm cluster comprised of one manager AWS instance and ~60 worker AWS instances. All instances were equipped with the custom AMI described above.</p>
+<p>At this point, our survey was online with plenty of compute resources available to handle a large number of survey respondents.</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>Effectively, Docker acts as a load balancer for your swarm services so there’s no need to worry about setting up a load balancer yourself!</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p><strong>TLDR</strong>; we built our custom survey form and served it to ~10,000 survey respondents in 10 hours with the following steps.</p>
+<ol type="1">
+<li>Developed the survey form with Shiny and added necessary scaffolding (API, database).</li>
+<li>Containerized these services to make deployment as easy as possible.</li>
+<li>Deployed services on cloud provider (AWS) and scaled the services as necessary with Docker Swarm.</li>
+</ol>
+</section>
+<section id="implementation-tips" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-tips">Implementation tips</h2>
+<p>The following are a bunch of very specific tips based mostly on things that bit me when building this, or things that would make it better that I just never got around to adding.</p>
+<section id="shiny" class="level3">
+<h3 class="anchored" data-anchor-id="shiny">Shiny</h3>
+<ul>
+<li><p>This is probably really obvious, but especially when you need your Shiny app to be somewhat performant, try to streamline time-consuming calculations as much as possible. For example, in our app, I structured any time-consuming steps so that they would happen either at run-time or after the user had clicked “Submit” on the survey form.</p></li>
+<li><p>The R Shiny software is much more mature than its Python counterpart and as a result the Python API may not surface all features that the R API does. For example the R Shiny API has a well defined way to access client data being sent to the server. To access the current URL you would do something like:</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">server <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(input, output, session) {</span>
+<span id="cb1-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Return the components of the URL in a string:</span></span>
+<span id="cb1-3">  output<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>urlText <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">renderText</span>({</span>
+<span id="cb1-4">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(</span>
+<span id="cb1-5">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb1-6">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"protocol: "</span>, session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>clientData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>url_protocol, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb1-7">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hostname: "</span>, session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>clientData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>url_hostname, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb1-8">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pathname: "</span>, session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>clientData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>url_pathname, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb1-9">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"port: "</span>, session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>clientData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>url_port, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb1-10">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"search: "</span>, session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>clientData<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>url_search, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb1-11">    )</span>
+<span id="cb1-12">  })</span>
+<span id="cb1-13">}</span></code></pre></div>
+<p>This feature has yet to be officially implemented in Py Shiny, as noted in <a href="https://github.com/posit-dev/py-shiny/issues/711">this GitHub issue</a> but can be worked around as described in <a href="https://github.com/posit-dev/py-shiny/issues/323#issuecomment-1261513108">this issue</a>. The workaround solution would look something like:</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> server(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>, output, session):</span>
+<span id="cb2-2">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@render.text</span></span>
+<span id="cb2-3">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> urlText():</span>
+<span id="cb2-4">        url_text <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb2-5">          <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"protocol: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'.clientdata_url_protocol'</span>]()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb2-6">          <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"hostname: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'.clientdata_url_hostname'</span>]()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb2-7">          <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"pathname: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'.clientdata_url_pathname'</span>]()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb2-8">          <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"port: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'.clientdata_url_port'</span>]()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb2-9">          <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"search: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>session<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">input</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'.clientdata_url_search'</span>]()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-10">        )</span>
+<span id="cb2-11">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> url_text</span></code></pre></div></li>
+</ul>
+</section>
+<section id="aws-and-docker-swarm-mode" class="level3">
+<h3 class="anchored" data-anchor-id="aws-and-docker-swarm-mode">AWS and Docker Swarm mode</h3>
+<ul>
+<li><p><strong>AWS network rules</strong>: Ports, ports, ports. You need to make sure that all instances in your swarm have Security Group(s) attached with the necessary inbound/outbound rules defined. When running Docker Swarm the following inbound rules are absolutely essential otherwise Swarm mode will not work:</p>
+<ul>
+<li><strong>TCP</strong> port <strong>2377</strong> for cluster management communications.</li>
+<li><strong>TCP and UDP</strong> port <strong>7946</strong> for communication among nodes.</li>
+<li><strong>UDP</strong> port <strong>4789</strong> for overlay network traffic.</li>
+</ul>
+<p>In addition, make sure you add any rules for other ports that are specific to your application. In our case our app was exposed on port 8000 so I needed to add an additional inbound rule for TCP port 8000.</p></li>
+<li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <strong>–advertise-addr</strong> argument. For example:</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">docker</span> swarm join <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--token</span> SWMTKN-1-49nj1abc... manager.node.ip:2377 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--advertise-addr</span> worker.node.ip</span></code></pre></div></li>
+<li><p><strong>Configuring HTTPS</strong>: When you deploy your Shiny application on an AWS compute instance, e.g.&nbsp;on port 8000, the application will be available at a url looking something like <strong>http://manager.node.ip:8000</strong>. While this works fine, it will look unusual to the average user and may be flagged by some browsers as insecure and result in warning messages being sent to the user. If it is important to have HTTPS configured for your application, there are a couple ways to approach this. Both require having a domain or sub-domain name available.</p>
+<ol type="1">
+<li>Once you have launched your application (or swarm) on AWS, configure a DNS record on your domain to forward your sub-domain to the public IP address of the server where your application is hosted. This process may vary slightly depending on where you purchased your domain name (e.g.&nbsp;Bluehost, Namecheap).</li>
+<li>Install and configure <strong>nginx</strong> to forward traffic from port 80 to whatever port your application is running on.</li>
+<li>Configure <strong>nginx</strong> with SSL/TLS certificates using <a href="https://letsencrypt.org/">Let’s Encrypt</a>.</li>
+</ol>
+<p>There are many good online tutorials on exactly how to do <strong>steps 2 and 3</strong>. The main shortcoming with the method described above is that you would have to do all three steps separately every time you re-deploy your services on AWS. If you only deploy once, this may not be an issue. But if you think you might terminate and re-deploy your application multiple times, it may get tiresome. One way around this is to allocate an <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html">AWS Elastic IP address</a> to your account and then create a DNS record on your domain pointing to the elastic IP per <strong>step 1</strong> above. Then, every time you launch your application on a new AWS compute instance you can associate the elastic IP address with your instance, and you don’t need to re-do <strong>step 1</strong>. You will still have to do <strong>steps 2 and 3</strong>, but you can do these steps programmatically. <strong>Step 1</strong> is by far the most time consuming and you will only have to do that once.</p></li>
+<li><p><strong>Persisting data with AWS volumes</strong>: When running your application on AWS, or any cloud provider, there is always the concern that your compute resources might get terminated without any warning. As such, it is essential that all your data be backed up so that it will persist regardless of whether your application terminates or not. For our application, we created an AWS volume and mounted that volume to the local filesystem of the compute instance where our database container was running. We then used a <a href="https://docs.docker.com/storage/bind-mounts/">bind mount</a> to mount that directory on the host machine into the PostgreSQL Docker container.</p></li>
+<li><p><strong>Scaling the application</strong>: Py Shiny is built on <a href="https://www.uvicorn.org/">uvicorn</a>. As a direct result, a user can deploy a Shiny application by simply running the following on the command line:</p>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">uvicorn</span> app:app <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--host</span> 0.0.0.0 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--port</span> 8000</span></code></pre></div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>The first <strong>app</strong> references the file <strong>app.py</strong> where your application is defined, and the second <strong>app</strong> references the final line in your <strong>app.py</strong> file that should look something like:</p>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">app <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> App(app_ui, server)</span></code></pre></div>
+</div>
+</div>
+</div>
+<p>Uvicorn has scaling built-in via the <strong>–workers</strong> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">uvicorn</span> app:app <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--host</span> 0.0.0.0 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--port</span> 8000 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--workers</span> 20</span></code></pre></div>
+<p>For several reasons this approach didn’t work for our situation, but it may be a reasonable approach for many people. To see more about self-hosted deployment, see the <a href="https://shiny.posit.co/py/docs/deploy-on-prem.html">Shiny docs</a> or the <a href="https://www.uvicorn.org/deployment/">uvicorn docs</a>.</p></li>
+</ul>
+</section>
+<section id="general" class="level3">
+<h3 class="anchored" data-anchor-id="general">General</h3>
+<p>In building and deploying our application there were a bunch of small, almost unnoticeable steps that go into each larger step. For example, when I wanted to deploy our survey onto AWS, there were several preliminary steps:</p>
+<ul>
+<li><p>Build and push the Docker images for all three services to DockerHub.</p></li>
+<li><p>Create all AWS resources (e.g.&nbsp;security group, volume, etc.)</p></li>
+<li><p>Spin up the Docker swarm and deploy our application.</p></li>
+</ul>
+<p>When you’re actively developing a project it’s easy to remember all the pre-requisite steps that go into each larger step. However, it’s really easy to quickly forget these things and to come back weeks or months later and struggle to build or deploy your application. So do your future self a favor and use a build tool like <a href="https://github.com/casey/just">just</a>! Not only does this remove a lot of key-strokes when you’re developing an application, but it codifies all the easy-to-forget steps for your future self.</p>
+</section>
+</section>
+<section id="code" class="level2">
+<h2 class="anchored" data-anchor-id="code">Code</h2>
+<p>To browse the code that corresponds to each part of this post, check out the GitHub repo <a href="https://github.com/dmolitor/adaptive-infra">here</a> and feel free to reach out with any questions or drop an issue on the repo!</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" data-line-spacing="2">
+<div id="ref-offerwestort_adaptive_2021" class="csl-entry">
+<div class="csl-left-margin">1. </div><div class="csl-right-inline">Offer‐Westort, M., Coppock, A. &amp; Green, D. P. <a href="https://doi.org/10.1111/ajps.12597">Adaptive experimental design: Prospects and applications in political science</a>. <em>American J Political Sci</em> <strong>65</strong>, 826–844 (2021).</div>
+</div>
+<div id="ref-kaibel_rethinking_2021" class="csl-entry">
+<div class="csl-left-margin">2. </div><div class="csl-right-inline">Kaibel, C. &amp; Biemann, T. <a href="https://doi.org/10.1177/1094428119854153">Rethinking the gold standard with multi-armed bandits: Machine learning allocation algorithms for experiments</a>. <em>Organizational Research Methods</em> <strong>24</strong>, 78–103 (2021).</div>
+</div>
+<div id="ref-hainmueller_causal_2014" class="csl-entry">
+<div class="csl-left-margin">3. </div><div class="csl-right-inline">Hainmueller, J., Hopkins, D. J. &amp; Yamamoto, T. <a href="https://doi.org/10.1093/pan/mpt024">Causal inference in conjoint analysis: Understanding multidimensional choices via stated preference experiments</a>. <em>Polit. anal.</em> <strong>22</strong>, 1–30 (2014).</div>
+</div>
+<div id="ref-thompson_likelihood_1933" class="csl-entry">
+<div class="csl-left-margin">4. </div><div class="csl-right-inline">Thompson, W. R. <a href="https://doi.org/10.2307/2332286">On the likelihood that one unknown probability exceeds another in view of the evidence of two samples</a>. <em>Biometrika</em> <strong>25</strong>, 285 (1933).</div>
+</div>
+</div></section></div> ]]></description>
+  <category>AWS</category>
+  <category>Bandits</category>
+  <category>Docker</category>
+  <category>Shiny</category>
+  <guid>https://dmolitor.com/blog/posts/dynamic_surveys/</guid>
+  <pubDate>Wed, 17 Jul 2024 00:00:00 GMT</pubDate>
+  <media:content url="https://dmolitor.com/blog/posts/dynamic_surveys/thumbnail.jpg" medium="image" type="image/jpeg"/>
+</item>
 </channel>
 </rss>
