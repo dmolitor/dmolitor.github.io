@@ -20,6 +20,18 @@ hide-description: true
 Hello there! I'm a second-year PhD student at Cornell's School of Information Science. My research
 interests center primarily on policy-relevant applications of adaptive/online experimentation and causal
 inference methods. I love open source software and enjoy building tools and learning new technologies whenever 
-I can. I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/>supported by an NSF Graduate Research Fellowship</a>!
+I can. I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor style="text-decoration: none;">supported by an NSF Graduate Research Fellowship</a>!
 </p>
 </div>
+
+<br>
+
+#### News
+
+|      |       |
+|--    |---------|
+| May 2024 | Received Outstanding PhD TA Award for <a href="https://info3370.github.io/" style="text-decoration: none;">Studying Social Inequality with Data Science</a> taught by Ian Lundberg.|
+| May 2024 | Jointly presented our work on <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2024</a>.|
+| April 2023 | Awarded an <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/ style="text-decoration: none;">NSF Graduate Research Fellowship</a>.|
+
+<!-- | July 2024 | <a href="https://files.osf.io/v1/resources/rkw3e/providers/osfstorage/65b132bbebe5e6067ff5e720?action=download&direct&version=1" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Jennie Brand and Ian Lundberg has been conditionally accepted at <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods & Research</a>.  -->

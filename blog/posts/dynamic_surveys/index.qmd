@@ -1,15 +1,341 @@
 ---
-title: "Building and Deploying Custom Surveys with Shiny"
-description: "A case study on how Shiny + Docker + AWS can help researchers build and deploy highly customized and dynamic user surveys."
-date: "7/16/2024"
-draft: true
+title: "Building and Deploying Adaptive Experiments with Shiny"
+description: |
+  A case study on how Shiny + Docker + AWS can help researchers build and 
+  deploy adaptive experiments and custom surveys.
+date: "7/17/2024"
 format:
   html:
     toc: true
     toc-location: right
     code-overflow: scroll
-    highlight: espresso
 page-layout: article
-categories: [AWS, Bandits, Shiny]
+categories: [AWS, Bandits, Docker, Shiny]
 image: "./thumbnail.jpg"
+bibliography: references.bib
+csl: nature.csl
 ---
+
+## Background
+
+Understanding discriminatory human choices are of central interest
+across the social sciences. Typically when studying such questions, researchers
+employ standard designs such as experimental audit studies or conjoint analyses.
+Recent advances in the adaptive experimentation literature have explored how
+multi-arm bandit (MAB) algorithms can be used to answer the same questions with
+lower cost and greater data efficiency while also mitigating ethical concerns
+that may arise in some randomized experiments (e.g. assigning participants
+to harmful treatment arms) @offerwestort_adaptive_2021 @kaibel_rethinking_2021.
+
+Although MAB methods can provide significant improvements over standard experimental
+methods, implementing adaptive experiments or surveys can pose a challenge.
+There are many survey platforms at the researcher's disposal such as Qualtrics,
+Google Forms, etc. that can quickly accomodate standard survey designs, but these
+platforms do not easily support the design of adaptive surveys. Without
+such tools at their disposal, the researcher is stuck needing to design their own
+custom solution. This is the exact situation that my research team and I ran into
+a few months ago.
+
+It began with a straightforward enough question. We would like to know, 
+for example, how American adults in the U.S. discriminate on the basis of 
+education when choosing which immigrants to 
+prioritize for immigrant visas? [@hainmueller_causal_2014]
+Our goal was to explore how we could adopt methods from the adaptive
+experimentation literature to answer these questions more efficiently
+than standard methods.
+
+To this end, we framed the question as a stochastic multi-arm bandit problem.
+Each arm of the bandit was defined as one set of immigrant characteristics
+and the outcome of interest (reward) was whether the survey respondent chose to
+prioritize the immigrant with higher education, given that set of
+characteristics. We wanted to understand under which set of characteristics
+American adults are the most likely to discriminate against an immigrant
+who has lower education.
+
+To uncover the set of characteristics with the most discrimination, we
+employed a classic algorithm from the adaptive literature in Thompson
+Sampling (TS) [@thompson_likelihood_1933]. TS is a dynamic algorithm.
+It starts out by assuming that
+the probability of discrimination is the same across all sets of immigrant
+characteristics. Every time a new survey respondent takes the survey, it
+assigns them to the set of characteristics that has the highest probability
+of resulting in a discriminatory response. TS then observes whether or not
+that respondent discriminates, and it updates the probability of discrimination
+for the set of characteristics which they were assigned to. As the algorithm
+learns which sets of characteristics are most likely to elicit
+discriminatory responses, the algorithm progressively assigns more respondents to 
+those arms and stops assigning respondents to characteristics that fail to
+elicit a discriminatory response.
+
+## Necessity of a custom survey form
+
+Given the dynamic nature of TS, we needed a survey form that would allow us to 
+estimate a variety of parameters and update historical data every time a new user
+connected to our form or submitted a survey response. At first we were
+bullish on Qualtrics for meeting our needs. In fact, the Qualtrics API
+surfaces endpoints that allow the researcher to deploy certain actions
+every time a user submits a survey response. Unfortunately, we quickly
+discovered that this functionality is only available to users with special
+access. When using an account under an institutional subscription
+(which is the case at Cornell and probably most universities), you don't
+have this special access and so this was a non-starter for us. It also
+seemed undesirable to be downloading thousands of user responses and
+manually updating algorithmic parameters.
+
+Not to be deterred, I confidently announced that it would be no problem to
+build such a survey with [Shiny](https://shiny.posit.co/py/) 😬. It turned
+out to be harder than I initially imagined, but it was indeed possible!
+
+## Architecture
+
+As I began sketching out the codebase for our survey, I split the
+structure into three main services:
+
+- **Database**:
+    We needed some form of database to store algorithmic parameters
+    and user responses throughout the duration of the survey. For our
+    application we opted for [PostgreSQL](https://hub.docker.com/_/postgres),
+    though pretty much any database solution would have worked.
+- **API**:
+    The API was built with [FastAPI](https://fastapi.tiangolo.com/)
+    and was the workhorse of the application, handling all interactions
+    between the survey form and the database. When a new user would connect to our
+    application, the API would retrieve the historical data from the
+    database, perform an iteration of the TS algorithm, and update 
+    the survey form with necessary information such as which bandit arm
+    the user would be assigned to. When the user had
+    finished and submitted the survey, the API would update the corresponding
+    tables and parameters in the database in preparation for new survey
+    respondents.
+- **Frontend**:
+    The frontend was built with Shiny and was the actual survey form.
+    This survey form was not in charge any computational
+    steps, but instead collected all user response data and
+    orchestrated the communication between the API and the database.
+
+After creating a working survey application, the next step was to
+deploy this survey so that it could actually be used by real survey
+respondents.
+
+## Deployment
+
+### Containerization
+
+I began by taking each of the three services described above and
+putting it in its own Docker container. With our services containerized,
+we could easily deploy our application on any cloud services that support
+Docker.
+
+### AWS
+
+Our cloud provider of choice is AWS, so the next step was to build a simple
+custom AMI based on Ubuntu that had Docker installed. With our AMI in hand,
+the final piece of the puzzle was to scale our survey appropriately.
+There are many tools that could have served our purposes including
+Kubernetes, AWS Fargate, AWS ECS/EKS, and Docker Swarm.
+For our purposes, I opted to go with Docker Swarm as this struck a balance
+between serving our scaling needs while not becoming overly complex.
+
+### Docker Swarm mode
+
+For our survey, we recruited participants from
+[Prolific](https://www.prolific.com/) and budgeted for a maximum of 10,000
+participants. From past Prolific surveys, we expected to see ~1,000 respondents
+per hour with anywhere between 30-50 concurrent users at all times. To ensure
+that our survey could easily handle any realistic level of traffic, I deployed
+our containerized services on a Docker Swarm cluster comprised of one manager
+AWS instance and ~60 worker AWS instances. All instances were equipped with the
+custom AMI described above.
+
+At this point, our survey was online with plenty of
+compute resources available to handle a large number of survey respondents.
+
+::: {.callout-note appearance="simple"}
+Effectively, Docker acts as a load balancer for your swarm services so there's
+no need to worry about setting up a load balancer yourself!
+:::
+
+## Summary
+
+**TLDR**; we built our custom survey form and served it to ~10,000 survey
+respondents in 10 hours with the following steps.
+
+1) Developed the survey form with Shiny and added necessary scaffolding 
+(API, database).
+2) Containerized these services to make deployment as easy as possible.
+3) Deployed services on cloud provider (AWS) and scaled the services as 
+necessary with Docker Swarm.
+
+## Implementation tips
+
+The following are a bunch of very specific tips based mostly on things
+that bit me when building this, or things that would make it better
+that I just never got around to adding.
+
+### Shiny
+
+- This is probably really obvious, but especially when you need your Shiny
+app to be somewhat performant, try to streamline time-consuming calculations
+as much as possible. For example, in our app, I structured any time-consuming
+steps so that they would happen either at run-time or after the user had
+clicked "Submit" on the survey form.
+
+- The R Shiny software is much more mature than its Python counterpart and
+  as a result the Python API may not surface all features that the R API does.
+  For example the R Shiny API has a well defined way to access client data being
+  sent to the server. To access the current URL you would do something like:
+
+  ```r
+  server <- function(input, output, session) {
+    # Return the components of the URL in a string:
+    output$urlText <- renderText({
+      paste(
+        sep = "",
+        "protocol: ", session$clientData$url_protocol, "\n",
+        "hostname: ", session$clientData$url_hostname, "\n",
+        "pathname: ", session$clientData$url_pathname, "\n",
+        "port: ", session$clientData$url_port, "\n",
+        "search: ", session$clientData$url_search, "\n"
+      )
+    })
+  }
+  ```
+
+  This feature has yet to be officially implemented in Py Shiny, as noted in
+  [this GitHub issue](https://github.com/posit-dev/py-shiny/issues/711)
+  but can be worked around as described in
+  [this issue](https://github.com/posit-dev/py-shiny/issues/323#issuecomment-1261513108).
+  The workaround solution would look something like:
+
+  ```python
+  def server(input, output, session):
+      @render.text
+      def urlText():
+          url_text = (
+            f"protocol: {session.input['.clientdata_url_protocol']()}\n",
+            + f"hostname: {session.input['.clientdata_url_hostname']()}\n",
+            + f"pathname: {session.input['.clientdata_url_pathname']()}\n",
+            + f"port: {session.input['.clientdata_url_port']()}\n",
+            + f"search: {session.input['.clientdata_url_search']()}\n"
+          )
+          return url_text
+  ```
+
+### AWS and Docker Swarm mode
+
+- **AWS network rules**:
+  Ports, ports, ports. You need to make sure that all instances in your
+  swarm have Security Group(s) attached with the necessary inbound/outbound rules
+  defined. When running Docker Swarm the following inbound rules are absolutely essential
+  otherwise Swarm mode will not work:
+  - **TCP** port **2377** for cluster management communications.
+  - **TCP and UDP** port **7946** for communication among nodes.
+  - **UDP** port **4789** for overlay network traffic.
+
+  In addition, make sure you add any rules for other ports that are specific
+  to your application. In our case our app was exposed on port 8000 so I
+  needed to add an additional inbound rule for TCP port 8000.
+
+- **Adding worker nodes to swarm**:
+  When adding a worker instance to the swarm on AWS, it is essential to include
+  the **--advertise-addr** argument. For example:
+  ```bash
+  docker swarm join --token SWMTKN-1-49nj1abc... manager.node.ip:2377 --advertise-addr worker.node.ip
+  ```
+
+- **Configuring HTTPS**:
+  When you deploy your Shiny application on an AWS compute instance, 
+  e.g. on port 8000, the application will be available at a url looking something
+  like **http://manager.node.ip:8000**. While this works fine, it will look unusual
+  to the average user and may be flagged by some browsers as insecure and
+  result in warning messages being sent to the user. If it is
+  important to have HTTPS configured for your application, there are a couple
+  ways to approach this. Both require having a domain or sub-domain name
+  available.
+    1) Once you have launched your application (or swarm) on AWS, configure a DNS
+    record on your domain to forward your sub-domain to the public IP address of the
+    server where your application is hosted. This process may vary slightly
+    depending on where you purchased your domain name (e.g. Bluehost, Namecheap).
+    2) Install and configure **nginx** to forward traffic from port 80 to whatever 
+    port your application is running on.
+    3) Configure **nginx** with SSL/TLS certificates 
+    using [Let's Encrypt](https://letsencrypt.org/).
+  
+  There are many good online tutorials on exactly how to do **steps 2 and 3**.
+  The main shortcoming with the method described above is that you would have to
+  do all three steps separately every time you re-deploy your services on AWS.
+  If you only deploy once, this may not be an issue. But if you think you might
+  terminate and re-deploy your application multiple times, it may get tiresome.
+  One way around this is to allocate an
+  [AWS Elastic IP address](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) to your account and then create a DNS record
+  on your domain pointing to the elastic IP per **step 1** above. Then, every time
+  you launch your application on a new AWS compute instance you can associate
+  the elastic IP address with your instance, and you don't need to re-do **step 1**.
+  You will still have to do **steps 2 and 3**, but you can do these steps
+  programmatically. **Step 1** is by far the most time consuming and you will only
+  have to do that once.
+
+- **Persisting data with AWS volumes**:
+  When running your application on AWS, or any cloud provider, there is always the
+  concern that your compute resources might get terminated without any warning.
+  As such, it is essential that all your data be backed up so that it will persist
+  regardless of whether your application terminates or not. For our application,
+  we created an AWS volume and mounted that volume to the local filesystem of the
+  compute instance where our database container was running. We then used
+  a [bind mount](https://docs.docker.com/storage/bind-mounts/) to mount that
+  directory on the host machine into the PostgreSQL Docker container.
+
+- **Scaling the application**:
+  Py Shiny is built on [uvicorn](https://www.uvicorn.org/). As a direct result,
+  a user can deploy a Shiny application by simply running the following on the
+  command line:
+  ```bash
+  uvicorn app:app --host 0.0.0.0 --port 8000
+  ```
+  :::{.callout-note appearance="simple"}
+  The first **app** references the file **app.py** where your application is defined,
+  and the second **app** references the final line in your **app.py** file that should look
+  something like:
+  ```python
+  app = App(app_ui, server)
+  ```
+  :::
+  Uvicorn has scaling built-in via the **--workers** argument. If you wanted to
+  scale your application in a super simple way and avoid all the hassle above,
+  it's as easy as deploying your application on a very large AWS server and
+  running it with something like:
+  ```bash
+  uvicorn app:app --host 0.0.0.0 --port 8000 --workers 20
+  ```
+  For several reasons this approach didn't work for our situation,
+  but it may be a reasonable approach for many people.
+  To see more about self-hosted deployment, see the
+  [Shiny docs](https://shiny.posit.co/py/docs/deploy-on-prem.html) or the
+  [uvicorn docs](https://www.uvicorn.org/deployment/).
+
+### General
+
+In building and deploying our application there were a bunch of small, almost
+unnoticeable steps that go into each larger step. For example, when I wanted
+to deploy our survey onto AWS, there were several preliminary steps:
+
+- Build and push the Docker images for all three services to DockerHub.
+
+- Create all AWS resources (e.g. security group, volume, etc.)
+
+- Spin up the Docker swarm and deploy our application.
+
+When you're actively developing a project it's easy to remember all the
+pre-requisite steps that go into each larger step. However, it's really easy
+to quickly forget these things and to come back weeks or months later and
+struggle to build or deploy your application.
+So do your future self a favor and use a build tool 
+like [just](https://github.com/casey/just)! Not only
+does this remove a lot of key-strokes when you're developing an application,
+but it codifies all the easy-to-forget steps for your future self.
+
+## Code
+
+To browse the code that corresponds to each part of this post, check
+out the GitHub repo [here](https://github.com/dmolitor/adaptive-infra) and
+feel free to reach out with any questions or drop an issue on the repo!

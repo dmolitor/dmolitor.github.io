@@ -14,7 +14,7 @@ website:
     search: false
     pinned: true
     collapse-below: md
-    foreground: primary
+    foreground: secondary
     left: 
       - text: "**Research**"
         href: research/index.qmd
@@ -34,7 +34,6 @@ website:
           text: Daniel's Email
   page-footer:
     border: false
-    background: light 
     center:
       - href: https://quarto.org/
         text: "Built with Quarto"
@@ -42,7 +41,11 @@ website:
 format:
   html:
     theme: 
-      light: minty
+      dark: superhero
+      light: sandstone
+    highlight-style: github
     css: styles.css
     toc: true
     page-layout: full
+    mainfont: "Trebuchet MS"
+    
