@@ -337,7 +337,7 @@ ga('send', {
 <li><strong>UDP</strong> port <strong>4789</strong> for overlay network traffic.</li>
 </ul>
 <p>In addition, make sure you add any rules for other ports that are specific to your application. In our case our app was exposed on port 8000 so I needed to add an additional inbound rule for TCP port 8000.</p></li>
-<li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <b>–advertise-addr</b> argument. For example:</p>
+<li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <code>--advertise-addr</code> argument. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> swarm join <span class="at">--token</span> SWMTKN-1-49nj1abc... manager.node.ip:2377 <span class="at">--advertise-addr</span> worker.node.ip</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 <li><p><strong>Configuring HTTPS</strong>: When you deploy your Shiny application on an AWS compute instance, e.g.&nbsp;on port 8000, the application will be available at a url looking something like <strong>http://manager.node.ip:8000</strong>. While this works fine, it will look unusual to the average user and may be flagged by some browsers as insecure and result in warning messages being sent to the user. If it is important to have HTTPS configured for your application, there are a couple ways to approach this. Both require having a domain or sub-domain name available.</p>
 <ol type="1">
@@ -360,7 +360,7 @@ ga('send', {
 </div>
 </div>
 </div>
-<p>Uvicorn has scaling built-in via the <b>–workers</b> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
+<p>Uvicorn has scaling built-in via the <code>--workers</code> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uvicorn</span> app:app <span class="at">--host</span> 0.0.0.0 <span class="at">--port</span> 8000 <span class="at">--workers</span> 20</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>For several reasons this approach didn’t work for our situation, but it may be a reasonable approach for many people. To see more about self-hosted deployment, see the <a href="https://shiny.posit.co/py/docs/deploy-on-prem.html">Shiny docs</a> or the <a href="https://www.uvicorn.org/deployment/">uvicorn docs</a>.</p></li>
 </ul>

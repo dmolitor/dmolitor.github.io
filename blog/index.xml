@@ -304,7 +304,7 @@ font-style: inherit;">return</span> url_text</span></code></pre></div></li>
 <li><strong>UDP</strong> port <strong>4789</strong> for overlay network traffic.</li>
 </ul>
 <p>In addition, make sure you add any rules for other ports that are specific to your application. In our case our app was exposed on port 8000 so I needed to add an additional inbound rule for TCP port 8000.</p></li>
-<li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <b>–advertise-addr</b> argument. For example:</p>
+<li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <code>--advertise-addr</code> argument. For example:</p>
 <div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="ex" style="color: null;
 background-color: null;
 font-style: inherit;">docker</span> swarm join <span class="at" style="color: #657422;
@@ -341,7 +341,7 @@ font-style: inherit;">=</span> App(app_ui, server)</span></code></pre></div>
 </div>
 </div>
 </div>
-<p>Uvicorn has scaling built-in via the <b>–workers</b> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
+<p>Uvicorn has scaling built-in via the <code>--workers</code> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
 <div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><span class="ex" style="color: null;
 background-color: null;
 font-style: inherit;">uvicorn</span> app:app <span class="at" style="color: #657422;
