@@ -238,7 +238,7 @@ clicked "Submit" on the survey form.
 
 - **Adding worker nodes to swarm**:
   When adding a worker instance to the swarm on AWS, it is essential to include
-  the <b>--advertise-addr</b> argument. For example:
+  the `--advertise-addr` argument. For example:
   ```bash
   docker swarm join --token SWMTKN-1-49nj1abc... manager.node.ip:2377 --advertise-addr worker.node.ip
   ```
@@ -300,7 +300,7 @@ clicked "Submit" on the survey form.
   app = App(app_ui, server)
   ```
   :::
-  Uvicorn has scaling built-in via the <b>--workers</b> argument. If you wanted to
+  Uvicorn has scaling built-in via the `--workers` argument. If you wanted to
   scale your application in a super simple way and avoid all the hassle above,
   it's as easy as deploying your application on a very large AWS server and
   running it with something like:
