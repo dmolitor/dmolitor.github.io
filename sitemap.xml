@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dmolitor.com/index.html</loc>
-    <lastmod>2024-07-19T19:20:07.017Z</lastmod>
+    <loc>https://dmolitor.com/blog/index.html</loc>
+    <lastmod>2024-07-25T23:49:09.620Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
-    <lastmod>2024-07-19T19:20:07.013Z</lastmod>
+    <lastmod>2024-07-25T23:49:09.640Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/research/index.html</loc>
-    <lastmod>2024-07-19T19:20:07.041Z</lastmod>
+    <lastmod>2024-07-25T23:49:09.668Z</lastmod>
   </url>
   <url>
-    <loc>https://dmolitor.com/blog/index.html</loc>
-    <lastmod>2024-07-19T19:20:07.013Z</lastmod>
+    <loc>https://dmolitor.com/index.html</loc>
+    <lastmod>2024-07-25T23:49:09.644Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
+    <lastmod>2024-07-25T23:49:09.632Z</lastmod>
   </url>
 </urlset>

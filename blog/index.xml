@@ -10,7 +10,2190 @@
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.5.55</generator>
-<lastBuildDate>Wed, 17 Jul 2024 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 25 Jul 2024 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Conformal Prediction Beyond Exchangeability</title>
+  <link>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
+<div id="cb06fc33" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> great_tables <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> GT, md</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy.typing <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> npt</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> pathlib <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Path</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> plotnine <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pn</span>
+<span id="cb1-7"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> statsmodels.api <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> sm</span>
+<span id="cb1-8"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> tqdm <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> tqdm</span>
+<span id="cb1-9"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> typing <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Any, Callable, List</span>
+<span id="cb1-10"></span>
+<span id="cb1-11">base_dir <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Path().cwd()</span>
+<span id="cb1-12">generator <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng()</span></code></pre></div>
+</div>
+</section>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
+<div id="5d342d25" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Electricity data</span></span>
+<span id="cb2-2">electricity <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(base_dir <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"electricity-normalized.csv"</span>)</span>
+<span id="cb2-3">electricity <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb2-4">    electricity</span>
+<span id="cb2-5">    .iloc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">17760</span>:]</span>
+<span id="cb2-6">    .assign(period<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.period<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">24</span>)</span>
+<span id="cb2-7">    .loc[<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> df: (df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"period"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"period"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)]</span>
+<span id="cb2-8">    [[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transfer"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nswprice"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vicprice"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nswdemand"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vicdemand"</span>]]</span>
+<span id="cb2-9">    .reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-10">)</span>
+<span id="cb2-11">permuted <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> electricity.sample(frac<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-12"></span>
+<span id="cb2-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function to generate simulated data</span></span>
+<span id="cb2-14"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> sim_data(N: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>, d: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>, setting: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>[pd.DataFrame, npt.NDArray]:</span>
+<span id="cb2-15">    X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.multivariate_normal(mean<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>np.zeros(d), cov<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>np.eye(d), size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>N)</span>
+<span id="cb2-16">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> setting <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb2-17">        beta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb2-18">        y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, N)</span>
+<span id="cb2-19">        X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(X, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"feature_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(d)])</span>
+<span id="cb2-20">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> setting <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>:</span>
+<span id="cb2-21">        beta_1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb2-22">        beta_2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb2-23">        beta_3 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb2-24">        y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.zeros(N)</span>
+<span id="cb2-25">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate y for different segments</span></span>
+<span id="cb2-26">        y[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta_1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb2-27">        y[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1500</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1500</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta_2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>)</span>
+<span id="cb2-28">        y[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1500</span>:] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1500</span>:] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta_3 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>)</span>
+<span id="cb2-29">        X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(X, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"feature_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(d)])</span>
+<span id="cb2-30">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb2-31">        beta_start <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb2-32">        beta_end <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb2-33">        beta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.linspace(beta_start, beta_end, N)</span>
+<span id="cb2-34">        y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([X[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(N)])</span>
+<span id="cb2-35">        X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(X, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'feature_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(d)])</span>
+<span id="cb2-36">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (X, y)</span></code></pre></div>
+</div>
+</section>
+<section id="functions" class="level3">
+<h3 class="anchored" data-anchor-id="functions">Functions</h3>
+<p>The <code>nexcp_split</code> function implements non-exchangeable split conformal prediction (CP). However, we can force it to also implement standard CP, which assumes exchangeability, by setting uniform weights. So we only need one function to replicate the results!</p>
+<div id="2ad8e52d" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> normalize_weights(weights: npt.NDArray):</span>
+<span id="cb3-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> weights.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"></span>
+<span id="cb3-5"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> nexcp_split(</span>
+<span id="cb3-6">    model: Callable[[npt.NDArray, pd.DataFrame, npt.NDArray], Any],</span>
+<span id="cb3-7">    split_function: Callable[[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>], npt.NDArray],</span>
+<span id="cb3-8">    y: npt.NDArray,</span>
+<span id="cb3-9">    X: pd.DataFrame,</span>
+<span id="cb3-10">    tag_function: Callable[[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>], npt.NDArray],</span>
+<span id="cb3-11">    weight_function: Callable[[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>], npt.NDArray],</span>
+<span id="cb3-12">    alpha: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>,</span>
+<span id="cb3-13">    test_index: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span></span>
+<span id="cb3-14">):</span>
+<span id="cb3-15">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Implements non-exchangeable split conformal prediction"""</span></span>
+<span id="cb3-16">    </span>
+<span id="cb3-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Pull test observation from data</span></span>
+<span id="cb3-18">    y_test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y[test_index]</span>
+<span id="cb3-19">    X_test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X.iloc[[test_index]]</span>
+<span id="cb3-20">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Select all observations up to that point</span></span>
+<span id="cb3-21">    y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y[:test_index]</span>
+<span id="cb3-22">    X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X.iloc[:test_index]</span>
+<span id="cb3-23">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate indices for train/calibration split</span></span>
+<span id="cb3-24">    split_indices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> split_function(test_index)</span>
+<span id="cb3-25">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Split data, tags, and weights</span></span>
+<span id="cb3-26">    X_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X.iloc[split_indices]</span>
+<span id="cb3-27">    y_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y[split_indices]</span>
+<span id="cb3-28">    X_calib <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X.drop(split_indices)</span>
+<span id="cb3-29">    y_calib <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.delete(y, split_indices)</span>
+<span id="cb3-30">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate tags and weights</span></span>
+<span id="cb3-31">    tags_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tag_function(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(X_train)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb3-32">    weights_calib <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> normalize_weights(weight_function(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(X_calib)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb3-33">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Train model</span></span>
+<span id="cb3-34">    model_base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model(y_train, X_train, weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>tags_train)</span>
+<span id="cb3-35">    model_fitted <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model_base.fit()</span>
+<span id="cb3-36">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate residuals</span></span>
+<span id="cb3-37">    residuals <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>(y_calib <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> model_fitted.predict(X_calib))</span>
+<span id="cb3-38">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate weighted quantile of residuals</span></span>
+<span id="cb3-39">    q_hat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.quantile(</span>
+<span id="cb3-40">        residuals,</span>
+<span id="cb3-41">        <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> alpha,</span>
+<span id="cb3-42">        weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>weights_calib,</span>
+<span id="cb3-43">        method<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"inverted_cdf"</span></span>
+<span id="cb3-44">    )</span>
+<span id="cb3-45">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate predicted value</span></span>
+<span id="cb3-46">    y_hat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model_fitted.predict(X_test).iloc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb3-47">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate CI</span></span>
+<span id="cb3-48">    lb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y_hat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> q_hat</span>
+<span id="cb3-49">    ub <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y_hat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> q_hat</span>
+<span id="cb3-50">    covered <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> lb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> y_test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> ub</span>
+<span id="cb3-51">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ci"</span>: np.array([lb, y_hat, ub]), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered"</span>: covered, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>: ub<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>lb}</span>
+<span id="cb3-52"></span>
+<span id="cb3-53"></span>
+<span id="cb3-54"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> plot_rolling_coverage(</span>
+<span id="cb3-55">    results: List[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>],</span>
+<span id="cb3-56">    alpha: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb3-57">    window: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>,</span>
+<span id="cb3-58">    rows: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb3-59">    repeated: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bool</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span></span>
+<span id="cb3-60">):</span>
+<span id="cb3-61">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Plot the algorithm's mean coverage over a sliding window"""</span></span>
+<span id="cb3-62"></span>
+<span id="cb3-63">    coverage_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(results)</span>
+<span id="cb3-64">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> repeated:</span>
+<span id="cb3-65">        coverage_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-66">            coverage_df</span>
+<span id="cb3-67">            .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>])[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered"</span>]</span>
+<span id="cb3-68">            .mean()</span>
+<span id="cb3-69">            .reset_index()</span>
+<span id="cb3-70">        )</span>
+<span id="cb3-71">    coverage_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"coverage_mean"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-72">        coverage_df</span>
+<span id="cb3-73">        .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>])[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered"</span>]</span>
+<span id="cb3-74">        .transform(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.rolling(window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>window).mean())</span>
+<span id="cb3-75">    )</span>
+<span id="cb3-76">    coverage_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> coverage_df.groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>]).cumcount() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb3-77">    coverage_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> coverage_df.dropna(subset<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"coverage_mean"</span>])</span>
+<span id="cb3-78">    coverage_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-79">        pn.ggplot(</span>
+<span id="cb3-80">            coverage_df,</span>
+<span id="cb3-81">            pn.aes(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"coverage_mean"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, group<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>)</span>
+<span id="cb3-82">        )</span>
+<span id="cb3-83">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_line()</span>
+<span id="cb3-84">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_hline(yintercept<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>alpha, linetype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"solid"</span>)</span>
+<span id="cb3-85">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.scale_y_continuous(limits<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb3-86">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.facet_wrap(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~ dataset"</span>, nrow<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>rows, scales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>)</span>
+<span id="cb3-87">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.theme_538()</span>
+<span id="cb3-88">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Method"</span>)</span>
+<span id="cb3-89">    )</span>
+<span id="cb3-90">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> coverage_plot</span>
+<span id="cb3-91"></span>
+<span id="cb3-92"></span>
+<span id="cb3-93"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> plot_rolling_width(</span>
+<span id="cb3-94">    results: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>,</span>
+<span id="cb3-95">    window: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>,</span>
+<span id="cb3-96">    rows: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb3-97">    repeated: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bool</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span></span>
+<span id="cb3-98">):</span>
+<span id="cb3-99">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Plot the algorithm's mean prediction interval width over a sliding window"""</span></span>
+<span id="cb3-100"></span>
+<span id="cb3-101">    width_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(results)</span>
+<span id="cb3-102">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> repeated:</span>
+<span id="cb3-103">        width_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-104">            width_df</span>
+<span id="cb3-105">            .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>])[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>]</span>
+<span id="cb3-106">            .mean()</span>
+<span id="cb3-107">            .reset_index()</span>
+<span id="cb3-108">        )</span>
+<span id="cb3-109">    width_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_mean"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-110">        width_df</span>
+<span id="cb3-111">        .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>])[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>]</span>
+<span id="cb3-112">        .transform(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.rolling(window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>window).mean())</span>
+<span id="cb3-113">    )</span>
+<span id="cb3-114">    width_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> width_df.groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>]).cumcount() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb3-115">    width_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> width_df.dropna(subset<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_mean"</span>])</span>
+<span id="cb3-116">    width_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb3-117">        pn.ggplot(</span>
+<span id="cb3-118">            width_df,</span>
+<span id="cb3-119">            pn.aes(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_mean"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, group<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>)</span>
+<span id="cb3-120">        )</span>
+<span id="cb3-121">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_line()</span>
+<span id="cb3-122">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.facet_wrap(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~ dataset"</span>, nrow<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>rows, scales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>)</span>
+<span id="cb3-123">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.theme_538()</span>
+<span id="cb3-124">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Time"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Method"</span>)</span>
+<span id="cb3-125">    )</span>
+<span id="cb3-126">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> width_plot</span></code></pre></div>
+</div>
+</section>
+<section id="electricity-example" class="level3">
+<h3 class="anchored" data-anchor-id="electricity-example">Electricity example</h3>
+<p>Note: I implement non-exchangeable split CP with least-squares by using WLS and setting all the tags to a uniform value. Standard CP is implemented by setting all the weights to a uniform value as mentioned above.</p>
+<div id="c94b6ce3" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">split_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.sort(generator.choice(x, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(np.floor(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)), replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>))</span>
+<span id="cb4-2">results <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb4-3"></span>
+<span id="cb4-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create X and y for the normal and permuted data</span></span>
+<span id="cb4-5">X, y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (electricity.drop(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transfer"</span>, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), electricity[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transfer"</span>].to_numpy())</span>
+<span id="cb4-6">X_perm, y_perm <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (permuted.drop(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transfer"</span>, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), permuted[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"transfer"</span>].to_numpy())</span>
+<span id="cb4-7"></span>
+<span id="cb4-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict for each observation from N=100 to N=len(electricity)</span></span>
+<span id="cb4-9"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tqdm(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(electricity)), total<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(electricity)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>):</span>
+<span id="cb4-10">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> method <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+LS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+WLS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CP+LS"</span>]:</span>
+<span id="cb4-11">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> dataset <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Electricity"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Permuted"</span>]:</span>
+<span id="cb4-12">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> dataset <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Electricity"</span>:</span>
+<span id="cb4-13">                X_model, y_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (X, y)</span>
+<span id="cb4-14">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb4-15">                X_model, y_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (X_perm, y_perm)</span>
+<span id="cb4-16">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> method <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+LS"</span>:</span>
+<span id="cb4-17">                tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.array([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb4-18">                weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.99</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>np.arange(x, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb4-19">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> method <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+WLS"</span>:</span>
+<span id="cb4-20">                tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.99</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>np.arange(x, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb4-21">                weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tag_fn</span>
+<span id="cb4-22">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb4-23">                tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.array([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb4-24">                weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tag_fn</span>
+<span id="cb4-25">            out <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nexcp_split(</span>
+<span id="cb4-26">                model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>sm.WLS,</span>
+<span id="cb4-27">                split_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>split_fn,</span>
+<span id="cb4-28">                y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>y_model,</span>
+<span id="cb4-29">                X<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>X_model,</span>
+<span id="cb4-30">                tag_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>tag_fn,</span>
+<span id="cb4-31">                weight_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>weight_fn,</span>
+<span id="cb4-32">                alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb4-33">                test_index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>i</span>
+<span id="cb4-34">            )</span>
+<span id="cb4-35">            out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> method</span>
+<span id="cb4-36">            out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dataset</span>
+<span id="cb4-37">            out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> i</span>
+<span id="cb4-38">            <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">del</span> out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ci"</span>]</span>
+<span id="cb4-39">            results.append(out)</span></code></pre></div>
+</div>
+<section id="plots" class="level4">
+<h4 class="anchored" data-anchor-id="plots">Plots</h4>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">coverage_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_rolling_coverage(results, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>)</span>
+<span id="cb5-2">coverage_plot.show()</span>
+<span id="cb5-3"></span>
+<span id="cb5-4">width_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_rolling_width(results, window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>)</span>
+<span id="cb5-5">width_plot.show()</span></code></pre></div>
+<div id="2ba9c302" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index_files/figure-html/cell-6-output-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="640"></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index_files/figure-html/cell-6-output-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="640"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="table" class="level4">
+<h4 class="anchored" data-anchor-id="table">Table</h4>
+<div id="c5fd7505" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb6-2">    pd</span>
+<span id="cb6-3">    .DataFrame(results)</span>
+<span id="cb6-4">    .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>])</span>
+<span id="cb6-5">    .mean()</span>
+<span id="cb6-6">    .reset_index()</span>
+<span id="cb6-7">)</span>
+<span id="cb6-8">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb6-9">    table</span>
+<span id="cb6-10">    .pivot_table(</span>
+<span id="cb6-11">        index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'method'</span>,</span>
+<span id="cb6-12">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'dataset'</span>,</span>
+<span id="cb6-13">        values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'covered'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'width'</span>]</span>
+<span id="cb6-14">    )</span>
+<span id="cb6-15">)</span>
+<span id="cb6-16">table.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>col[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>col[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>lower()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> col <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> table.columns]</span>
+<span id="cb6-17">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> table.reset_index()</span>
+<span id="cb6-18">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb6-19">    GT(table, rowname_col<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>)</span>
+<span id="cb6-20">    .tab_spanner(</span>
+<span id="cb6-21">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Electricity data"</span>,</span>
+<span id="cb6-22">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_electricity"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_electricity"</span>]</span>
+<span id="cb6-23">    )</span>
+<span id="cb6-24">    .tab_spanner(</span>
+<span id="cb6-25">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Permuted electricity data"</span>,</span>
+<span id="cb6-26">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_permuted"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_permuted"</span>]</span>
+<span id="cb6-27">    )</span>
+<span id="cb6-28">    .fmt_number(</span>
+<span id="cb6-29">        columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb6-30">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_electricity"</span>,</span>
+<span id="cb6-31">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_electricity"</span>,</span>
+<span id="cb6-32">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_permuted"</span>,</span>
+<span id="cb6-33">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_permuted"</span></span>
+<span id="cb6-34">        ],</span>
+<span id="cb6-35">        decimals<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb6-36">    )</span>
+<span id="cb6-37">    .cols_label(</span>
+<span id="cb6-38">        covered_electricity <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>,</span>
+<span id="cb6-39">        width_electricity <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span>,</span>
+<span id="cb6-40">        covered_permuted <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>,</span>
+<span id="cb6-41">        width_permuted <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span></span>
+<span id="cb6-42">    )</span>
+<span id="cb6-43">)</span>
+<span id="cb6-44">table.show()</span></code></pre></div>
+<div class="cell-output cell-output-display">
+<div id="rnipgvklog" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#rnipgvklog table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#rnipgvklog thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#rnipgvklog p { margin: 0; padding: 0; }
+ #rnipgvklog .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #rnipgvklog .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #rnipgvklog .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #rnipgvklog .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #rnipgvklog .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #rnipgvklog .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #rnipgvklog .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #rnipgvklog .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #rnipgvklog .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #rnipgvklog .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #rnipgvklog .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #rnipgvklog .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #rnipgvklog .gt_spanner_row { border-bottom-style: hidden; }
+ #rnipgvklog .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #rnipgvklog .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #rnipgvklog .gt_from_md> :first-child { margin-top: 0; }
+ #rnipgvklog .gt_from_md> :last-child { margin-bottom: 0; }
+ #rnipgvklog .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #rnipgvklog .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #rnipgvklog .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #rnipgvklog .gt_row_group_first td { border-top-width: 2px; }
+ #rnipgvklog .gt_row_group_first th { border-top-width: 2px; }
+ #rnipgvklog .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #rnipgvklog .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #rnipgvklog .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #rnipgvklog .gt_left { text-align: left; }
+ #rnipgvklog .gt_center { text-align: center; }
+ #rnipgvklog .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #rnipgvklog .gt_font_normal { font-weight: normal; }
+ #rnipgvklog .gt_font_bold { font-weight: bold; }
+ #rnipgvklog .gt_font_italic { font-style: italic; }
+ #rnipgvklog .gt_super { font-size: 65%; }
+ #rnipgvklog .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #rnipgvklog .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<tbody>
+<tr class="odd gt_col_headings gt_spanner_row">
+<td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
+<td colspan="2" id="Electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Electricity data</span></td>
+<td colspan="2" id="Permuted electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Permuted electricity data</span></td>
+</tr>
+<tr class="even gt_col_headings">
+<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
+<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
+<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
+<td class="gt_row gt_right">0.851</td>
+<td class="gt_row gt_right">0.562</td>
+<td class="gt_row gt_right">0.900</td>
+<td class="gt_row gt_right">0.636</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
+<td class="gt_row gt_right">0.872</td>
+<td class="gt_row gt_right">0.586</td>
+<td class="gt_row gt_right">0.897</td>
+<td class="gt_row gt_right">0.629</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
+<td class="gt_row gt_right">0.906</td>
+<td class="gt_row gt_right">0.552</td>
+<td class="gt_row gt_right">0.901</td>
+<td class="gt_row gt_right">0.627</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
+</div>
+</div>
+</section>
+</section>
+<section id="simulated-example" class="level3">
+<h3 class="anchored" data-anchor-id="simulated-example">Simulated example</h3>
+<p>This demonstrates the conformal prediction algorithm in the following data settings: i.i.d. data, data generating process with changepoints, and data with distribution drift. In the paper they repeat this 200 times to smooth the estimates, but for computational purposes here I only repeated it 50 times.</p>
+<div id="d54052c6" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">split_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.sort(generator.choice(x, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(np.floor(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)), replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>))</span>
+<span id="cb7-2">results <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb7-3"></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict for each observation from N=100 to N=len(electricity)</span></span>
+<span id="cb7-5"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tqdm(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>), total<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>):</span>
+<span id="cb7-6">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> rep <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>):</span>
+<span id="cb7-7">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> method <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+LS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+WLS"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CP+LS"</span>]:</span>
+<span id="cb7-8">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> dataset <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"setting_1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"setting_2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"setting_3"</span>]:</span>
+<span id="cb7-9">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> dataset <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"setting_1"</span>:</span>
+<span id="cb7-10">                    X_model, y_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sim_data(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, setting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-11">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> dataset <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"setting_2"</span>:</span>
+<span id="cb7-12">                    X_model, y_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sim_data(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, setting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb7-13">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb7-14">                    X_model, y_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sim_data(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, setting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb7-15">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> method <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+LS"</span>:</span>
+<span id="cb7-16">                    tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.array([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb7-17">                    weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.99</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>np.arange(x, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-18">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">elif</span> method <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NexCP+WLS"</span>:</span>
+<span id="cb7-19">                    tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.99</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>np.arange(x, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-20">                    weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tag_fn</span>
+<span id="cb7-21">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb7-22">                    tag_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: np.array([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb7-23">                    weight_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tag_fn</span>
+<span id="cb7-24">                out <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nexcp_split(</span>
+<span id="cb7-25">                    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>sm.WLS,</span>
+<span id="cb7-26">                    split_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>split_fn,</span>
+<span id="cb7-27">                    y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>y_model,</span>
+<span id="cb7-28">                    X<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>X_model,</span>
+<span id="cb7-29">                    tag_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>tag_fn,</span>
+<span id="cb7-30">                    weight_function<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>weight_fn,</span>
+<span id="cb7-31">                    alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb7-32">                    test_index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>i</span>
+<span id="cb7-33">                )</span>
+<span id="cb7-34">                out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> method</span>
+<span id="cb7-35">                out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dataset</span>
+<span id="cb7-36">                out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> i</span>
+<span id="cb7-37">                <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">del</span> out[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ci"</span>]</span>
+<span id="cb7-38">                results.append(out)</span></code></pre></div>
+</div>
+<section id="plots-1" class="level4">
+<h4 class="anchored" data-anchor-id="plots-1">Plots</h4>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1">coverage_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_rolling_coverage(</span>
+<span id="cb8-2">    results,</span>
+<span id="cb8-3">    alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb8-4">    window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb8-5">    rows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,</span>
+<span id="cb8-6">    repeated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span></span>
+<span id="cb8-7">)</span>
+<span id="cb8-8">coverage_plot.show()</span>
+<span id="cb8-9"></span>
+<span id="cb8-10">width_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_rolling_width(results, window<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, rows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, repeated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb8-11">width_plot.show()</span></code></pre></div>
+<div id="b68939b8" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index_files/figure-html/cell-9-output-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="640"></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index_files/figure-html/cell-9-output-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="640"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="table-1" class="level4">
+<h4 class="anchored" data-anchor-id="table-1">Table</h4>
+<div id="64b301ed" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb9-2">    pd</span>
+<span id="cb9-3">    .DataFrame(results)</span>
+<span id="cb9-4">    .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>])</span>
+<span id="cb9-5">    .mean()</span>
+<span id="cb9-6">    .reset_index()</span>
+<span id="cb9-7">    .drop(labels<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"index"</span>], axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-8">    .groupby([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>])</span>
+<span id="cb9-9">    .mean()</span>
+<span id="cb9-10">    .reset_index()</span>
+<span id="cb9-11">)</span>
+<span id="cb9-12">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb9-13">    table</span>
+<span id="cb9-14">    .pivot_table(</span>
+<span id="cb9-15">        index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>,</span>
+<span id="cb9-16">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dataset"</span>,</span>
+<span id="cb9-17">        values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width"</span>]</span>
+<span id="cb9-18">    )</span>
+<span id="cb9-19">)</span>
+<span id="cb9-20">table.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>col[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>col[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>lower()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> col <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> table.columns]</span>
+<span id="cb9-21">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> table.reset_index()</span>
+<span id="cb9-22">table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb9-23">    GT(table, rowname_col<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>)</span>
+<span id="cb9-24">    .tab_spanner(</span>
+<span id="cb9-25">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Setting 1 (i.i.d. data)"</span>,</span>
+<span id="cb9-26">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_1"</span>]</span>
+<span id="cb9-27">    )</span>
+<span id="cb9-28">    .tab_spanner(</span>
+<span id="cb9-29">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Setting 2 (changepoints)"</span>,</span>
+<span id="cb9-30">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_2"</span>]</span>
+<span id="cb9-31">    )</span>
+<span id="cb9-32">    .tab_spanner(</span>
+<span id="cb9-33">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Setting 3 (drift)"</span>,</span>
+<span id="cb9-34">        columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_3"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_3"</span>]</span>
+<span id="cb9-35">    )</span>
+<span id="cb9-36">    .fmt_number(</span>
+<span id="cb9-37">        columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb9-38">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_1"</span>,</span>
+<span id="cb9-39">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_1"</span>,</span>
+<span id="cb9-40">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_2"</span>,</span>
+<span id="cb9-41">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_2"</span>,</span>
+<span id="cb9-42">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"covered_setting_3"</span>,</span>
+<span id="cb9-43">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"width_setting_3"</span></span>
+<span id="cb9-44">        ],</span>
+<span id="cb9-45">        decimals<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb9-46">    )</span>
+<span id="cb9-47">    .cols_label(</span>
+<span id="cb9-48">        covered_setting_1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>,</span>
+<span id="cb9-49">        width_setting_1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span>,</span>
+<span id="cb9-50">        covered_setting_2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>,</span>
+<span id="cb9-51">        width_setting_2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span>,</span>
+<span id="cb9-52">        covered_setting_3 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Coverage"</span>,</span>
+<span id="cb9-53">        width_setting_3 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Width"</span></span>
+<span id="cb9-54">    )</span>
+<span id="cb9-55">)</span>
+<span id="cb9-56">table.show()</span></code></pre></div>
+<div class="cell-output cell-output-display">
+<div id="zqbkcjygmy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#zqbkcjygmy table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#zqbkcjygmy thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#zqbkcjygmy p { margin: 0; padding: 0; }
+ #zqbkcjygmy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #zqbkcjygmy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #zqbkcjygmy .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #zqbkcjygmy .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #zqbkcjygmy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #zqbkcjygmy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #zqbkcjygmy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #zqbkcjygmy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #zqbkcjygmy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #zqbkcjygmy .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #zqbkcjygmy .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #zqbkcjygmy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #zqbkcjygmy .gt_spanner_row { border-bottom-style: hidden; }
+ #zqbkcjygmy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #zqbkcjygmy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #zqbkcjygmy .gt_from_md> :first-child { margin-top: 0; }
+ #zqbkcjygmy .gt_from_md> :last-child { margin-bottom: 0; }
+ #zqbkcjygmy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #zqbkcjygmy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #zqbkcjygmy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #zqbkcjygmy .gt_row_group_first td { border-top-width: 2px; }
+ #zqbkcjygmy .gt_row_group_first th { border-top-width: 2px; }
+ #zqbkcjygmy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #zqbkcjygmy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #zqbkcjygmy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #zqbkcjygmy .gt_left { text-align: left; }
+ #zqbkcjygmy .gt_center { text-align: center; }
+ #zqbkcjygmy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #zqbkcjygmy .gt_font_normal { font-weight: normal; }
+ #zqbkcjygmy .gt_font_bold { font-weight: bold; }
+ #zqbkcjygmy .gt_font_italic { font-style: italic; }
+ #zqbkcjygmy .gt_super { font-size: 65%; }
+ #zqbkcjygmy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #zqbkcjygmy .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<tbody>
+<tr class="odd gt_col_headings gt_spanner_row">
+<td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
+<td colspan="2" id="Setting 1 (i.i.d. data)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 1 (i.i.d. data)</span></td>
+<td colspan="2" id="Setting 2 (changepoints)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 2 (changepoints)</span></td>
+<td colspan="2" id="Setting 3 (drift)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 3 (drift)</span></td>
+</tr>
+<tr class="even gt_col_headings">
+<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
+<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
+<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
+<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+</tr>
+</tbody>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
+<td class="gt_row gt_right">0.898</td>
+<td class="gt_row gt_right">3.300</td>
+<td class="gt_row gt_right">0.828</td>
+<td class="gt_row gt_right">5.982</td>
+<td class="gt_row gt_right">0.835</td>
+<td class="gt_row gt_right">3.730</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
+<td class="gt_row gt_right">0.896</td>
+<td class="gt_row gt_right">3.303</td>
+<td class="gt_row gt_right">0.842</td>
+<td class="gt_row gt_right">6.127</td>
+<td class="gt_row gt_right">0.853</td>
+<td class="gt_row gt_right">3.905</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
+<td class="gt_row gt_right">0.898</td>
+<td class="gt_row gt_right">3.322</td>
+<td class="gt_row gt_right">0.923</td>
+<td class="gt_row gt_right">5.363</td>
+<td class="gt_row gt_right">0.912</td>
+<td class="gt_row gt_right">3.573</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+        
+</div>
+</div>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>Conformal Prediction</category>
+  <guid>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/</guid>
+  <pubDate>Thu, 25 Jul 2024 00:00:00 GMT</pubDate>
+  <media:content url="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/thumbnail.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Building and Deploying Adaptive Experiments with Shiny</title>
   <link>https://dmolitor.com/blog/posts/dynamic_surveys/</link>
