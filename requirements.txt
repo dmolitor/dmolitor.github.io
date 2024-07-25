@@ -1,0 +1,8 @@
+great_tables
+jupyter
+numpy
+pandas
+plotnine
+scikit-learn
+statsmodels>=0.14.0
+tqdm
