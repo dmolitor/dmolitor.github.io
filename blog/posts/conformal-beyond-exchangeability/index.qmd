@@ -124,14 +124,15 @@ def nexcp_split(
     X_calib = X.drop(split_indices)
     y_calib = np.delete(y, split_indices)
     # Generate tags and weights
-    tags_train = tag_function(len(X_train)-1)
-    weights_calib = normalize_weights(weight_function(len(X_calib)-1))
+    tags = tag_function(test_index)
+    weights = weight_function(test_index)
     # Train model
-    model_base = model(y_train, X_train, weights=tags_train)
+    model_base = model(y_train, X_train, weights=tags[split_indices])
     model_fitted = model_base.fit()
     # Generate residuals
     residuals = np.abs(y_calib - model_fitted.predict(X_calib))
     # Calculate weighted quantile of residuals
+    weights_calib = normalize_weights(np.delete(weights[:test_index], split_indices))
     q_hat = np.quantile(
         residuals,
         1 - alpha,
@@ -233,7 +234,7 @@ to a uniform value as mentioned above.
 #| error: false
 #| echo: true
 
-split_fn = lambda x: np.sort(generator.choice(x, int(np.floor(x*0.7)), replace=False))
+split_fn = lambda x: np.sort(generator.choice(x, int(np.floor(x*0.3)), replace=False))
 results = []
 
 # Create X and y for the normal and permuted data
@@ -354,7 +355,7 @@ purposes here I only repeated it 50 times.
 #| warning: false
 #| error: false
 #| echo: true
-split_fn = lambda x: np.sort(generator.choice(x, int(np.floor(x*0.7)), replace=False))
+split_fn = lambda x: np.sort(generator.choice(x, int(np.floor(x*0.3)), replace=False))
 results = []
 
 # Predict for each observation from N=100 to N=len(electricity)
