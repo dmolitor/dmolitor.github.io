@@ -192,7 +192,7 @@ ga('send', {
 
 <section id="dependencies" class="level3">
 <h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
-<div id="cb06fc33" class="cell" data-execution_count="1">
+<div id="6eae1a35" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy.typing <span class="im">as</span> npt</span>
@@ -209,7 +209,7 @@ ga('send', {
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<div id="5d342d25" class="cell" data-execution_count="2">
+<div id="5f7ed22e" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Electricity data</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>electricity <span class="op">=</span> pd.read_csv(base_dir <span class="op">/</span> <span class="st">"data"</span> <span class="op">/</span> <span class="st">"electricity-normalized.csv"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>electricity <span class="op">=</span> (</span>
@@ -251,7 +251,7 @@ ga('send', {
 <section id="functions" class="level3">
 <h3 class="anchored" data-anchor-id="functions">Functions</h3>
 <p>The <code>nexcp_split</code> function implements non-exchangeable split conformal prediction (CP). However, we can force it to also implement standard CP, which assumes exchangeability, by setting uniform weights. So we only need one function to replicate the results!</p>
-<div id="2ad8e52d" class="cell" data-execution_count="3">
+<div id="faf2c16b" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize_weights(weights: npt.NDArray):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> weights <span class="op">/</span> weights.<span class="bu">sum</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -282,109 +282,110 @@ ga('send', {
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    X_calib <span class="op">=</span> X.drop(split_indices)</span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    y_calib <span class="op">=</span> np.delete(y, split_indices)</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate tags and weights</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    tags_train <span class="op">=</span> tag_function(<span class="bu">len</span>(X_train)<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    weights_calib <span class="op">=</span> normalize_weights(weight_function(<span class="bu">len</span>(X_calib)<span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    tags <span class="op">=</span> tag_function(test_index)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> weight_function(test_index)</span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Train model</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    model_base <span class="op">=</span> model(y_train, X_train, weights<span class="op">=</span>tags_train)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    model_base <span class="op">=</span> model(y_train, X_train, weights<span class="op">=</span>tags[split_indices])</span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    model_fitted <span class="op">=</span> model_base.fit()</span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate residuals</span></span>
 <span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    residuals <span class="op">=</span> np.<span class="bu">abs</span>(y_calib <span class="op">-</span> model_fitted.predict(X_calib))</span>
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate weighted quantile of residuals</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    q_hat <span class="op">=</span> np.quantile(</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        residuals,</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span> <span class="op">-</span> alpha,</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        weights<span class="op">=</span>weights_calib,</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        method<span class="op">=</span><span class="st">"inverted_cdf"</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate predicted value</span></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> model_fitted.predict(X_test).iloc[<span class="dv">0</span>]</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate CI</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    lb <span class="op">=</span> y_hat <span class="op">-</span> q_hat</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    ub <span class="op">=</span> y_hat <span class="op">+</span> q_hat</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    covered <span class="op">=</span> lb <span class="op">&lt;=</span> y_test <span class="op">&lt;=</span> ub</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"ci"</span>: np.array([lb, y_hat, ub]), <span class="st">"covered"</span>: covered, <span class="st">"width"</span>: ub<span class="op">-</span>lb}</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    weights_calib <span class="op">=</span> normalize_weights(np.delete(weights[:test_index], split_indices))</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    q_hat <span class="op">=</span> np.quantile(</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        residuals,</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span> <span class="op">-</span> alpha,</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        weights<span class="op">=</span>weights_calib,</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        method<span class="op">=</span><span class="st">"inverted_cdf"</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate predicted value</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> model_fitted.predict(X_test).iloc[<span class="dv">0</span>]</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate CI</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    lb <span class="op">=</span> y_hat <span class="op">-</span> q_hat</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    ub <span class="op">=</span> y_hat <span class="op">+</span> q_hat</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    covered <span class="op">=</span> lb <span class="op">&lt;=</span> y_test <span class="op">&lt;=</span> ub</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"ci"</span>: np.array([lb, y_hat, ub]), <span class="st">"covered"</span>: covered, <span class="st">"width"</span>: ub<span class="op">-</span>lb}</span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_rolling_coverage(</span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    results: List[<span class="bu">dict</span>],</span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    alpha: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    window: <span class="bu">int</span> <span class="op">=</span> <span class="dv">300</span>,</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    rows: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>,</span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    repeated: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot the algorithm's mean coverage over a sliding window"""</span></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    coverage_df <span class="op">=</span> pd.DataFrame(results)</span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> repeated:</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        coverage_df <span class="op">=</span> (</span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>            coverage_df</span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>            .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>, <span class="st">"index"</span>])[<span class="st">"covered"</span>]</span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>            .mean()</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            .reset_index()</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    coverage_df[<span class="st">"coverage_mean"</span>] <span class="op">=</span> (</span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>        coverage_df</span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>        .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>])[<span class="st">"covered"</span>]</span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> x: x.rolling(window<span class="op">=</span>window).mean())</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    coverage_df[<span class="st">"time"</span>] <span class="op">=</span> coverage_df.groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>]).cumcount() <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    coverage_df <span class="op">=</span> coverage_df.dropna(subset<span class="op">=</span>[<span class="st">"coverage_mean"</span>])</span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    coverage_plot <span class="op">=</span> (</span>
-<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>        pn.ggplot(</span>
-<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>            coverage_df,</span>
-<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>            pn.aes(x<span class="op">=</span><span class="st">"time"</span>, y<span class="op">=</span><span class="st">"coverage_mean"</span>, color<span class="op">=</span><span class="st">"method"</span>, group<span class="op">=</span><span class="st">"method"</span>)</span>
-<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_line()</span>
-<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_hline(yintercept<span class="op">=</span><span class="dv">1</span><span class="op">-</span>alpha, linetype<span class="op">=</span><span class="st">"solid"</span>)</span>
-<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
-<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.facet_wrap(<span class="st">"~ dataset"</span>, nrow<span class="op">=</span>rows, scales<span class="op">=</span><span class="st">"free"</span>)</span>
-<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.theme_538()</span>
-<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.labs(x<span class="op">=</span><span class="st">"Time"</span>, y<span class="op">=</span><span class="st">"Coverage"</span>, color<span class="op">=</span><span class="st">"Method"</span>)</span>
-<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> coverage_plot</span>
-<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_rolling_coverage(</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    results: List[<span class="bu">dict</span>],</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    alpha: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    window: <span class="bu">int</span> <span class="op">=</span> <span class="dv">300</span>,</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    rows: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>,</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    repeated: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot the algorithm's mean coverage over a sliding window"""</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    coverage_df <span class="op">=</span> pd.DataFrame(results)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> repeated:</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>        coverage_df <span class="op">=</span> (</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>            coverage_df</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>            .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>, <span class="st">"index"</span>])[<span class="st">"covered"</span>]</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            .mean()</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>            .reset_index()</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    coverage_df[<span class="st">"coverage_mean"</span>] <span class="op">=</span> (</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>        coverage_df</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>        .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>])[<span class="st">"covered"</span>]</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> x: x.rolling(window<span class="op">=</span>window).mean())</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    coverage_df[<span class="st">"time"</span>] <span class="op">=</span> coverage_df.groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>]).cumcount() <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    coverage_df <span class="op">=</span> coverage_df.dropna(subset<span class="op">=</span>[<span class="st">"coverage_mean"</span>])</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    coverage_plot <span class="op">=</span> (</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>        pn.ggplot(</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>            coverage_df,</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>            pn.aes(x<span class="op">=</span><span class="st">"time"</span>, y<span class="op">=</span><span class="st">"coverage_mean"</span>, color<span class="op">=</span><span class="st">"method"</span>, group<span class="op">=</span><span class="st">"method"</span>)</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_line()</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_hline(yintercept<span class="op">=</span><span class="dv">1</span><span class="op">-</span>alpha, linetype<span class="op">=</span><span class="st">"solid"</span>)</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.facet_wrap(<span class="st">"~ dataset"</span>, nrow<span class="op">=</span>rows, scales<span class="op">=</span><span class="st">"free"</span>)</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.theme_538()</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.labs(x<span class="op">=</span><span class="st">"Time"</span>, y<span class="op">=</span><span class="st">"Coverage"</span>, color<span class="op">=</span><span class="st">"Method"</span>)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> coverage_plot</span>
 <span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_rolling_width(</span>
-<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>    results: <span class="bu">dict</span>,</span>
-<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>    window: <span class="bu">int</span> <span class="op">=</span> <span class="dv">300</span>,</span>
-<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    rows: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>,</span>
-<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    repeated: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot the algorithm's mean prediction interval width over a sliding window"""</span></span>
-<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>    width_df <span class="op">=</span> pd.DataFrame(results)</span>
-<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> repeated:</span>
-<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>        width_df <span class="op">=</span> (</span>
-<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>            width_df</span>
-<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>            .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>, <span class="st">"index"</span>])[<span class="st">"width"</span>]</span>
-<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>            .mean()</span>
-<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>            .reset_index()</span>
-<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>    width_df[<span class="st">"width_mean"</span>] <span class="op">=</span> (</span>
-<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>        width_df</span>
-<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>        .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>])[<span class="st">"width"</span>]</span>
-<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> x: x.rolling(window<span class="op">=</span>window).mean())</span>
-<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>    width_df[<span class="st">"time"</span>] <span class="op">=</span> width_df.groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>]).cumcount() <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>    width_df <span class="op">=</span> width_df.dropna(subset<span class="op">=</span>[<span class="st">"width_mean"</span>])</span>
-<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>    width_plot <span class="op">=</span> (</span>
-<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>        pn.ggplot(</span>
-<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>            width_df,</span>
-<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>            pn.aes(x<span class="op">=</span><span class="st">"time"</span>, y<span class="op">=</span><span class="st">"width_mean"</span>, color<span class="op">=</span><span class="st">"method"</span>, group<span class="op">=</span><span class="st">"method"</span>)</span>
-<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_line()</span>
-<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.facet_wrap(<span class="st">"~ dataset"</span>, nrow<span class="op">=</span>rows, scales<span class="op">=</span><span class="st">"free"</span>)</span>
-<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.theme_538()</span>
-<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.labs(x<span class="op">=</span><span class="st">"Time"</span>, y<span class="op">=</span><span class="st">"Width"</span>, color<span class="op">=</span><span class="st">"Method"</span>)</span>
-<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> width_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_rolling_width(</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>    results: <span class="bu">dict</span>,</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    window: <span class="bu">int</span> <span class="op">=</span> <span class="dv">300</span>,</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    rows: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>,</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    repeated: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Plot the algorithm's mean prediction interval width over a sliding window"""</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    width_df <span class="op">=</span> pd.DataFrame(results)</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> repeated:</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>        width_df <span class="op">=</span> (</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>            width_df</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>            .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>, <span class="st">"index"</span>])[<span class="st">"width"</span>]</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>            .mean()</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>            .reset_index()</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>    width_df[<span class="st">"width_mean"</span>] <span class="op">=</span> (</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>        width_df</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>        .groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>])[<span class="st">"width"</span>]</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> x: x.rolling(window<span class="op">=</span>window).mean())</span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>    width_df[<span class="st">"time"</span>] <span class="op">=</span> width_df.groupby([<span class="st">"method"</span>, <span class="st">"dataset"</span>]).cumcount() <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>    width_df <span class="op">=</span> width_df.dropna(subset<span class="op">=</span>[<span class="st">"width_mean"</span>])</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>    width_plot <span class="op">=</span> (</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>        pn.ggplot(</span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>            width_df,</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>            pn.aes(x<span class="op">=</span><span class="st">"time"</span>, y<span class="op">=</span><span class="st">"width_mean"</span>, color<span class="op">=</span><span class="st">"method"</span>, group<span class="op">=</span><span class="st">"method"</span>)</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.geom_line()</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.facet_wrap(<span class="st">"~ dataset"</span>, nrow<span class="op">=</span>rows, scales<span class="op">=</span><span class="st">"free"</span>)</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.theme_538()</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> pn.labs(x<span class="op">=</span><span class="st">"Time"</span>, y<span class="op">=</span><span class="st">"Width"</span>, color<span class="op">=</span><span class="st">"Method"</span>)</span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> width_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="electricity-example" class="level3">
 <h3 class="anchored" data-anchor-id="electricity-example">Electricity example</h3>
 <p>Note: I implement non-exchangeable split CP with least-squares by using WLS and setting all the tags to a uniform value. Standard CP is implemented by setting all the weights to a uniform value as mentioned above.</p>
-<div id="c94b6ce3" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>split_fn <span class="op">=</span> <span class="kw">lambda</span> x: np.sort(generator.choice(x, <span class="bu">int</span>(np.floor(x<span class="op">*</span><span class="fl">0.7</span>)), replace<span class="op">=</span><span class="va">False</span>))</span>
+<div id="d93e82e9" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>split_fn <span class="op">=</span> <span class="kw">lambda</span> x: np.sort(generator.choice(x, <span class="bu">int</span>(np.floor(x<span class="op">*</span><span class="fl">0.3</span>)), replace<span class="op">=</span><span class="va">False</span>))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create X and y for the normal and permuted data</span></span>
@@ -431,7 +432,7 @@ ga('send', {
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>width_plot <span class="op">=</span> plot_rolling_width(results, window<span class="op">=</span><span class="dv">300</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>width_plot.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="2ba9c302" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
+<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -452,7 +453,7 @@ ga('send', {
 </section>
 <section id="table" class="level4">
 <h4 class="anchored" data-anchor-id="table">Table</h4>
-<div id="c5fd7505" class="cell" data-execution_count="6">
+<div id="7695a52a" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> (</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    pd</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .DataFrame(results)</span>
@@ -498,51 +499,51 @@ ga('send', {
 <span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>table.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div id="rnipgvklog" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="skvuoqzjls" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#rnipgvklog table {
+#skvuoqzjls table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#rnipgvklog thead, tbody, tfoot, tr, td, th { border-style: none; }
+#skvuoqzjls thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#rnipgvklog p { margin: 0; padding: 0; }
- #rnipgvklog .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #rnipgvklog .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #rnipgvklog .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #rnipgvklog .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #rnipgvklog .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rnipgvklog .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rnipgvklog .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #rnipgvklog .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #rnipgvklog .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #rnipgvklog .gt_column_spanner_outer:first-child { padding-left: 0; }
- #rnipgvklog .gt_column_spanner_outer:last-child { padding-right: 0; }
- #rnipgvklog .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #rnipgvklog .gt_spanner_row { border-bottom-style: hidden; }
- #rnipgvklog .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #rnipgvklog .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #rnipgvklog .gt_from_md> :first-child { margin-top: 0; }
- #rnipgvklog .gt_from_md> :last-child { margin-bottom: 0; }
- #rnipgvklog .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #rnipgvklog .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #rnipgvklog .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #rnipgvklog .gt_row_group_first td { border-top-width: 2px; }
- #rnipgvklog .gt_row_group_first th { border-top-width: 2px; }
- #rnipgvklog .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #rnipgvklog .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #rnipgvklog .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #rnipgvklog .gt_left { text-align: left; }
- #rnipgvklog .gt_center { text-align: center; }
- #rnipgvklog .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #rnipgvklog .gt_font_normal { font-weight: normal; }
- #rnipgvklog .gt_font_bold { font-weight: bold; }
- #rnipgvklog .gt_font_italic { font-style: italic; }
- #rnipgvklog .gt_super { font-size: 65%; }
- #rnipgvklog .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #rnipgvklog .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#skvuoqzjls p { margin: 0; padding: 0; }
+ #skvuoqzjls .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #skvuoqzjls .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #skvuoqzjls .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #skvuoqzjls .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #skvuoqzjls .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #skvuoqzjls .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #skvuoqzjls .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #skvuoqzjls .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #skvuoqzjls .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #skvuoqzjls .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #skvuoqzjls .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #skvuoqzjls .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #skvuoqzjls .gt_spanner_row { border-bottom-style: hidden; }
+ #skvuoqzjls .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #skvuoqzjls .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #skvuoqzjls .gt_from_md> :first-child { margin-top: 0; }
+ #skvuoqzjls .gt_from_md> :last-child { margin-bottom: 0; }
+ #skvuoqzjls .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #skvuoqzjls .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #skvuoqzjls .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #skvuoqzjls .gt_row_group_first td { border-top-width: 2px; }
+ #skvuoqzjls .gt_row_group_first th { border-top-width: 2px; }
+ #skvuoqzjls .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #skvuoqzjls .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #skvuoqzjls .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #skvuoqzjls .gt_left { text-align: left; }
+ #skvuoqzjls .gt_center { text-align: center; }
+ #skvuoqzjls .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #skvuoqzjls .gt_font_normal { font-weight: normal; }
+ #skvuoqzjls .gt_font_bold { font-weight: bold; }
+ #skvuoqzjls .gt_font_italic { font-style: italic; }
+ #skvuoqzjls .gt_super { font-size: 65%; }
+ #skvuoqzjls .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #skvuoqzjls .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -563,24 +564,24 @@ ga('send', {
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
-<td class="gt_row gt_right">0.851</td>
-<td class="gt_row gt_right">0.562</td>
-<td class="gt_row gt_right">0.900</td>
-<td class="gt_row gt_right">0.636</td>
+<td class="gt_row gt_right">0.859</td>
+<td class="gt_row gt_right">0.558</td>
+<td class="gt_row gt_right">0.895</td>
+<td class="gt_row gt_right">0.628</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
-<td class="gt_row gt_right">0.872</td>
-<td class="gt_row gt_right">0.586</td>
-<td class="gt_row gt_right">0.897</td>
-<td class="gt_row gt_right">0.629</td>
+<td class="gt_row gt_right">0.878</td>
+<td class="gt_row gt_right">0.581</td>
+<td class="gt_row gt_right">0.902</td>
+<td class="gt_row gt_right">0.638</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
-<td class="gt_row gt_right">0.906</td>
-<td class="gt_row gt_right">0.552</td>
-<td class="gt_row gt_right">0.901</td>
-<td class="gt_row gt_right">0.627</td>
+<td class="gt_row gt_right">0.880</td>
+<td class="gt_row gt_right">0.497</td>
+<td class="gt_row gt_right">0.895</td>
+<td class="gt_row gt_right">0.629</td>
 </tr>
 </tbody>
 </table>
@@ -595,8 +596,8 @@ ga('send', {
 <section id="simulated-example" class="level3">
 <h3 class="anchored" data-anchor-id="simulated-example">Simulated example</h3>
 <p>This demonstrates the conformal prediction algorithm in the following data settings: i.i.d. data, data generating process with changepoints, and data with distribution drift. In the paper they repeat this 200 times to smooth the estimates, but for computational purposes here I only repeated it 50 times.</p>
-<div id="d54052c6" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>split_fn <span class="op">=</span> <span class="kw">lambda</span> x: np.sort(generator.choice(x, <span class="bu">int</span>(np.floor(x<span class="op">*</span><span class="fl">0.7</span>)), replace<span class="op">=</span><span class="va">False</span>))</span>
+<div id="e8b4d8fb" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>split_fn <span class="op">=</span> <span class="kw">lambda</span> x: np.sort(generator.choice(x, <span class="bu">int</span>(np.floor(x<span class="op">*</span><span class="fl">0.3</span>)), replace<span class="op">=</span><span class="va">False</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict for each observation from N=100 to N=len(electricity)</span></span>
@@ -648,7 +649,7 @@ ga('send', {
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>width_plot <span class="op">=</span> plot_rolling_width(results, window<span class="op">=</span><span class="dv">10</span>, rows<span class="op">=</span><span class="dv">3</span>, repeated<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>width_plot.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="b68939b8" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
+<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -669,7 +670,7 @@ ga('send', {
 </section>
 <section id="table-1" class="level4">
 <h4 class="anchored" data-anchor-id="table-1">Table</h4>
-<div id="64b301ed" class="cell" data-execution_count="9">
+<div id="2d9aaa47" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> (</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    pd</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    .DataFrame(results)</span>
@@ -727,51 +728,51 @@ ga('send', {
 <span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>table.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div id="zqbkcjygmy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lfyuuzppxt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#zqbkcjygmy table {
+#lfyuuzppxt table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#zqbkcjygmy thead, tbody, tfoot, tr, td, th { border-style: none; }
+#lfyuuzppxt thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#zqbkcjygmy p { margin: 0; padding: 0; }
- #zqbkcjygmy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #zqbkcjygmy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #zqbkcjygmy .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #zqbkcjygmy .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #zqbkcjygmy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #zqbkcjygmy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #zqbkcjygmy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #zqbkcjygmy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #zqbkcjygmy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #zqbkcjygmy .gt_column_spanner_outer:first-child { padding-left: 0; }
- #zqbkcjygmy .gt_column_spanner_outer:last-child { padding-right: 0; }
- #zqbkcjygmy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #zqbkcjygmy .gt_spanner_row { border-bottom-style: hidden; }
- #zqbkcjygmy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #zqbkcjygmy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #zqbkcjygmy .gt_from_md> :first-child { margin-top: 0; }
- #zqbkcjygmy .gt_from_md> :last-child { margin-bottom: 0; }
- #zqbkcjygmy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #zqbkcjygmy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #zqbkcjygmy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #zqbkcjygmy .gt_row_group_first td { border-top-width: 2px; }
- #zqbkcjygmy .gt_row_group_first th { border-top-width: 2px; }
- #zqbkcjygmy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #zqbkcjygmy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #zqbkcjygmy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #zqbkcjygmy .gt_left { text-align: left; }
- #zqbkcjygmy .gt_center { text-align: center; }
- #zqbkcjygmy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #zqbkcjygmy .gt_font_normal { font-weight: normal; }
- #zqbkcjygmy .gt_font_bold { font-weight: bold; }
- #zqbkcjygmy .gt_font_italic { font-style: italic; }
- #zqbkcjygmy .gt_super { font-size: 65%; }
- #zqbkcjygmy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #zqbkcjygmy .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#lfyuuzppxt p { margin: 0; padding: 0; }
+ #lfyuuzppxt .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #lfyuuzppxt .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #lfyuuzppxt .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #lfyuuzppxt .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #lfyuuzppxt .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lfyuuzppxt .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lfyuuzppxt .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lfyuuzppxt .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #lfyuuzppxt .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #lfyuuzppxt .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #lfyuuzppxt .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #lfyuuzppxt .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #lfyuuzppxt .gt_spanner_row { border-bottom-style: hidden; }
+ #lfyuuzppxt .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #lfyuuzppxt .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #lfyuuzppxt .gt_from_md> :first-child { margin-top: 0; }
+ #lfyuuzppxt .gt_from_md> :last-child { margin-bottom: 0; }
+ #lfyuuzppxt .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #lfyuuzppxt .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #lfyuuzppxt .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #lfyuuzppxt .gt_row_group_first td { border-top-width: 2px; }
+ #lfyuuzppxt .gt_row_group_first th { border-top-width: 2px; }
+ #lfyuuzppxt .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lfyuuzppxt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lfyuuzppxt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #lfyuuzppxt .gt_left { text-align: left; }
+ #lfyuuzppxt .gt_center { text-align: center; }
+ #lfyuuzppxt .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #lfyuuzppxt .gt_font_normal { font-weight: normal; }
+ #lfyuuzppxt .gt_font_bold { font-weight: bold; }
+ #lfyuuzppxt .gt_font_italic { font-style: italic; }
+ #lfyuuzppxt .gt_super { font-size: 65%; }
+ #lfyuuzppxt .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #lfyuuzppxt .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -795,30 +796,30 @@ ga('send', {
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
-<td class="gt_row gt_right">0.898</td>
-<td class="gt_row gt_right">3.300</td>
-<td class="gt_row gt_right">0.828</td>
-<td class="gt_row gt_right">5.982</td>
-<td class="gt_row gt_right">0.835</td>
-<td class="gt_row gt_right">3.730</td>
+<td class="gt_row gt_right">0.899</td>
+<td class="gt_row gt_right">3.325</td>
+<td class="gt_row gt_right">0.832</td>
+<td class="gt_row gt_right">6.022</td>
+<td class="gt_row gt_right">0.836</td>
+<td class="gt_row gt_right">3.754</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
-<td class="gt_row gt_right">0.896</td>
-<td class="gt_row gt_right">3.303</td>
-<td class="gt_row gt_right">0.842</td>
-<td class="gt_row gt_right">6.127</td>
-<td class="gt_row gt_right">0.853</td>
-<td class="gt_row gt_right">3.905</td>
+<td class="gt_row gt_right">0.898</td>
+<td class="gt_row gt_right">3.324</td>
+<td class="gt_row gt_right">0.874</td>
+<td class="gt_row gt_right">6.692</td>
+<td class="gt_row gt_right">0.880</td>
+<td class="gt_row gt_right">4.208</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
-<td class="gt_row gt_right">0.898</td>
-<td class="gt_row gt_right">3.322</td>
-<td class="gt_row gt_right">0.923</td>
-<td class="gt_row gt_right">5.363</td>
-<td class="gt_row gt_right">0.912</td>
-<td class="gt_row gt_right">3.573</td>
+<td class="gt_row gt_right">0.897</td>
+<td class="gt_row gt_right">3.403</td>
+<td class="gt_row gt_right">0.896</td>
+<td class="gt_row gt_right">4.114</td>
+<td class="gt_row gt_right">0.897</td>
+<td class="gt_row gt_right">3.440</td>
 </tr>
 </tbody>
 </table>
