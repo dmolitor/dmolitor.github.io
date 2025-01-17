@@ -22,7 +22,7 @@ Understanding discriminatory human choices are of central interest
 across the social sciences. Typically when studying such questions, researchers
 employ standard designs such as experimental audit studies or conjoint analyses.
 Recent advances in the adaptive experimentation literature have explored how
-multi-arm bandit (MAB) algorithms can be used to answer the same questions with
+multi-armed bandit (MAB) algorithms can be used to answer the same questions with
 lower cost and greater data efficiency while also mitigating ethical concerns
 that may arise in some randomized experiments (e.g. assigning participants
 to harmful treatment arms) @offerwestort_adaptive_2021 @kaibel_rethinking_2021.
@@ -44,7 +44,7 @@ Our goal was to explore how we could adopt methods from the adaptive
 experimentation literature to answer these questions more efficiently
 than standard methods.
 
-To this end, we framed the question as a stochastic multi-arm bandit problem.
+To this end, we framed the question as a stochastic MAB problem.
 Each arm of the bandit was defined as one set of immigrant characteristics
 and the outcome of interest (reward) was whether the survey respondent chose to
 prioritize the immigrant with higher education, given that set of
