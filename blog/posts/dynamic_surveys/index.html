@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.40">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -87,12 +87,12 @@ div.csl-indent {
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-86daaaaad7353f9cc0c554efc1dd6d94.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f8dc6eab18fde03278982b0b35885446.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-c6d204ae15a464d8b5874a3e54e242e3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-5d3017259e1187596f40281396adf3b7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -236,10 +236,10 @@ ga('send', {
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>Understanding discriminatory human choices are of central interest across the social sciences. Typically when studying such questions, researchers employ standard designs such as experimental audit studies or conjoint analyses. Recent advances in the adaptive experimentation literature have explored how multi-arm bandit (MAB) algorithms can be used to answer the same questions with lower cost and greater data efficiency while also mitigating ethical concerns that may arise in some randomized experiments (e.g.&nbsp;assigning participants to harmful treatment arms)<span class="citation" data-cites="offerwestort_adaptive_2021"><sup><a href="#ref-offerwestort_adaptive_2021" role="doc-biblioref">1</a></sup></span> <span class="citation" data-cites="kaibel_rethinking_2021"><sup><a href="#ref-kaibel_rethinking_2021" role="doc-biblioref">2</a></sup></span>.</p>
+<p>Understanding discriminatory human choices are of central interest across the social sciences. Typically when studying such questions, researchers employ standard designs such as experimental audit studies or conjoint analyses. Recent advances in the adaptive experimentation literature have explored how multi-armed bandit (MAB) algorithms can be used to answer the same questions with lower cost and greater data efficiency while also mitigating ethical concerns that may arise in some randomized experiments (e.g.&nbsp;assigning participants to harmful treatment arms)<span class="citation" data-cites="offerwestort_adaptive_2021"><sup><a href="#ref-offerwestort_adaptive_2021" role="doc-biblioref">1</a></sup></span> <span class="citation" data-cites="kaibel_rethinking_2021"><sup><a href="#ref-kaibel_rethinking_2021" role="doc-biblioref">2</a></sup></span>.</p>
 <p>Although MAB methods can provide significant improvements over standard experimental methods, implementing adaptive experiments or surveys can pose a challenge. There are many survey platforms at the researcher’s disposal such as Qualtrics, Google Forms, etc. that can quickly accomodate standard survey designs, but these platforms do not easily support the design of adaptive surveys. Without such tools at their disposal, the researcher is stuck needing to design their own custom solution. This is the exact situation that my research team and I ran into a few months ago.</p>
 <p>It began with a straightforward enough question. We would like to know, for example, how American adults in the U.S. discriminate on the basis of education when choosing which immigrants to prioritize for immigrant visas?<span class="citation" data-cites="hainmueller_causal_2014"><sup><a href="#ref-hainmueller_causal_2014" role="doc-biblioref">3</a></sup></span> Our goal was to explore how we could adopt methods from the adaptive experimentation literature to answer these questions more efficiently than standard methods.</p>
-<p>To this end, we framed the question as a stochastic multi-arm bandit problem. Each arm of the bandit was defined as one set of immigrant characteristics and the outcome of interest (reward) was whether the survey respondent chose to prioritize the immigrant with higher education, given that set of characteristics. We wanted to understand under which set of characteristics American adults are the most likely to discriminate against an immigrant who has lower education.</p>
+<p>To this end, we framed the question as a stochastic MAB problem. Each arm of the bandit was defined as one set of immigrant characteristics and the outcome of interest (reward) was whether the survey respondent chose to prioritize the immigrant with higher education, given that set of characteristics. We wanted to understand under which set of characteristics American adults are the most likely to discriminate against an immigrant who has lower education.</p>
 <p>To uncover the set of characteristics with the most discrimination, we employed a classic algorithm from the adaptive literature in Thompson Sampling (TS)<span class="citation" data-cites="thompson_likelihood_1933"><sup><a href="#ref-thompson_likelihood_1933" role="doc-biblioref">4</a></sup></span>. TS is a dynamic algorithm. It starts out by assuming that the probability of discrimination is the same across all sets of immigrant characteristics. Every time a new survey respondent takes the survey, it assigns them to the set of characteristics that has the highest probability of resulting in a discriminatory response. TS then observes whether or not that respondent discriminates, and it updates the probability of discrimination for the set of characteristics which they were assigned to. As the algorithm learns which sets of characteristics are most likely to elicit discriminatory responses, the algorithm progressively assigns more respondents to those arms and stops assigning respondents to characteristics that fail to elicit a discriminatory response.</p>
 </section>
 <section id="necessity-of-a-custom-survey-form" class="level2">
@@ -624,8 +624,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -736,7 +734,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

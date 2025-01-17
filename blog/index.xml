@@ -9,7 +9,7 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.5.57</generator>
+<generator>quarto-1.6.40</generator>
 <lastBuildDate>Thu, 25 Jul 2024 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Conformal Prediction Beyond Exchangeability</title>
@@ -1480,12 +1480,12 @@ font-style: inherit;">"Width"</span></span>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <tbody>
-<tr class="odd gt_col_headings gt_spanner_row">
+<tr class="gt_col_headings gt_spanner_row odd">
 <td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
 <td colspan="2" id="Electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Electricity data</span></td>
 <td colspan="2" id="Permuted electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Permuted electricity data</span></td>
 </tr>
-<tr class="even gt_col_headings">
+<tr class="gt_col_headings even">
 <td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
 <td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
 <td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
@@ -2123,13 +2123,13 @@ font-style: inherit;">"Width"</span></span>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <tbody>
-<tr class="odd gt_col_headings gt_spanner_row">
+<tr class="gt_col_headings gt_spanner_row odd">
 <td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
 <td colspan="2" id="Setting 1 (i.i.d. data)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 1 (i.i.d. data)</span></td>
 <td colspan="2" id="Setting 2 (changepoints)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 2 (changepoints)</span></td>
 <td colspan="2" id="Setting 3 (drift)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 3 (drift)</span></td>
 </tr>
-<tr class="even gt_col_headings">
+<tr class="gt_col_headings even">
 <td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
 <td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
 <td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
@@ -2195,10 +2195,10 @@ font-style: inherit;">"Width"</span></span>
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>Understanding discriminatory human choices are of central interest across the social sciences. Typically when studying such questions, researchers employ standard designs such as experimental audit studies or conjoint analyses. Recent advances in the adaptive experimentation literature have explored how multi-arm bandit (MAB) algorithms can be used to answer the same questions with lower cost and greater data efficiency while also mitigating ethical concerns that may arise in some randomized experiments (e.g.&nbsp;assigning participants to harmful treatment arms)<span class="citation" data-cites="offerwestort_adaptive_2021"><sup>1</sup></span> <span class="citation" data-cites="kaibel_rethinking_2021"><sup>2</sup></span>.</p>
+<p>Understanding discriminatory human choices are of central interest across the social sciences. Typically when studying such questions, researchers employ standard designs such as experimental audit studies or conjoint analyses. Recent advances in the adaptive experimentation literature have explored how multi-armed bandit (MAB) algorithms can be used to answer the same questions with lower cost and greater data efficiency while also mitigating ethical concerns that may arise in some randomized experiments (e.g.&nbsp;assigning participants to harmful treatment arms)<span class="citation" data-cites="offerwestort_adaptive_2021"><sup>1</sup></span> <span class="citation" data-cites="kaibel_rethinking_2021"><sup>2</sup></span>.</p>
 <p>Although MAB methods can provide significant improvements over standard experimental methods, implementing adaptive experiments or surveys can pose a challenge. There are many survey platforms at the researcher’s disposal such as Qualtrics, Google Forms, etc. that can quickly accomodate standard survey designs, but these platforms do not easily support the design of adaptive surveys. Without such tools at their disposal, the researcher is stuck needing to design their own custom solution. This is the exact situation that my research team and I ran into a few months ago.</p>
 <p>It began with a straightforward enough question. We would like to know, for example, how American adults in the U.S. discriminate on the basis of education when choosing which immigrants to prioritize for immigrant visas?<span class="citation" data-cites="hainmueller_causal_2014"><sup>3</sup></span> Our goal was to explore how we could adopt methods from the adaptive experimentation literature to answer these questions more efficiently than standard methods.</p>
-<p>To this end, we framed the question as a stochastic multi-arm bandit problem. Each arm of the bandit was defined as one set of immigrant characteristics and the outcome of interest (reward) was whether the survey respondent chose to prioritize the immigrant with higher education, given that set of characteristics. We wanted to understand under which set of characteristics American adults are the most likely to discriminate against an immigrant who has lower education.</p>
+<p>To this end, we framed the question as a stochastic MAB problem. Each arm of the bandit was defined as one set of immigrant characteristics and the outcome of interest (reward) was whether the survey respondent chose to prioritize the immigrant with higher education, given that set of characteristics. We wanted to understand under which set of characteristics American adults are the most likely to discriminate against an immigrant who has lower education.</p>
 <p>To uncover the set of characteristics with the most discrimination, we employed a classic algorithm from the adaptive literature in Thompson Sampling (TS)<span class="citation" data-cites="thompson_likelihood_1933"><sup>4</sup></span>. TS is a dynamic algorithm. It starts out by assuming that the probability of discrimination is the same across all sets of immigrant characteristics. Every time a new survey respondent takes the survey, it assigns them to the set of characteristics that has the highest probability of resulting in a discriminatory response. TS then observes whether or not that respondent discriminates, and it updates the probability of discrimination for the set of characteristics which they were assigned to. As the algorithm learns which sets of characteristics are most likely to elicit discriminatory responses, the algorithm progressively assigns more respondents to those arms and stops assigning respondents to characteristics that fail to elicit a discriminatory response.</p>
 </section>
 <section id="necessity-of-a-custom-survey-form" class="level2">
