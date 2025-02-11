@@ -1,0 +1,8 @@
+jupyter
+jupyter-cache
+httpimport
+numpy
+pandas
+papermill
+plotnine
+tqdm
