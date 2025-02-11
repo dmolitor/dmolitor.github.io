@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/posts/robust_adaptive_exp/index.html",
       "/blog/posts/conformal-beyond-exchangeability/index.html",
       "/blog/posts/dynamic_surveys/index.html"
     ]
