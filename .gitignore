@@ -48,3 +48,4 @@ _site/
 /.quarto/
 .DS_Store
 .venv/
+__pycache__

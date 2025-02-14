@@ -43,6 +43,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import plotnine as pn
+from scipy.stats import t
 from tqdm import tqdm
 
 from src.bandit import TSBernoulli
@@ -304,12 +305,12 @@ mad_vanilla.fit(verbose=False, early_stopping=False)
 # Compare the ATEs and CSs
 ates = pd.concat(
     [
-        mad_modified.estimates().assign(which="modified"),
-        mad_vanilla.estimates().assign(which="mad"),
+        mad_modified.estimates().assign(which="MADMod"),
+        mad_vanilla.estimates().assign(which="MAD"),
         pd.DataFrame({
             "arm": list(range(1, 5)),
             "ate": [0.1, 0.12, 0.3, 0.32],
-            "which": ["truth"]*(4)
+            "which": ["Truth"]*(4)
         })
     ],
     axis=0
@@ -331,6 +332,35 @@ ates = pd.concat(
     + pn.theme_538()
     + pn.labs(x="Arm", y="ATE", color="Method")
 )
+```
+
+And the following plot compares the sample assignment to the treatment arms
+of the two algorithms:
+```{python}
+#| code-fold: true
+#| code-summary: "Show the code"
+sample_sizes = pd.concat([
+    pd.DataFrame(x) for x in
+    [
+        {
+            "arm": [k for k in range(len(mad_modified._ate))],
+            "n": [last(n) for n in mad_modified._n],
+            "which": ["MADMod"]*len(mad_modified._ate)
+        },
+        {
+            "arm": [k for k in range(len(mad_vanilla._ate))],
+            "n": [last(n) for n in mad_vanilla._n],
+            "which": ["MAD"]*len(mad_vanilla._ate)
+        }
+    ]
+])
+(
+    pn.ggplot(sample_sizes, pn.aes(x="factor(arm)", y="n", fill="which", color="which"))
+    + pn.geom_bar(stat="identity", position=pn.position_dodge(width=0.75), width=0.7)
+    + pn.theme_538()
+    + pn.labs(x="Arm", y="N", color="Method", fill="Method")
+)
+
 ```
 
 ### Simulation results over 1,0000 runs
@@ -432,7 +462,7 @@ def compare(i):
 comparison_results_list = [
     x for x in
     joblib.Parallel(return_as="generator", n_jobs=-1)(
-        joblib.delayed(compare)(i) for i in range(1000)
+        joblib.delayed(compare)(i) for i in range(100)
     )
 ]
 
@@ -458,32 +488,25 @@ reward_df = pd.melt(
     value_name="reward"
 )
 
-# Summarize results
 metrics_summary = (
     metrics_df
     .groupby(["arm", "method", "meas"], as_index=False).agg(
         mean=("value", "mean"),
-        std=("value", "std")
+        std=("value", "std"),
+        n=("value", "count")
     )
     .assign(
-        ub=lambda x: x["mean"] + x["std"],
-        lb=lambda x: x["mean"] - x["std"]
+        se=lambda x: x["std"] / np.sqrt(x["n"]),
+        t_val=lambda x: t.ppf(0.975, x["n"] - 1),
+        ub=lambda x: x["mean"] + x["t_val"] * x["se"],
+        lb=lambda x: x["mean"] - x["t_val"] * x["se"]
     )
-    .assign(
-        ub=lambda x: x.apply(
-            lambda row: min(1., row["ub"]) if row["meas"] in ["error"] else row["ub"],
-            axis=1
-        ),
-        lb=lambda x: x.apply(
-            lambda row: max(0., row["lb"]) if row["meas"] in ["error", "width"] else row["lb"],
-            axis=1
-        )
-    )
+    .drop(columns=["se", "t_val"])
 )
 ```
 
-The following plot shows the mean ± 1 standard deviation of the Type 2 error
-and CS width for both algorithms.
+The following plot shows the mean (and 95% confidence intervals) of the Type 2
+error and CS width for both algorithms.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the code"
