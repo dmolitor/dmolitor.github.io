@@ -27,7 +27,7 @@
 </ul>
 <section id="dependencies" class="level3">
 <h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
-<div id="d1957b33" class="cell" data-execution_count="1">
+<div id="776e451b" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -50,21 +50,26 @@ background-color: null;
 font-style: inherit;">as</span> pn</span>
 <span id="cb1-5"><span class="im" style="color: #00769E;
 background-color: null;
+font-style: inherit;">from</span> scipy.stats <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> t</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
 font-style: inherit;">from</span> tqdm <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> tqdm</span>
-<span id="cb1-6"></span>
-<span id="cb1-7"><span class="im" style="color: #00769E;
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> src.bandit <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> TSBernoulli</span>
-<span id="cb1-8"><span class="im" style="color: #00769E;
+<span id="cb1-9"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> src.mad <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> MAD, MADModified</span>
-<span id="cb1-9"><span class="im" style="color: #00769E;
+<span id="cb1-10"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> src.utils <span class="im" style="color: #00769E;
 background-color: null;
@@ -82,7 +87,7 @@ font-style: inherit;">import</span> last</span></code></pre></div>
 <li>True ATE: 0.1</li>
 </ul>
 <p>We use Thompson Sampling (TS) as the bandit algorithm and stop the experiment as soon as the ATE reaches statistical significance.</p>
-<div id="a2410ccc" class="cell" data-execution_count="3">
+<div id="c76b9371" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">generator <span class="op" style="color: #5E5E5E;
@@ -183,7 +188,7 @@ font-style: inherit;">False</span>)</span></code></pre></div>
 </details>
 </div>
 <p>Finally, we plot the MAD-estimated ATE over time, showing convergence to the true effect and demonstrating that the corresponding 95% CSs maintain valid coverage.</p>
-<div id="924be79c" class="cell" data-execution_count="4">
+<div id="1bb577ad" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">(</span>
@@ -254,7 +259,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 <section id="bandit-benefits" class="level3">
 <h3 class="anchored" data-anchor-id="bandit-benefits">Bandit benefits</h3>
 <p>The underlying bandit algorithm provides additional benefits. Below, we show the total sample size assigned to both arms of the experiment:</p>
-<div id="da215a5f" class="cell" data-execution_count="5">
+<div id="98357ee6" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">exp_simple.plot_n()</span></code></pre></div>
@@ -268,7 +273,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 </div>
 </div>
 <p>and the arm assignment probability over time:</p>
-<div id="9131774a" class="cell" data-execution_count="6">
+<div id="c169148a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">exp_simple.plot_probabilities()</span></code></pre></div>
@@ -287,7 +292,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 <h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
 <p>In adaptive experiments with multiple treatment arms, a common issue is being under-powered to detect non-zero ATEs in sub-optimal arms. This happens because the bandit algorithm allocates most of the sample to the optimal arm(s), neglecting the others.</p>
 <p>We demonstrate this with an experiment simulating a control arm and four treatment arms with ATEs of 0.1, 0.12, 0.3, and 0.32, respectively, over a fixed sample size of 20,000. We expect the bandit algorithm to allocate most of the sample to arms 3 and 4, leaving arms 1 and 2 under-powered.</p>
-<div id="d0f17f0f" class="cell" data-execution_count="7">
+<div id="7adb968b" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
@@ -555,7 +560,7 @@ font-style: inherit;">"Method"</span>)</span>
 </div>
 </div>
 <p>As anticipated, we observe strong ATE estimates for arms 3 and 4 but under-powered estimates for arms 1 and 2 (CSs include 0). We can confirm that, indeed, TS focuses the majority of the sample on arms 3 and 4 to the detriment of power in our experiment.</p>
-<div id="365a026b" class="cell" data-execution_count="8">
+<div id="06d2d297" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">exp_complex.plot_n()</span></code></pre></div>
@@ -602,7 +607,7 @@ font-style: inherit;">"Method"</span>)</span>
 <section id="improved-power-and-precision" class="level3">
 <h3 class="anchored" data-anchor-id="improved-power-and-precision">Improved power and precision</h3>
 <p>The following plots demonstrate the increased power and precision of the modified MAD algorithm.</p>
-<div id="51be06c9" class="cell" data-execution_count="9">
+<div id="d3568503" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
@@ -746,12 +751,12 @@ font-style: inherit;">=</span> pd.concat(</span>
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"modified"</span>),</span>
+font-style: inherit;">"MADMod"</span>),</span>
 <span id="cb8-24">        mad_vanilla.estimates().assign(which<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"mad"</span>),</span>
+font-style: inherit;">"MAD"</span>),</span>
 <span id="cb8-25">        pd.DataFrame({</span>
 <span id="cb8-26">            <span class="st" style="color: #20794D;
 background-color: null;
@@ -779,7 +784,7 @@ font-style: inherit;">0.32</span>],</span>
 background-color: null;
 font-style: inherit;">"which"</span>: [<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"truth"</span>]<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"Truth"</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -890,18 +895,168 @@ font-style: inherit;">"Method"</span>)</span>
 </div>
 </div>
 </div>
+<p>And the following plot compares the sample assignment to the treatment arms of the two algorithms:</p>
+<div id="95179b17" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">sample_sizes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.concat([</span>
+<span id="cb9-2">    pd.DataFrame(x) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span></span>
+<span id="cb9-3">    [</span>
+<span id="cb9-4">        {</span>
+<span id="cb9-5">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"arm"</span>: [k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(mad_modified._ate))],</span>
+<span id="cb9-6">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>: [last(n) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> n <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> mad_modified._n],</span>
+<span id="cb9-7">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"which"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MADMod"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(mad_modified._ate)</span>
+<span id="cb9-8">        },</span>
+<span id="cb9-9">        {</span>
+<span id="cb9-10">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"arm"</span>: [k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(mad_vanilla._ate))],</span>
+<span id="cb9-11">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>: [last(n) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> n <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> mad_vanilla._n],</span>
+<span id="cb9-12">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"which"</span>: [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MAD"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(mad_vanilla._ate)</span>
+<span id="cb9-13">        }</span>
+<span id="cb9-14">    ]</span>
+<span id="cb9-15">])</span>
+<span id="cb9-16">(</span>
+<span id="cb9-17">    pn.ggplot(sample_sizes, pn.aes(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"factor(arm)"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"which"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"which"</span>))</span>
+<span id="cb9-18">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_bar(stat<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"identity"</span>, position<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>), width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)</span>
+<span id="cb9-19">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.theme_538()</span>
+<span id="cb9-20">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Arm"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"N"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Method"</span>, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Method"</span>)</span>
+<span id="cb9-21">)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/robust_adaptive_exp/index_files/figure-html/cell-11-output-1.png" width="750" height="300" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="simulation-results-over-10000-runs" class="level3">
 <h3 class="anchored" data-anchor-id="simulation-results-over-10000-runs">Simulation results over 1,0000 runs</h3>
 <p>We can more precisely quantify the improvements by running 1,000 simulations, comparing Type 2 error and confidence band width between the vanilla MAD algorithm and the modified algorithm. Each simulation runs for 20,000 iterations with early stopping. If the modified algorithm stops early, the vanilla algorithm will also stop early to maintain equal sample sizes in each simulation.</p>
-<div id="cfcd9f3a" class="cell" data-execution_count="10">
+<div id="33091dd6" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="kw" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> delta_fn(x):</span>
-<span id="cb9-2">    <span class="cf" style="color: #003B4F;
+<span id="cb10-2">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> <span class="fl" style="color: #AD0000;
@@ -913,12 +1068,12 @@ background-color: null;
 font-style: inherit;">**</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.24</span>)</span>
-<span id="cb9-3"></span>
-<span id="cb9-4"><span class="kw" style="color: #003B4F;
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> decay_fn(x):</span>
-<span id="cb9-5">    <span class="cf" style="color: #003B4F;
+<span id="cb10-5">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> <span class="fl" style="color: #AD0000;
@@ -934,15 +1089,15 @@ background-color: null;
 font-style: inherit;">/</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">8.</span>))</span>
-<span id="cb9-6"></span>
-<span id="cb9-7"><span class="kw" style="color: #003B4F;
+<span id="cb10-6"></span>
+<span id="cb10-7"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> compare(i):</span>
-<span id="cb9-8">    mad_modified <span class="op" style="color: #5E5E5E;
+<span id="cb10-8">    mad_modified <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> MADModified(</span>
-<span id="cb9-9">        bandit<span class="op" style="color: #5E5E5E;
+<span id="cb10-9">        bandit<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>TSBernoulli(k<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -955,26 +1110,26 @@ background-color: null;
 font-style: inherit;">0</span>, reward<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>reward_fn),</span>
-<span id="cb9-10">        alpha<span class="op" style="color: #5E5E5E;
+<span id="cb10-10">        alpha<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.05</span>,</span>
-<span id="cb9-11">        delta<span class="op" style="color: #5E5E5E;
+<span id="cb10-11">        delta<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>delta_fn,</span>
-<span id="cb9-12">        t_star<span class="op" style="color: #5E5E5E;
+<span id="cb10-12">        t_star<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">int</span>(<span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2e4</span>),</span>
-<span id="cb9-13">        decay<span class="op" style="color: #5E5E5E;
+<span id="cb10-13">        decay<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>decay_fn</span>
-<span id="cb9-14">    )</span>
-<span id="cb9-15">    mad_modified.fit(cs_precision<span class="op" style="color: #5E5E5E;
+<span id="cb10-14">    )</span>
+<span id="cb10-15">    mad_modified.fit(cs_precision<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
 background-color: null;
@@ -987,14 +1142,14 @@ background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
-<span id="cb9-16"></span>
-<span id="cb9-17">    <span class="co" style="color: #5E5E5E;
+<span id="cb10-16"></span>
+<span id="cb10-17">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Run the vanilla algorithm</span></span>
-<span id="cb9-18">    mad_vanilla <span class="op" style="color: #5E5E5E;
+<span id="cb10-18">    mad_vanilla <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> MAD(</span>
-<span id="cb9-19">        bandit<span class="op" style="color: #5E5E5E;
+<span id="cb10-19">        bandit<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>TSBernoulli(k<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -1007,19 +1162,19 @@ background-color: null;
 font-style: inherit;">0</span>, reward<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>reward_fn),</span>
-<span id="cb9-20">        alpha<span class="op" style="color: #5E5E5E;
+<span id="cb10-20">        alpha<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.05</span>,</span>
-<span id="cb9-21">        delta<span class="op" style="color: #5E5E5E;
+<span id="cb10-21">        delta<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>delta_fn,</span>
-<span id="cb9-22">        t_star<span class="op" style="color: #5E5E5E;
+<span id="cb10-22">        t_star<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>mad_modified._bandit._t</span>
-<span id="cb9-23">    )</span>
-<span id="cb9-24">    mad_vanilla.fit(verbose<span class="op" style="color: #5E5E5E;
+<span id="cb10-23">    )</span>
+<span id="cb10-24">    mad_vanilla.fit(verbose<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
@@ -1028,25 +1183,25 @@ background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>)</span>
-<span id="cb9-25"></span>
-<span id="cb9-26">    <span class="co" style="color: #5E5E5E;
+<span id="cb10-25"></span>
+<span id="cb10-26">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Calculate the Type 2 error and the Confidence Sequence width</span></span>
-<span id="cb9-27"></span>
-<span id="cb9-28">    <span class="co" style="color: #5E5E5E;
+<span id="cb10-27"></span>
+<span id="cb10-28">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">## For modified algorithm</span></span>
-<span id="cb9-29">    mad_mod_n <span class="op" style="color: #5E5E5E;
+<span id="cb10-29">    mad_mod_n <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb9-30">        pd</span>
-<span id="cb9-31">        .DataFrame([</span>
-<span id="cb9-32">            {<span class="st" style="color: #20794D;
+<span id="cb10-30">        pd</span>
+<span id="cb10-31">        .DataFrame([</span>
+<span id="cb10-32">            {<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"arm"</span>: k, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n"</span>: last(mad_modified._n[k])}</span>
-<span id="cb9-33">            <span class="cf" style="color: #003B4F;
+<span id="cb10-33">            <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
@@ -1055,15 +1210,15 @@ font-weight: bold;
 font-style: inherit;">in</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">range</span>(mad_modified._bandit.k())</span>
-<span id="cb9-34">            <span class="cf" style="color: #003B4F;
+<span id="cb10-34">            <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">if</span> k <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!=</span> mad_modified._bandit.control()</span>
-<span id="cb9-35">        ])</span>
-<span id="cb9-36">        .assign(</span>
-<span id="cb9-37">            n_pct<span class="op" style="color: #5E5E5E;
+<span id="cb10-35">        ])</span>
+<span id="cb10-36">        .assign(</span>
+<span id="cb10-37">            n_pct<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1082,23 +1237,23 @@ background-color: null;
 font-style: inherit;">sum</span>(x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n"</span>]))</span>
-<span id="cb9-38">        )</span>
-<span id="cb9-39">    )</span>
-<span id="cb9-40">    mad_mod_df <span class="op" style="color: #5E5E5E;
+<span id="cb10-38">        )</span>
+<span id="cb10-39">    )</span>
+<span id="cb10-40">    mad_mod_df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb9-41">        mad_modified</span>
-<span id="cb9-42">        .estimates()</span>
-<span id="cb9-43">        .assign(</span>
-<span id="cb9-44">            idx<span class="op" style="color: #5E5E5E;
+<span id="cb10-41">        mad_modified</span>
+<span id="cb10-42">        .estimates()</span>
+<span id="cb10-43">        .assign(</span>
+<span id="cb10-44">            idx<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>i,</span>
-<span id="cb9-45">            method<span class="op" style="color: #5E5E5E;
+<span id="cb10-45">            method<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"modified"</span>,</span>
-<span id="cb9-46">            width<span class="op" style="color: #5E5E5E;
+<span id="cb10-46">            width<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1110,7 +1265,7 @@ background-color: null;
 font-style: inherit;">-</span> x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"lb"</span>],</span>
-<span id="cb9-47">            error<span class="op" style="color: #5E5E5E;
+<span id="cb10-47">            error<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1130,8 +1285,8 @@ background-color: null;
 font-style: inherit;">&lt;</span> x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"ub"</span>]))</span>
-<span id="cb9-48">        )</span>
-<span id="cb9-49">        .merge(mad_mod_n, on<span class="op" style="color: #5E5E5E;
+<span id="cb10-48">        )</span>
+<span id="cb10-49">        .merge(mad_mod_n, on<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
@@ -1140,22 +1295,22 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"left"</span>)</span>
-<span id="cb9-50">    )</span>
-<span id="cb9-51"></span>
-<span id="cb9-52">    <span class="co" style="color: #5E5E5E;
+<span id="cb10-50">    )</span>
+<span id="cb10-51"></span>
+<span id="cb10-52">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">## For vanilla algorithm</span></span>
-<span id="cb9-53">    mad_van_n <span class="op" style="color: #5E5E5E;
+<span id="cb10-53">    mad_van_n <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb9-54">        pd</span>
-<span id="cb9-55">        .DataFrame([</span>
-<span id="cb9-56">            {<span class="st" style="color: #20794D;
+<span id="cb10-54">        pd</span>
+<span id="cb10-55">        .DataFrame([</span>
+<span id="cb10-56">            {<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"arm"</span>: k, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n"</span>: last(mad_vanilla._n[k])}</span>
-<span id="cb9-57">            <span class="cf" style="color: #003B4F;
+<span id="cb10-57">            <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> k <span class="kw" style="color: #003B4F;
@@ -1164,15 +1319,15 @@ font-weight: bold;
 font-style: inherit;">in</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">range</span>(mad_vanilla._bandit.k())</span>
-<span id="cb9-58">            <span class="cf" style="color: #003B4F;
+<span id="cb10-58">            <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">if</span> k <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!=</span> mad_vanilla._bandit.control()</span>
-<span id="cb9-59">        ])</span>
-<span id="cb9-60">        .assign(</span>
-<span id="cb9-61">            n_pct<span class="op" style="color: #5E5E5E;
+<span id="cb10-59">        ])</span>
+<span id="cb10-60">        .assign(</span>
+<span id="cb10-61">            n_pct<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1191,23 +1346,23 @@ background-color: null;
 font-style: inherit;">sum</span>(x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n"</span>]))</span>
-<span id="cb9-62">        )</span>
-<span id="cb9-63">    )</span>
-<span id="cb9-64">    mad_van_df <span class="op" style="color: #5E5E5E;
+<span id="cb10-62">        )</span>
+<span id="cb10-63">    )</span>
+<span id="cb10-64">    mad_van_df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb9-65">        mad_vanilla</span>
-<span id="cb9-66">        .estimates()</span>
-<span id="cb9-67">        .assign(</span>
-<span id="cb9-68">            idx<span class="op" style="color: #5E5E5E;
+<span id="cb10-65">        mad_vanilla</span>
+<span id="cb10-66">        .estimates()</span>
+<span id="cb10-67">        .assign(</span>
+<span id="cb10-68">            idx<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>i,</span>
-<span id="cb9-69">            method<span class="op" style="color: #5E5E5E;
+<span id="cb10-69">            method<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mad"</span>,</span>
-<span id="cb9-70">            width<span class="op" style="color: #5E5E5E;
+<span id="cb10-70">            width<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1219,7 +1374,7 @@ background-color: null;
 font-style: inherit;">-</span> x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"lb"</span>],</span>
-<span id="cb9-71">            error<span class="op" style="color: #5E5E5E;
+<span id="cb10-71">            error<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1239,8 +1394,8 @@ background-color: null;
 font-style: inherit;">&lt;</span> x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"ub"</span>]))</span>
-<span id="cb9-72">        )</span>
-<span id="cb9-73">        .merge(mad_van_n, on<span class="op" style="color: #5E5E5E;
+<span id="cb10-72">        )</span>
+<span id="cb10-73">        .merge(mad_van_n, on<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
@@ -1249,48 +1404,48 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"left"</span>)</span>
-<span id="cb9-74">    )</span>
-<span id="cb9-75"></span>
-<span id="cb9-76">    out <span class="op" style="color: #5E5E5E;
+<span id="cb10-74">    )</span>
+<span id="cb10-75"></span>
+<span id="cb10-76">    out <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {</span>
-<span id="cb9-77">        <span class="st" style="color: #20794D;
+<span id="cb10-77">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"metrics"</span>: pd.concat([mad_mod_df, mad_van_df]),</span>
-<span id="cb9-78">        <span class="st" style="color: #20794D;
+<span id="cb10-78">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"reward"</span>: {</span>
-<span id="cb9-79">            <span class="st" style="color: #20794D;
+<span id="cb10-79">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"modified"</span>: np.<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">sum</span>(mad_modified._rewards),</span>
-<span id="cb9-80">            <span class="st" style="color: #20794D;
+<span id="cb10-80">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mad"</span>: np.<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">sum</span>(mad_vanilla._rewards)</span>
-<span id="cb9-81">        }</span>
-<span id="cb9-82">    }</span>
-<span id="cb9-83">    <span class="cf" style="color: #003B4F;
+<span id="cb10-81">        }</span>
+<span id="cb10-82">    }</span>
+<span id="cb10-83">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> out</span>
-<span id="cb9-84"></span>
-<span id="cb9-85"><span class="co" style="color: #5E5E5E;
+<span id="cb10-84"></span>
+<span id="cb10-85"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Execute in parallel with joblib</span></span>
-<span id="cb9-86">comparison_results_list <span class="op" style="color: #5E5E5E;
+<span id="cb10-86">comparison_results_list <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> [</span>
-<span id="cb9-87">    x <span class="cf" style="color: #003B4F;
+<span id="cb10-87">    x <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span></span>
-<span id="cb9-88">    joblib.Parallel(return_as<span class="op" style="color: #5E5E5E;
+<span id="cb10-88">    joblib.Parallel(return_as<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
@@ -1299,7 +1454,7 @@ background-color: null;
 font-style: inherit;">=-</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)(</span>
-<span id="cb9-89">        joblib.delayed(compare)(i) <span class="cf" style="color: #003B4F;
+<span id="cb10-89">        joblib.delayed(compare)(i) <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
@@ -1309,19 +1464,19 @@ font-style: inherit;">in</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1000</span>)</span>
-<span id="cb9-90">    )</span>
-<span id="cb9-91">]</span>
-<span id="cb9-92"></span>
-<span id="cb9-93"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">100</span>)</span>
+<span id="cb10-90">    )</span>
+<span id="cb10-91">]</span>
+<span id="cb10-92"></span>
+<span id="cb10-93"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Compare performance on key metrics across simulations</span></span>
-<span id="cb9-94">metrics_df <span class="op" style="color: #5E5E5E;
+<span id="cb10-94">metrics_df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.melt(</span>
-<span id="cb9-95">    (</span>
-<span id="cb9-96">        pd</span>
-<span id="cb9-97">        .concat([x[<span class="st" style="color: #20794D;
+<span id="cb10-95">    (</span>
+<span id="cb10-96">        pd</span>
+<span id="cb10-97">        .concat([x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"metrics"</span>] <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -1330,12 +1485,12 @@ font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> comparison_results_list])</span>
-<span id="cb9-98">        .reset_index(drop<span class="op" style="color: #5E5E5E;
+<span id="cb10-98">        .reset_index(drop<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
-<span id="cb9-99">        .assign(error<span class="op" style="color: #5E5E5E;
+<span id="cb10-99">        .assign(error<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1350,15 +1505,15 @@ font-weight: bold;
 font-style: inherit;">lambda</span> y: <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">int</span>(y)))</span>
-<span id="cb9-100">    ),</span>
-<span id="cb9-101">    id_vars<span class="op" style="color: #5E5E5E;
+<span id="cb10-100">    ),</span>
+<span id="cb10-101">    id_vars<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"arm"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"method"</span>],</span>
-<span id="cb9-102">    value_vars<span class="op" style="color: #5E5E5E;
+<span id="cb10-102">    value_vars<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
 background-color: null;
@@ -1369,25 +1524,25 @@ background-color: null;
 font-style: inherit;">"n"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n_pct"</span>],</span>
-<span id="cb9-103">    var_name<span class="op" style="color: #5E5E5E;
+<span id="cb10-103">    var_name<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"meas"</span>,</span>
-<span id="cb9-104">    value_name<span class="op" style="color: #5E5E5E;
+<span id="cb10-104">    value_name<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"value"</span></span>
-<span id="cb9-105">)</span>
-<span id="cb9-106"></span>
-<span id="cb9-107"><span class="co" style="color: #5E5E5E;
+<span id="cb10-105">)</span>
+<span id="cb10-106"></span>
+<span id="cb10-107"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Compare reward accumulation across simulations</span></span>
-<span id="cb9-108">reward_df <span class="op" style="color: #5E5E5E;
+<span id="cb10-108">reward_df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.melt(</span>
-<span id="cb9-109">    pd.DataFrame([x[<span class="st" style="color: #20794D;
+<span id="cb10-109">    pd.DataFrame([x[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"reward"</span>] <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -1396,33 +1551,30 @@ font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> comparison_results_list]),</span>
-<span id="cb9-110">    value_vars<span class="op" style="color: #5E5E5E;
+<span id="cb10-110">    value_vars<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"modified"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mad"</span>],</span>
-<span id="cb9-111">    var_name<span class="op" style="color: #5E5E5E;
+<span id="cb10-111">    var_name<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"method"</span>,</span>
-<span id="cb9-112">    value_name<span class="op" style="color: #5E5E5E;
+<span id="cb10-112">    value_name<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"reward"</span></span>
-<span id="cb9-113">)</span>
-<span id="cb9-114"></span>
-<span id="cb9-115"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Summarize results</span></span>
-<span id="cb9-116">metrics_summary <span class="op" style="color: #5E5E5E;
+<span id="cb10-113">)</span>
+<span id="cb10-114"></span>
+<span id="cb10-115">metrics_summary <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
-<span id="cb9-117">    metrics_df</span>
-<span id="cb9-118">    .groupby([<span class="st" style="color: #20794D;
+<span id="cb10-116">    metrics_df</span>
+<span id="cb10-117">    .groupby([<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"arm"</span>, <span class="st" style="color: #20794D;
 background-color: null;
@@ -1433,23 +1585,56 @@ background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>).agg(</span>
-<span id="cb9-119">        mean<span class="op" style="color: #5E5E5E;
+<span id="cb10-118">        mean<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"value"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mean"</span>),</span>
-<span id="cb9-120">        std<span class="op" style="color: #5E5E5E;
+<span id="cb10-119">        std<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"value"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"std"</span>)</span>
-<span id="cb9-121">    )</span>
-<span id="cb9-122">    .assign(</span>
-<span id="cb9-123">        ub<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"std"</span>),</span>
+<span id="cb10-120">        n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"count"</span>)</span>
+<span id="cb10-121">    )</span>
+<span id="cb10-122">    .assign(</span>
+<span id="cb10-123">        se<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"std"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(x[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>]),</span>
+<span id="cb10-124">        t_val<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: t.ppf(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.975</span>, x[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>),</span>
+<span id="cb10-125">        ub<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1460,8 +1645,12 @@ font-style: inherit;">"mean"</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> x[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"std"</span>],</span>
-<span id="cb9-124">        lb<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"t_val"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> x[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"se"</span>],</span>
+<span id="cb10-126">        lb<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1472,159 +1661,88 @@ font-style: inherit;">"mean"</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span> x[<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"std"</span>]</span>
-<span id="cb9-125">    )</span>
-<span id="cb9-126">    .assign(</span>
-<span id="cb9-127">        ub<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"t_val"</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+font-style: inherit;">*</span> x[<span class="st" style="color: #20794D;
 background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: x.<span class="bu" style="color: null;
+font-style: inherit;">"se"</span>]</span>
+<span id="cb10-127">    )</span>
+<span id="cb10-128">    .drop(columns<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">apply</span>(</span>
-<span id="cb9-128">            <span class="kw" style="color: #003B4F;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
 background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> row: <span class="bu" style="color: null;
+font-style: inherit;">"se"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">min</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1.</span>, row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"ub"</span>]) <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"meas"</span>] <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"error"</span>] <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">else</span> row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"ub"</span>],</span>
-<span id="cb9-129">            axis<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span></span>
-<span id="cb9-130">        ),</span>
-<span id="cb9-131">        lb<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: x.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">apply</span>(</span>
-<span id="cb9-132">            <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> row: <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">max</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.</span>, row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"lb"</span>]) <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"meas"</span>] <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"error"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"width"</span>] <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">else</span> row[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"lb"</span>],</span>
-<span id="cb9-133">            axis<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span></span>
-<span id="cb9-134">        )</span>
-<span id="cb9-135">    )</span>
-<span id="cb9-136">)</span></code></pre></div>
+font-style: inherit;">"t_val"</span>])</span>
+<span id="cb10-129">)</span></code></pre></div>
 </details>
 </div>
-<p>The following plot shows the mean ± 1 standard deviation of the Type 2 error and CS width for both algorithms.</p>
-<div id="4586a936" class="cell" data-execution_count="11">
+<p>The following plot shows the mean (and 95% confidence intervals) of the Type 2 error and CS width for both algorithms.</p>
+<div id="417ba8f2" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">facet_labels <span class="op" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">facet_labels <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {</span>
-<span id="cb10-2">    <span class="st" style="color: #20794D;
+<span id="cb11-2">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"error"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Type 2 error"</span>,</span>
-<span id="cb10-3">    <span class="st" style="color: #20794D;
+<span id="cb11-3">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"width"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Interval width"</span>,</span>
-<span id="cb10-4">    <span class="st" style="color: #20794D;
+<span id="cb11-4">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Sample size"</span>,</span>
-<span id="cb10-5">    <span class="st" style="color: #20794D;
+<span id="cb11-5">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"n_pct"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Sample size %"</span></span>
-<span id="cb10-6">}</span>
-<span id="cb10-7">(</span>
-<span id="cb10-8">    pn.ggplot(</span>
-<span id="cb10-9">        metrics_summary[metrics_summary[<span class="st" style="color: #20794D;
+<span id="cb11-6">}</span>
+<span id="cb11-7">(</span>
+<span id="cb11-8">    pn.ggplot(</span>
+<span id="cb11-9">        metrics_summary[metrics_summary[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"meas"</span>].isin([<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"error"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"width"</span>])],</span>
-<span id="cb10-10">        pn.aes(</span>
-<span id="cb10-11">            x<span class="op" style="color: #5E5E5E;
+<span id="cb11-10">        pn.aes(</span>
+<span id="cb11-11">            x<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"factor(arm)"</span>,</span>
-<span id="cb10-12">            y<span class="op" style="color: #5E5E5E;
+<span id="cb11-12">            y<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mean"</span>,</span>
-<span id="cb10-13">            ymin<span class="op" style="color: #5E5E5E;
+<span id="cb11-13">            ymin<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"lb"</span>,</span>
-<span id="cb10-14">            ymax<span class="op" style="color: #5E5E5E;
+<span id="cb11-14">            ymax<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"ub"</span>,</span>
-<span id="cb10-15">            color<span class="op" style="color: #5E5E5E;
+<span id="cb11-15">            color<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"method"</span></span>
-<span id="cb10-16">        )</span>
-<span id="cb10-17">    )</span>
-<span id="cb10-18">    <span class="op" style="color: #5E5E5E;
+<span id="cb11-16">        )</span>
+<span id="cb11-17">    )</span>
+<span id="cb11-18">    <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> pn.geom_point(position<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -1633,154 +1751,41 @@ background-color: null;
 font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.2</span>))</span>
-<span id="cb10-19">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.geom_errorbar(position<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.2</span>), width<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.01</span>)</span>
-<span id="cb10-20">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.facet_wrap(</span>
-<span id="cb10-21">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"~ meas"</span>,</span>
-<span id="cb10-22">        labeller<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: facet_labels[x],</span>
-<span id="cb10-23">        scales<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"free"</span></span>
-<span id="cb10-24">    )</span>
-<span id="cb10-25">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.theme_538()</span>
-<span id="cb10-26">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Arm"</span>, y<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">""</span>, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Method"</span>)</span>
-<span id="cb10-27">)</span></code></pre></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://dmolitor.com/blog/posts/robust_adaptive_exp/index_files/figure-html/cell-12-output-1.png" width="750" height="300" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>The modified MAD algorithm achieves far lower Type 2 error and improved ATE precision in all treatment arms.</p>
-</section>
-<section id="tradeoffs" class="level3">
-<h3 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h3>
-<p>These plots illustrate the tradeoffs of the modified algorithm. On average, it allocates significantly more sample to sub-optimal arms compared to the standard MAD algorithm.</p>
-<div id="aa971aa6" class="cell" data-execution_count="12">
-<details class="code-fold">
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">(</span>
-<span id="cb11-2">    pn.ggplot(</span>
-<span id="cb11-3">        metrics_summary[metrics_summary[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"meas"</span>].isin([<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"n"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"n_pct"</span>])],</span>
-<span id="cb11-4">        pn.aes(</span>
-<span id="cb11-5">            x<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"factor(arm)"</span>,</span>
-<span id="cb11-6">            y<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"mean"</span>,</span>
-<span id="cb11-7">            ymin<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"lb"</span>,</span>
-<span id="cb11-8">            ymax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"ub"</span>,</span>
-<span id="cb11-9">            color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"method"</span></span>
-<span id="cb11-10">        )</span>
-<span id="cb11-11">    )</span>
-<span id="cb11-12">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.geom_point(position<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.2</span>))</span>
-<span id="cb11-13">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.geom_errorbar(position<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.2</span>), width<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.01</span>)</span>
-<span id="cb11-14">    <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> pn.facet_wrap(</span>
-<span id="cb11-15">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"~ meas"</span>,</span>
-<span id="cb11-16">        labeller<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: facet_labels[x],</span>
-<span id="cb11-17">        scales<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"free"</span></span>
-<span id="cb11-18">    )</span>
 <span id="cb11-19">    <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">+</span> pn.theme_538()</span>
+font-style: inherit;">+</span> pn.geom_errorbar(position<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>), width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>)</span>
 <span id="cb11-20">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.facet_wrap(</span>
+<span id="cb11-21">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~ meas"</span>,</span>
+<span id="cb11-22">        labeller<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: facet_labels[x],</span>
+<span id="cb11-23">        scales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span></span>
+<span id="cb11-24">    )</span>
+<span id="cb11-25">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.theme_538()</span>
+<span id="cb11-26">    <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -1795,7 +1800,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb11-21">)</span></code></pre></div>
+<span id="cb11-27">)</span></code></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1805,12 +1810,125 @@ font-style: inherit;">"Method"</span>)</span>
 </div>
 </div>
 </div>
-<p>As a result, this reallocation reduces total reward accumulation. The difference in accumulated reward across the 1,000 simulations is shown below:</p>
-<div id="b2a337fe" class="cell" data-execution_count="13">
+<p>The modified MAD algorithm achieves far lower Type 2 error and improved ATE precision in all treatment arms.</p>
+</section>
+<section id="tradeoffs" class="level3">
+<h3 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h3>
+<p>These plots illustrate the tradeoffs of the modified algorithm. On average, it allocates significantly more sample to sub-optimal arms compared to the standard MAD algorithm.</p>
+<div id="fc05de57" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">(</span>
-<span id="cb12-2">    pn.ggplot(reward_df, pn.aes(x<span class="op" style="color: #5E5E5E;
+<span id="cb12-2">    pn.ggplot(</span>
+<span id="cb12-3">        metrics_summary[metrics_summary[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"meas"</span>].isin([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n_pct"</span>])],</span>
+<span id="cb12-4">        pn.aes(</span>
+<span id="cb12-5">            x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"factor(arm)"</span>,</span>
+<span id="cb12-6">            y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>,</span>
+<span id="cb12-7">            ymin<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lb"</span>,</span>
+<span id="cb12-8">            ymax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ub"</span>,</span>
+<span id="cb12-9">            color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span></span>
+<span id="cb12-10">        )</span>
+<span id="cb12-11">    )</span>
+<span id="cb12-12">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_point(position<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>))</span>
+<span id="cb12-13">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.geom_errorbar(position<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>pn.position_dodge(width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>), width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>)</span>
+<span id="cb12-14">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.facet_wrap(</span>
+<span id="cb12-15">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~ meas"</span>,</span>
+<span id="cb12-16">        labeller<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: facet_labels[x],</span>
+<span id="cb12-17">        scales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span></span>
+<span id="cb12-18">    )</span>
+<span id="cb12-19">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.theme_538()</span>
+<span id="cb12-20">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Arm"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Method"</span>)</span>
+<span id="cb12-21">)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/robust_adaptive_exp/index_files/figure-html/cell-14-output-1.png" width="750" height="300" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As a result, this reallocation reduces total reward accumulation. The difference in accumulated reward across the 1,000 simulations is shown below:</p>
+<div id="2960088d" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">(</span>
+<span id="cb13-2">    pn.ggplot(reward_df, pn.aes(x<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
@@ -1819,13 +1937,13 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"reward"</span>))</span>
-<span id="cb12-3">    <span class="op" style="color: #5E5E5E;
+<span id="cb13-3">    <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> pn.geom_boxplot()</span>
-<span id="cb12-4">    <span class="op" style="color: #5E5E5E;
+<span id="cb13-4">    <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> pn.theme_538()</span>
-<span id="cb12-5">    <span class="op" style="color: #5E5E5E;
+<span id="cb13-5">    <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> pn.labs(x<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -1836,12 +1954,12 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cumulative reward"</span>)</span>
-<span id="cb12-6">)</span></code></pre></div>
+<span id="cb13-6">)</span></code></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://dmolitor.com/blog/posts/robust_adaptive_exp/index_files/figure-html/cell-14-output-1.png" width="750" height="300" class="figure-img"></p>
+<p><img src="https://dmolitor.com/blog/posts/robust_adaptive_exp/index_files/figure-html/cell-15-output-1.png" width="750" height="300" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -3106,7 +3224,7 @@ font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">300</span>)</span>
 <span id="cb5-5">width_plot.show()</span></code></pre></div>
-<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
+<div id="3f2238f9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="5">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -3701,7 +3819,7 @@ font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
 <span id="cb8-11">width_plot.show()</span></code></pre></div>
-<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
+<div id="41a80cb9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="8">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
