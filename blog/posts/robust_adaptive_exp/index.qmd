@@ -14,7 +14,7 @@ execute:
   message: false
 jupyter: python3
 page-layout: article
-categories: [Bandits, Adaptive Experiments]
+categories: [Adaptive Experiments, Anytime-valid Inference, Bandits]
 image: "./thumbnail.jpg"
 ---
 

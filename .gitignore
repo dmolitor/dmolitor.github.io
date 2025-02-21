@@ -49,3 +49,5 @@ _site/
 .DS_Store
 .venv/
 __pycache__
+.Rprofile
+renv/
