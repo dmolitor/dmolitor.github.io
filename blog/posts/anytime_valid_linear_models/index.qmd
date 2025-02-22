@@ -19,19 +19,21 @@ categories: [Anytime-valid Inference]
 image: "./thumbnail.jpg"
 ---
 
-Randomized experiments (A/B tests) are ubiquitous in both academia and the
-tech sector. Randomization allows us to perform robust causal inference
-on the impact of interventions on user/participant outcomes. In particular,
-under randomization, a variety of estimators give us valid and robust inference
-on the average treatment effect (ATE), $E[Y_i(1) - Y_i(0)].$ Many common
-tests for statistically significant differences between the ATE and some
-pre-specified baseline (most commonly 0) give theoretical guarantees on
-Type 1 error control. That is, $\sup_{h \in H_0} \mathbb{P}(\text{rejects } H_0 | H_0) <= \alpha$ where
-$\alpha$ is the significance level (commonly set to $\alpha=0.5$).
+
+Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as $\tau = E[Y_i(1) - Y_i(0)].$ These estimators typically yield both point estimates and confidence intervals (CIs) such that $$P(\tau \in \text{CI}) <= \alpha$$ where $\alpha$ is the significance level and $\text{CI}$ is a random interval constructed from our data this probability holds before the CI is constructed.
+
+One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size N. A surprisingly common practice is to collect some data, estimate $\tau$ and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate $\tau$. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level $\alpha$.
+
+To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that $$P(\forall n, \delta \in \text{CS}_{\delta, n}) \geq 1 - \alpha,$$ where $\delta$ represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below $\alpha$.
+
+This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.
 
 ## Simulate RCT
 
+These simulations will rely on the following packages:
+
 ### Dependencies
+
 ```{r}
 #| echo: true
 #| output: false
@@ -45,28 +47,52 @@ library(slider)
 ```{r}
 #| echo: false
 #| output: false
+#| warning: false
+#| error: false
 source("utils.R")
 ```
+
+### Data generation and helper functions
+
+We simulate a simple randomized controlled trial (RCT) where binary treatment is assigned randomly. The potential outcomes are defined by
+$$Y_i(W_i) = 0.5 + 0.5*W_i + 2*X_{i1} + 1.2*X_{i2} + 0.4*X_{i3} + \epsilon_i$$
+
+where $W_i$​ indicates the treatment status of unit $i$, the true average treatment effect (ATE) is $\tau = 0.5$, and $\epsilon_i \sim \text{Normal}(0, 1)$.
+
+In this setting, a simple regression of $Y_i$​ on an intercept and $W_i$​, i.e. $Y_i \sim \alpha + \tau * W_i$​, is equivalent to the difference-in-means estimator and produces an unbiased estimate $\hat{\tau}_{DM}$ of $\tau$. Similarly, a covariate-adjusted regression, given by
+$Y_i \sim \alpha + \tau * W_i + \beta^T*X_i$,
+also provides an unbiased estimate $\hat{\tau}_{CA}$, but with lower variance than $\hat{\tau}_{DM}$.
+
+First, we define a function to simulate a random tuple $(X_i, W_i, Y_i)$ according to the RCT setup described above:
 
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
 #| warning: false
-
-## Simulate RCT with ATE of 0.5
-draw <- function(arm, ate = 2.0, sigma = 1.0) {
+draw <- function(arm, ate, sigma = 1.0) {
   covar_coef <- c(2, 1.2, 0.4)
   covar <- rbinom(3, size = 1, prob = c(0.1, 0.5, 0.9))
   y <- 0.5 + ate*arm + drop(covar_coef %*% covar) + rnorm(1, 0, sigma)
   cbind(data.frame("y" = y, "t" = arm), data.frame(t(covar)))
 }
+```
 
-compare <- function(model, unadjusted_model, data, iter, ate = 2.0) {
-  seq_f <- sequential_f_cs(model, phi = 10)
-  seq_f_unadjusted <- sequential_f_cs(unadjusted_model, phi = 10)
-  seq_asymp <- ate_cs_asymp(model, treat_name = "t", lambda = 100)
-  seq_asymp_unadjusted <- ate_cs_asymp(
-    unadjusted_model,
+Now, for a dataset comprised of these units $\{(X_i, W_i, Y_i)\}_{i=1}^N$
+let's construct a function that will estimate both $\hat{\tau}_{DM}$ and
+$\hat{\tau}_{CA}$ as well as the corresponding exact and asymptotic CSs.
+
+Next, for a dataset comprising these units $\{(X_i, W_i, Y_i)\}_{i=1}^N$​, we construct a function to estimate both $\hat{\tau}_{DM}$ and
+$\hat{\tau}_{CA}$​, along with their corresponding exact and asymptotic confidence sequences (CSs):
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| warning: false
+compare <- function(model_ca, model_dm, data, iter, ate = 0.5) {
+  seq_f <- sequential_f_cs(model_ca, phi = 10)
+  seq_f_dm <- sequential_f_cs(model_dm, phi = 10)
+  seq_asymp <- ate_cs_asymp(model_ca, treat_name = "t", lambda = 100)
+  seq_asymp_dm <- ate_cs_asymp(
+    model_dm,
     lambda = 100,
     treat_name = "t"
   )
@@ -77,32 +103,24 @@ compare <- function(model, unadjusted_model, data, iter, ate = 2.0) {
       "f_test_unadj",
       "asymp",
       "asymp_unadj"
-    #   "lm",
-    #   "lm_unadj"
     ),
     "estimate" = c(
       subset(seq_f, covariate == "t")$estimate,
-      subset(seq_f_unadjusted, covariate == "t")$estimate,
+      subset(seq_f_dm, covariate == "t")$estimate,
       seq_asymp$estimate,
-      seq_asymp_unadjusted$estimate
-    #   coef(model)[["t"]],
-    #   coef(unadjusted_model)[["t"]]
+      seq_asymp_dm$estimate
     ),
     "lower" = c(
       subset(seq_f, covariate == "t")$cs_lower,
-      subset(seq_f_unadjusted, covariate == "t")$cs_lower,
+      subset(seq_f_dm, covariate == "t")$cs_lower,
       seq_asymp$cs_lower,
-      seq_asymp_unadjusted$cs_lower
-    #   confint(model)["t", ][[1]],
-    #   confint(unadjusted_model)["t", ][[1]]
+      seq_asymp_dm$cs_lower
     ),
     "upper" = c(
       subset(seq_f, covariate == "t")$cs_upper,
-      subset(seq_f_unadjusted, covariate == "t")$cs_upper,
+      subset(seq_f_dm, covariate == "t")$cs_upper,
       seq_asymp$cs_upper,
-      seq_asymp_unadjusted$cs_upper
-    #   confint(model)["t", ][[2]],
-    #   confint(unadjusted_model)["t", ][[2]]
+      seq_asymp_dm$cs_upper
     )
   )
   comparison_df$covered <- (
@@ -110,8 +128,14 @@ compare <- function(model, unadjusted_model, data, iter, ate = 2.0) {
   )
   return(comparison_df)
 }
+```
 
-simulate <- function(model_fn, model_unadj_fn, draw_fn, n, ate) {
+Finally, we create a function that simulates an experiment of size N where each tuple $(X_i, W_i, Y_i)$ is received sequentially. At each sample size $n \leq N$, we re-estimate $\hat{\tau}_{DM}$, $\hat{\tau}_{CA}$​, and their CSs: 
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| warning: false
+simulate <- function(model_ca_fn, model_dm_fn, draw_fn, n, ate) {
   # Warm-start with 20 observations so that no regression coefs are NA
   # at any point
   df <- do.call(rbind, lapply(1:20, function(x) draw_fn(ate)))
@@ -119,11 +143,11 @@ simulate <- function(model_fn, model_unadj_fn, draw_fn, n, ate) {
   for (i in 1:n) {
     observation <- draw_fn(ate)
     df <- rbind(df, observation)
-    model <- model_fn(df)
-    unadjusted_model <- model_unadj_fn(df)
+    model <- model_ca_fn(df)
+    model_dm <- model_dm_fn(df)
     estimates <- rbind(
       estimates,
-      compare(model, unadjusted_model, df, iter = i, ate = ate)
+      compare(model, model_dm, df, iter = i, ate = ate)
     )
   }
   estimates <- estimates |> 
@@ -155,19 +179,29 @@ simulate <- function(model_fn, model_unadj_fn, draw_fn, n, ate) {
     ungroup()
   return(estimates)
 }
+```
 
-# Simulation estimates
+### Run the simulation
+
+Now, let's run our simulation for N = 500 and plot $\hat{\tau}_{DM}$,
+$\hat{\tau}_{CA}$, and their CSs at each step
+
+We then run our simulation for $N = 500$ and plot the estimates $\hat{\tau}_{DM}$ and
+$\hat{\tau}_{CA}$​ along with their CSs at each step. The red dotted line is the true value of $\tau$ and the vertical blue line indicates the sample size when the corresponding estimator becomes statistically significant.
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| warning: false
 estimates <- simulate(
-  model_fn = function(data) lm(y ~ ., data),
-  model_unadj_fn = function(data) lm(y ~ t, data),
+  model_ca_fn = function(data) lm(y ~ ., data),
+  model_dm_fn = function(data) lm(y ~ t, data),
   draw_fn = function(ate) draw(rbinom(1, 1, 0.5), ate = ate),
   n = 500,
   ate = 0.5
 )
 
-# Compare F-test CSs and Asymptotic CSs
 ggplot(estimates, aes(x = i, y = estimate, ymin = lower, ymax = upper)) +
-  geom_line(size = 0.2) +
+  geom_line(linewidth = 0.2) +
   geom_ribbon(alpha = 0.5) +
   geom_hline(yintercept = 0.5, linetype = "dotted", color = "red") +
   geom_vline(aes(xintercept = stat_sig_i_max), linetype = "dashed", color = "blue") +
@@ -181,21 +215,16 @@ ggplot(estimates, aes(x = i, y = estimate, ymin = lower, ymax = upper)) +
   theme_minimal()
 ```
 
-And we can check the empirical coverage; that is, the fraction of CSs that
-contain the true ATE.
-```{r}
-#| code-fold: true
-#| code-summary: "Show the code"
-#| warning: false
-# Coverage across N
-estimates |>
-  group_by(method) |>
-  summarize(coverage = mean(covered, na.rm = TRUE))
-```
-
-
 ## Simulate non-fixed-probability randomized data (but known propensity scores)
 
+Next, we simulate a randomized experiment where propensity scores are generated as a known function of covariates. Specifically, the propensity score for unit $i$ is given by $$e_i = 0.05 + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3},$$​ where $\{Z_{i1}, Z_{i2}, Z_{i3}\}$ are binary covariates. The potential outcomes are defined as $$Y_i(W_i) = 0.5 + 0.5*W_i + 3*X_{i1} + 3*X_{i2} + 1*X_{i3} + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3} + \epsilon_i,$$ with $W_i$​ representing the treatment status, the true average treatment effect (ATE) $\tau = 0.5$, and $\epsilon_i \sim \text{Normal}(0, 1)$. In this setup, a simple regression of $Y_i$​ on an intercept and $W_i$, weighted by the inverse propensity scores $\frac{1}{e_i}$, yields an unbiased estimate $\hat{\tau}_{IPW}$​ of $\tau$. Similarly, the covariate-adjusted regression $Y_i \sim \alpha + \tau * W_i + \beta^T*X_i$, when weighted by the inverse propensity scores, produces an unbiased estimate $\hat{\tau}_{CAIPW}$ that typically has lower variance.
+
+We will run create a new function to generate data from this experimental setup
+and will run our simulation for N = 2000. Same as above, we'll plot $\hat{\tau}_{IPW}$,
+$\hat{\tau}_{CAIPW}$, and their CSs at each step.
+
+We then create a function to generate data based on this experimental setup and run our simulation for $N = 2000$. As before, we plot $\hat{\tau}_{IPW}$,
+$\hat{\tau}_{CAIPW}$ and their corresponding confidence sequences (CSs) at each step.
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
@@ -219,8 +248,8 @@ draw_prop <- function(ate = 2.0, sigma = 1.0) {
 
 # Simulation estimates
 estimates <- simulate(
-  model_fn = function(data) lm(y ~ . - p, data, weights = 1/data$p),
-  model_unadj_fn = function(data) lm(y ~ t, data, weights = 1/data$p),
+  function(data) lm(y ~ . - p, data, weights = 1/data$p),
+  function(data) lm(y ~ t, data, weights = 1/data$p),
   draw_fn = function(ate) draw_prop(ate = ate),
   n = 2000,
   ate = 0.5
@@ -230,7 +259,7 @@ ggplot(
   estimates,
   aes(x = i, y = estimate, ymin = lower, ymax = upper)
 ) +
-  geom_line(size = 0.2) +
+  geom_line(linewidth = 0.2) +
   geom_ribbon(alpha = 0.5) +
   geom_hline(yintercept = 0.5, linetype = "dotted", color = "red") +
   geom_vline(aes(xintercept = stat_sig_i_max), linetype = "dashed", color = "blue") +
@@ -244,13 +273,38 @@ ggplot(
   theme_minimal()
 ```
 
-Again; empirical coverage:
+As expected, including covariates significantly improves the precision of our ATE estimates.
+
+## Type 1 error control
+
+Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with $\tau = 0$). For each simulation, we record whether a Type 1 error is ever committed. That is, whether the CS ever fails to cover $\tau$. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is $\leq \alpha$.
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
 #| warning: false
-estimates |>
-  group_by(method) |>
-  summarize(coverage = mean(covered, na.rm = TRUE))
+estimates <- lapply(
+  1:100,
+  function(index) {
+    simulate(
+      model_ca_fn = function(data) lm(y ~ ., data),
+      model_dm_fn = function(data) lm(y ~ t, data),
+      draw_fn = function(ate) draw(rbinom(1, 1, 0.5), ate = ate),
+      n = 1000,
+      ate = 0.5
+    ) |>
+    mutate(sim_i = index)
+  }
+)
 
+error_rate <- estimates |>
+  bind_rows() |>
+  group_by(sim_i, method) |>
+  summarize(any_error = !all(covered)) |>
+  ungroup() |>
+  group_by(Method = method) |>
+  summarize(`Type 1 error` = mean(any_error))
+
+error_rate
 ```
+
+We see that, indeed, Type 1 error is $\leq \alpha$.
