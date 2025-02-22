@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.40">
+<meta name="generator" content="quarto-1.6.41">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -67,8 +67,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-86daaaaad7353f9cc0c554efc1dd6d94.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f8dc6eab18fde03278982b0b35885446.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ba1dc69c819719ff92c66bffe944bb46.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-45c9daaf6acd34b0420988892e8b8644.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f4247665be9cd4c9c1aae41e39fed3ea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -187,8 +187,11 @@ window.Quarto = {
   <li><a href="#simulate-rct" id="toc-simulate-rct" class="nav-link active" data-scroll-target="#simulate-rct">Simulate RCT</a>
   <ul class="collapse">
   <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a></li>
+  <li><a href="#data-generation-and-helper-functions" id="toc-data-generation-and-helper-functions" class="nav-link" data-scroll-target="#data-generation-and-helper-functions">Data generation and helper functions</a></li>
+  <li><a href="#run-the-simulation" id="toc-run-the-simulation" class="nav-link" data-scroll-target="#run-the-simulation">Run the simulation</a></li>
   </ul></li>
   <li><a href="#simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" id="toc-simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" class="nav-link" data-scroll-target="#simulate-non-fixed-probability-randomized-data-but-known-propensity-scores">Simulate non-fixed-probability randomized data (but known propensity scores)</a></li>
+  <li><a href="#type-1-error-control" id="toc-type-1-error-control" class="nav-link" data-scroll-target="#type-1-error-control">Type 1 error control</a></li>
   </ul>
 </nav>
     </div>
@@ -228,9 +231,13 @@ window.Quarto = {
 </header>
 
 
-<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. Randomization allows us to perform robust causal inference on the impact of interventions on user/participant outcomes. In particular, under randomization, a variety of estimators give us valid and robust inference on the average treatment effect (ATE), <span class="math inline">\(E[Y_i(1) - Y_i(0)].\)</span> Many common tests for statistically significant differences between the ATE and some pre-specified baseline (most commonly 0) give theoretical guarantees on Type 1 error control. That is, <span class="math inline">\(\sup_{h \in H_0} \mathbb{P}(\text{rejects } H_0 | H_0) &lt;= \alpha\)</span> where <span class="math inline">\(\alpha\)</span> is the significance level (commonly set to <span class="math inline">\(\alpha=0.5\)</span>).</p>
+<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <span class="math inline">\(\tau = E[Y_i(1) - Y_i(0)].\)</span> These estimators typically yield both point estimates and confidence intervals (CIs) such that <span class="math display">\[P(\tau \in \text{CI}) &lt;= \alpha\]</span> where <span class="math inline">\(\alpha\)</span> is the significance level and <span class="math inline">\(\text{CI}\)</span> is a random interval constructed from our data this probability holds before the CI is constructed.</p>
+<p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size N. A surprisingly common practice is to collect some data, estimate <span class="math inline">\(\tau\)</span> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <span class="math inline">\(\tau\)</span>. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <span class="math inline">\(\alpha\)</span>.</p>
+<p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <span class="math display">\[P(\forall n, \delta \in \text{CS}_{\delta, n}) \geq 1 - \alpha,\]</span> where <span class="math inline">\(\delta\)</span> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <span class="math inline">\(\alpha\)</span>.</p>
+<p>This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.</p>
 <section id="simulate-rct" class="level2">
 <h2 class="anchored" data-anchor-id="simulate-rct">Simulate RCT</h2>
+<p>These simulations will rely on the following packages:</p>
 <section id="dependencies" class="level3">
 <h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
 <div class="cell">
@@ -241,239 +248,264 @@ window.Quarto = {
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(slider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+</section>
+<section id="data-generation-and-helper-functions" class="level3">
+<h3 class="anchored" data-anchor-id="data-generation-and-helper-functions">Data generation and helper functions</h3>
+<p>We simulate a simple randomized controlled trial (RCT) where binary treatment is assigned randomly. The potential outcomes are defined by <span class="math display">\[Y_i(W_i) = 0.5 + 0.5*W_i + 2*X_{i1} + 1.2*X_{i2} + 0.4*X_{i3} + \epsilon_i\]</span></p>
+<p>where <span class="math inline">\(W_i\)</span>​ indicates the treatment status of unit <span class="math inline">\(i\)</span>, the true average treatment effect (ATE) is <span class="math inline">\(\tau = 0.5\)</span>, and <span class="math inline">\(\epsilon_i \sim \text{Normal}(0, 1)\)</span>.</p>
+<p>In this setting, a simple regression of <span class="math inline">\(Y_i\)</span>​ on an intercept and <span class="math inline">\(W_i\)</span>​, i.e.&nbsp;<span class="math inline">\(Y_i \sim \alpha + \tau * W_i\)</span>​, is equivalent to the difference-in-means estimator and produces an unbiased estimate <span class="math inline">\(\hat{\tau}_{DM}\)</span> of <span class="math inline">\(\tau\)</span>. Similarly, a covariate-adjusted regression, given by <span class="math inline">\(Y_i \sim \alpha + \tau * W_i + \beta^T*X_i\)</span>, also provides an unbiased estimate <span class="math inline">\(\hat{\tau}_{CA}\)</span>, but with lower variance than <span class="math inline">\(\hat{\tau}_{DM}\)</span>.</p>
+<p>First, we define a function to simulate a random tuple <span class="math inline">\((X_i, W_i, Y_i)\)</span> according to the RCT setup described above:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Simulate RCT with ATE of 0.5</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>draw <span class="ot">&lt;-</span> <span class="cf">function</span>(arm, <span class="at">ate =</span> <span class="fl">2.0</span>, <span class="at">sigma =</span> <span class="fl">1.0</span>) {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">1.2</span>, <span class="fl">0.4</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> ate<span class="sc">*</span>arm <span class="sc">+</span> <span class="fu">drop</span>(covar_coef <span class="sc">%*%</span> covar) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, sigma)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">data.frame</span>(<span class="st">"y"</span> <span class="ot">=</span> y, <span class="st">"t"</span> <span class="ot">=</span> arm), <span class="fu">data.frame</span>(<span class="fu">t</span>(covar)))</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="cf">function</span>(model, unadjusted_model, data, iter, <span class="at">ate =</span> <span class="fl">2.0</span>) {</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  seq_f <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(model, <span class="at">phi =</span> <span class="dv">10</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  seq_f_unadjusted <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(unadjusted_model, <span class="at">phi =</span> <span class="dv">10</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  seq_asymp <span class="ot">&lt;-</span> <span class="fu">ate_cs_asymp</span>(model, <span class="at">treat_name =</span> <span class="st">"t"</span>, <span class="at">lambda =</span> <span class="dv">100</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  seq_asymp_unadjusted <span class="ot">&lt;-</span> <span class="fu">ate_cs_asymp</span>(</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    unadjusted_model,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">lambda =</span> <span class="dv">100</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat_name =</span> <span class="st">"t"</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"i"</span> <span class="ot">=</span> iter,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"method"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">"f_test"</span>,</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"f_test_unadj"</span>,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"asymp"</span>,</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"asymp_unadj"</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   "lm",</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   "lm_unadj"</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"estimate"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>estimate,</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_unadjusted, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>estimate,</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>estimate,</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      seq_asymp_unadjusted<span class="sc">$</span>estimate</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   coef(model)[["t"]],</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   coef(unadjusted_model)[["t"]]</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lower"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_lower,</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_unadjusted, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_lower,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>cs_lower,</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      seq_asymp_unadjusted<span class="sc">$</span>cs_lower</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   confint(model)["t", ][[1]],</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   confint(unadjusted_model)["t", ][[1]]</span></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"upper"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_upper,</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_unadjusted, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_upper,</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>cs_upper,</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>      seq_asymp_unadjusted<span class="sc">$</span>cs_upper</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   confint(model)["t", ][[2]],</span></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   confint(unadjusted_model)["t", ][[2]]</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  comparison_df<span class="sc">$</span>covered <span class="ot">&lt;-</span> (</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    comparison_df<span class="sc">$</span>lower <span class="sc">&lt;=</span> ate <span class="sc">&amp;</span> ate <span class="sc">&lt;=</span> comparison_df<span class="sc">$</span>upper</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(comparison_df)</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>simulate <span class="ot">&lt;-</span> <span class="cf">function</span>(model_fn, model_unadj_fn, draw_fn, n, ate) {</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Warm-start with 20 observations so that no regression coefs are NA</span></span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="co"># at any point</span></span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="cf">function</span>(x) <span class="fu">draw_fn</span>(ate)))</span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  estimates <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    observation <span class="ot">&lt;-</span> <span class="fu">draw_fn</span>(ate)</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df, observation)</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> <span class="fu">model_fn</span>(df)</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    unadjusted_model <span class="ot">&lt;-</span> <span class="fu">model_unadj_fn</span>(df)</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    estimates <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>      estimates,</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>      <span class="fu">compare</span>(model, unadjusted_model, df, <span class="at">iter =</span> i, <span class="at">ate =</span> ate)</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>  estimates <span class="ot">&lt;-</span> estimates <span class="sc">|&gt;</span> </span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig =</span> <span class="dv">0</span> <span class="sc">&lt;</span> lower <span class="sc">|</span> <span class="dv">0</span> <span class="sc">&gt;</span> upper,</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">method =</span> <span class="fu">case_when</span>(</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"asymp"</span> <span class="sc">~</span> <span class="st">"Sequential asymptotic CS"</span>,</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"asymp_unadj"</span> <span class="sc">~</span> <span class="st">"Sequential asymptotic CS w/o covariates"</span>,</span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"f_test"</span> <span class="sc">~</span> <span class="st">"Sequential CS"</span>,</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"f_test_unadj"</span> <span class="sc">~</span> <span class="st">"Sequential CS w/o covariates"</span>,</span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"lm"</span> <span class="sc">~</span> <span class="st">"Fixed-N CS"</span>,</span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"lm_unadj"</span> <span class="sc">~</span> <span class="st">"Fixed-N CS w/o covariates"</span></span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">transition =</span> (<span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)) <span class="sc">&amp;</span> stat_sig) <span class="sc">|&gt;</span></span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig_i_min =</span> <span class="fu">if_else</span>(</span>
-<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        <span class="fu">any</span>(stat_sig <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)),</span>
-<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>        <span class="fu">min</span>(i[stat_sig <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)]),</span>
-<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_integer_</span></span>
-<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig_i_max =</span> <span class="fu">if_else</span>(</span>
-<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        <span class="fu">any</span>(transition),</span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>        <span class="fu">max</span>(i[transition]),</span>
-<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_integer_</span></span>
-<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>      )  </span>
-<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
-<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(estimates)</span>
-<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation estimates</span></span>
-<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>estimates <span class="ot">&lt;-</span> <span class="fu">simulate</span>(</span>
-<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> ., data),</span>
-<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_unadj_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data),</span>
-<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw</span>(<span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">ate =</span> ate),</span>
-<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="dv">500</span>,</span>
-<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>  <span class="at">ate =</span> <span class="fl">0.5</span></span>
-<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare F-test CSs and Asymptotic CSs</span></span>
-<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(estimates, <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> estimate, <span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper)) <span class="sc">+</span></span>
-<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> stat_sig_i_max), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(</span>
-<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> method,</span>
-<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">"free"</span>,</span>
-<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"ATE"</span>) <span class="sc">+</span></span>
-<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>draw <span class="ot">&lt;-</span> <span class="cf">function</span>(arm, ate, <span class="at">sigma =</span> <span class="fl">1.0</span>) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">1.2</span>, <span class="fl">0.4</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> ate<span class="sc">*</span>arm <span class="sc">+</span> <span class="fu">drop</span>(covar_coef <span class="sc">%*%</span> covar) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, sigma)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">data.frame</span>(<span class="st">"y"</span> <span class="ot">=</span> y, <span class="st">"t"</span> <span class="ot">=</span> arm), <span class="fu">data.frame</span>(<span class="fu">t</span>(covar)))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now, for a dataset comprised of these units <span class="math inline">\(\{(X_i, W_i, Y_i)\}_{i=1}^N\)</span> let’s construct a function that will estimate both <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span> as well as the corresponding exact and asymptotic CSs.</p>
+<p>Next, for a dataset comprising these units <span class="math inline">\(\{(X_i, W_i, Y_i)\}_{i=1}^N\)</span>​, we construct a function to estimate both <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span>​, along with their corresponding exact and asymptotic confidence sequences (CSs):</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="cf">function</span>(model_ca, model_dm, data, iter, <span class="at">ate =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  seq_f <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(model_ca, <span class="at">phi =</span> <span class="dv">10</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  seq_f_dm <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(model_dm, <span class="at">phi =</span> <span class="dv">10</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  seq_asymp <span class="ot">&lt;-</span> <span class="fu">ate_cs_asymp</span>(model_ca, <span class="at">treat_name =</span> <span class="st">"t"</span>, <span class="at">lambda =</span> <span class="dv">100</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  seq_asymp_dm <span class="ot">&lt;-</span> <span class="fu">ate_cs_asymp</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    model_dm,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">lambda =</span> <span class="dv">100</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat_name =</span> <span class="st">"t"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"i"</span> <span class="ot">=</span> iter,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"method"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"f_test"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"f_test_unadj"</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"asymp"</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"asymp_unadj"</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"estimate"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>estimate,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_dm, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>estimate,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>estimate,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>      seq_asymp_dm<span class="sc">$</span>estimate</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lower"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_lower,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_dm, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_lower,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>cs_lower,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>      seq_asymp_dm<span class="sc">$</span>cs_lower</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"upper"</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_upper,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">subset</span>(seq_f_dm, covariate <span class="sc">==</span> <span class="st">"t"</span>)<span class="sc">$</span>cs_upper,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>      seq_asymp<span class="sc">$</span>cs_upper,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>      seq_asymp_dm<span class="sc">$</span>cs_upper</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  comparison_df<span class="sc">$</span>covered <span class="ot">&lt;-</span> (</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    comparison_df<span class="sc">$</span>lower <span class="sc">&lt;=</span> ate <span class="sc">&amp;</span> ate <span class="sc">&lt;=</span> comparison_df<span class="sc">$</span>upper</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(comparison_df)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Finally, we create a function that simulates an experiment of size N where each tuple <span class="math inline">\((X_i, W_i, Y_i)\)</span> is received sequentially. At each sample size <span class="math inline">\(n \leq N\)</span>, we re-estimate <span class="math inline">\(\hat{\tau}_{DM}\)</span>, <span class="math inline">\(\hat{\tau}_{CA}\)</span>​, and their CSs:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>simulate <span class="ot">&lt;-</span> <span class="cf">function</span>(model_ca_fn, model_dm_fn, draw_fn, n, ate) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Warm-start with 20 observations so that no regression coefs are NA</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># at any point</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="cf">function</span>(x) <span class="fu">draw_fn</span>(ate)))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  estimates <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    observation <span class="ot">&lt;-</span> <span class="fu">draw_fn</span>(ate)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df, observation)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> <span class="fu">model_ca_fn</span>(df)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    model_dm <span class="ot">&lt;-</span> <span class="fu">model_dm_fn</span>(df)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    estimates <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      estimates,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">compare</span>(model, model_dm, df, <span class="at">iter =</span> i, <span class="at">ate =</span> ate)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  estimates <span class="ot">&lt;-</span> estimates <span class="sc">|&gt;</span> </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig =</span> <span class="dv">0</span> <span class="sc">&lt;</span> lower <span class="sc">|</span> <span class="dv">0</span> <span class="sc">&gt;</span> upper,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">method =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"asymp"</span> <span class="sc">~</span> <span class="st">"Sequential asymptotic CS"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"asymp_unadj"</span> <span class="sc">~</span> <span class="st">"Sequential asymptotic CS w/o covariates"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"f_test"</span> <span class="sc">~</span> <span class="st">"Sequential CS"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"f_test_unadj"</span> <span class="sc">~</span> <span class="st">"Sequential CS w/o covariates"</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"lm"</span> <span class="sc">~</span> <span class="st">"Fixed-N CS"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        method <span class="sc">==</span> <span class="st">"lm_unadj"</span> <span class="sc">~</span> <span class="st">"Fixed-N CS w/o covariates"</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">transition =</span> (<span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)) <span class="sc">&amp;</span> stat_sig) <span class="sc">|&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig_i_min =</span> <span class="fu">if_else</span>(</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">any</span>(stat_sig <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">min</span>(i[stat_sig <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">lag</span>(stat_sig, <span class="at">default =</span> <span class="cn">FALSE</span>)]),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_integer_</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">stat_sig_i_max =</span> <span class="fu">if_else</span>(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">any</span>(transition),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">max</span>(i[transition]),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="cn">NA_integer_</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>      )  </span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(estimates)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="run-the-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-simulation">Run the simulation</h3>
+<p>Now, let’s run our simulation for N = 500 and plot <span class="math inline">\(\hat{\tau}_{DM}\)</span>, <span class="math inline">\(\hat{\tau}_{CA}\)</span>, and their CSs at each step</p>
+<p>We then run our simulation for <span class="math inline">\(N = 500\)</span> and plot the estimates <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span>​ along with their CSs at each step. The red dotted line is the true value of <span class="math inline">\(\tau\)</span> and the vertical blue line indicates the sample size when the corresponding estimator becomes statistically significant.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="ot">&lt;-</span> <span class="fu">simulate</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_ca_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> ., data),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_dm_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw</span>(<span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">ate =</span> ate),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="dv">500</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ate =</span> <span class="fl">0.5</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(estimates, <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> estimate, <span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper)) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> stat_sig_i_max), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> method,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">"free"</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"ATE"</span>) <span class="sc">+</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="2100"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="2100"></p>
 </figure>
 </div>
-</div>
-</div>
-<p>And we can check the empirical coverage; that is, the fraction of CSs that contain the true ATE.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coverage across N</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>estimates <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">coverage =</span> <span class="fu">mean</span>(covered, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 2
-  method                                  coverage
-  &lt;chr&gt;                                      &lt;dbl&gt;
-1 Sequential CS                                  1
-2 Sequential CS w/o covariates                   1
-3 Sequential asymptotic CS                       1
-4 Sequential asymptotic CS w/o covariates        1</code></pre>
 </div>
 </div>
 </section>
 </section>
 <section id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" class="level2">
 <h2 class="anchored" data-anchor-id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores">Simulate non-fixed-probability randomized data (but known propensity scores)</h2>
+<p>Next, we simulate a randomized experiment where propensity scores are generated as a known function of covariates. Specifically, the propensity score for unit <span class="math inline">\(i\)</span> is given by <span class="math display">\[e_i = 0.05 + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3},\]</span>​ where <span class="math inline">\(\{Z_{i1}, Z_{i2}, Z_{i3}\}\)</span> are binary covariates. The potential outcomes are defined as <span class="math display">\[Y_i(W_i) = 0.5 + 0.5*W_i + 3*X_{i1} + 3*X_{i2} + 1*X_{i3} + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3} + \epsilon_i,\]</span> with <span class="math inline">\(W_i\)</span>​ representing the treatment status, the true average treatment effect (ATE) <span class="math inline">\(\tau = 0.5\)</span>, and <span class="math inline">\(\epsilon_i \sim \text{Normal}(0, 1)\)</span>. In this setup, a simple regression of <span class="math inline">\(Y_i\)</span>​ on an intercept and <span class="math inline">\(W_i\)</span>, weighted by the inverse propensity scores <span class="math inline">\(\frac{1}{e_i}\)</span>, yields an unbiased estimate <span class="math inline">\(\hat{\tau}_{IPW}\)</span>​ of <span class="math inline">\(\tau\)</span>. Similarly, the covariate-adjusted regression <span class="math inline">\(Y_i \sim \alpha + \tau * W_i + \beta^T*X_i\)</span>, when weighted by the inverse propensity scores, produces an unbiased estimate <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span> that typically has lower variance.</p>
+<p>We will run create a new function to generate data from this experimental setup and will run our simulation for N = 2000. Same as above, we’ll plot <span class="math inline">\(\hat{\tau}_{IPW}\)</span>, <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span>, and their CSs at each step.</p>
+<p>We then create a function to generate data based on this experimental setup and run our simulation for <span class="math inline">\(N = 2000\)</span>. As before, we plot <span class="math inline">\(\hat{\tau}_{IPW}\)</span>, <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span> and their corresponding confidence sequences (CSs) at each step.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>draw_prop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">ate =</span> <span class="fl">2.0</span>, <span class="at">sigma =</span> <span class="fl">1.0</span>) {</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  prop_covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  prop_covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.7</span>))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  prop <span class="ot">&lt;-</span> <span class="fu">drop</span>(prop_covar_coef <span class="sc">%*%</span> prop_covar) <span class="sc">+</span> <span class="fl">0.05</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>))</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  arm <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, prop)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> (</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> ate<span class="sc">*</span>arm</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">drop</span>(covar_coef <span class="sc">%*%</span> covar)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">drop</span>(prop_covar_coef <span class="sc">%*%</span> prop_covar)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, sigma)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">data.frame</span>(<span class="st">"y"</span> <span class="ot">=</span> y, <span class="st">"t"</span> <span class="ot">=</span> arm, <span class="st">"p"</span> <span class="ot">=</span> <span class="fu">ifelse</span>(arm, prop, <span class="dv">1</span> <span class="sc">-</span> prop)), <span class="fu">data.frame</span>(<span class="fu">t</span>(covar)))</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation estimates</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>estimates <span class="ot">&lt;-</span> <span class="fu">simulate</span>(</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> . <span class="sc">-</span> p, data, <span class="at">weights =</span> <span class="dv">1</span><span class="sc">/</span>data<span class="sc">$</span>p),</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_unadj_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data, <span class="at">weights =</span> <span class="dv">1</span><span class="sc">/</span>data<span class="sc">$</span>p),</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw_prop</span>(<span class="at">ate =</span> ate),</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="dv">2000</span>,</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">ate =</span> <span class="fl">0.5</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  estimates,</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> estimate, <span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper)</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> stat_sig_i_max), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> method,</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">"free"</span>,</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"ATE"</span>) <span class="sc">+</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>draw_prop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">ate =</span> <span class="fl">2.0</span>, <span class="at">sigma =</span> <span class="fl">1.0</span>) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  prop_covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  prop_covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.7</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  prop <span class="ot">&lt;-</span> <span class="fu">drop</span>(prop_covar_coef <span class="sc">%*%</span> prop_covar) <span class="sc">+</span> <span class="fl">0.05</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  covar_coef <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  covar <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  arm <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, prop)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> (</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> ate<span class="sc">*</span>arm</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">drop</span>(covar_coef <span class="sc">%*%</span> covar)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">drop</span>(prop_covar_coef <span class="sc">%*%</span> prop_covar)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, sigma)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">data.frame</span>(<span class="st">"y"</span> <span class="ot">=</span> y, <span class="st">"t"</span> <span class="ot">=</span> arm, <span class="st">"p"</span> <span class="ot">=</span> <span class="fu">ifelse</span>(arm, prop, <span class="dv">1</span> <span class="sc">-</span> prop)), <span class="fu">data.frame</span>(<span class="fu">t</span>(covar)))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation estimates</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>estimates <span class="ot">&lt;-</span> <span class="fu">simulate</span>(</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> . <span class="sc">-</span> p, data, <span class="at">weights =</span> <span class="dv">1</span><span class="sc">/</span>data<span class="sc">$</span>p),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data, <span class="at">weights =</span> <span class="dv">1</span><span class="sc">/</span>data<span class="sc">$</span>p),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw_prop</span>(<span class="at">ate =</span> ate),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="dv">2000</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">ate =</span> <span class="fl">0.5</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  estimates,</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> estimate, <span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> stat_sig_i_max), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> method,</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">"free"</span>,</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"ATE"</span>) <span class="sc">+</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="2100"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="2100"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Again; empirical coverage:</p>
+<p>As expected, including covariates significantly improves the precision of our ATE estimates.</p>
+</section>
+<section id="type-1-error-control" class="level2">
+<h2 class="anchored" data-anchor-id="type-1-error-control">Type 1 error control</h2>
+<p>Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with <span class="math inline">\(\tau = 0\)</span>). For each simulation, we record whether a Type 1 error is ever committed. That is, whether the CS ever fails to cover <span class="math inline">\(\tau\)</span>. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is <span class="math inline">\(\leq \alpha\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">coverage =</span> <span class="fu">mean</span>(covered, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(index) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">simulate</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">model_ca_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> ., data),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">model_dm_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw</span>(<span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">ate =</span> ate),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">ate =</span> <span class="fl">0.5</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">sim_i =</span> index)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>error_rate <span class="ot">&lt;-</span> estimates <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sim_i, method) <span class="sc">|&gt;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">any_error =</span> <span class="sc">!</span><span class="fu">all</span>(covered)) <span class="sc">|&gt;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">Method =</span> method) <span class="sc">|&gt;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="st">`</span><span class="at">Type 1 error</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(any_error))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>error_rate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 2
-  method                                  coverage
-  &lt;chr&gt;                                      &lt;dbl&gt;
-1 Sequential CS                                  1
-2 Sequential CS w/o covariates                   1
-3 Sequential asymptotic CS                       1
-4 Sequential asymptotic CS w/o covariates        1</code></pre>
+  Method                                  `Type 1 error`
+  &lt;chr&gt;                                            &lt;dbl&gt;
+1 Sequential CS                                     0.03
+2 Sequential CS w/o covariates                      0.02
+3 Sequential asymptotic CS                          0.02
+4 Sequential asymptotic CS w/o covariates           0   </code></pre>
 </div>
 </div>
+<p>We see that, indeed, Type 1 error is <span class="math inline">\(\leq \alpha\)</span>.</p>
 
 
 </section>
