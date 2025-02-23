@@ -20,7 +20,7 @@
 
 
 <p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%20E%5BY_i(1)%20-%20Y_i(0)%5D."> These estimators typically yield both point estimates and confidence intervals (CIs) such that <img src="https://latex.codecogs.com/png.latex?P(%5Ctau%20%5Cin%20%5Ctext%7BCI%7D)%20%3C=%20%5Calpha"> where <img src="https://latex.codecogs.com/png.latex?%5Calpha"> is the significance level and <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCI%7D"> is a random interval constructed from our data this probability holds before the CI is constructed.</p>
-<p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size N. A surprisingly common practice is to collect some data, estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau"> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau">. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
+<p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size <img src="https://latex.codecogs.com/png.latex?N">. A surprisingly common practice is to collect some data, estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau"> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau">. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
 <p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <img src="https://latex.codecogs.com/png.latex?P(%5Cforall%20n,%20%5Cdelta%20%5Cin%20%5Ctext%7BCS%7D_%7B%5Cdelta,%20n%7D)%20%5Cgeq%201%20-%20%5Calpha,"> where <img src="https://latex.codecogs.com/png.latex?%5Cdelta"> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
 <p>This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.</p>
 <section id="simulate-rct" class="level2">
@@ -36,10 +36,7 @@ background-color: null;
 font-style: inherit;">library</span>(dplyr)</span>
 <span id="cb1-2"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(ggplot2)</span>
-<span id="cb1-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(slider)</span></code></pre></div>
+font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
 </details>
 </div>
 </section>
@@ -137,7 +134,6 @@ font-style: inherit;">t</span>(covar)))</span>
 <span id="cb2-6">}</span></code></pre></div>
 </details>
 </div>
-<p>Now, for a dataset comprised of these units <img src="https://latex.codecogs.com/png.latex?%5C%7B(X_i,%20W_i,%20Y_i)%5C%7D_%7Bi=1%7D%5EN"> let’s construct a function that will estimate both <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D"> as well as the corresponding exact and asymptotic CSs.</p>
 <p>Next, for a dataset comprising these units <img src="https://latex.codecogs.com/png.latex?%5C%7B(X_i,%20W_i,%20Y_i)%5C%7D_%7Bi=1%7D%5EN">​, we construct a function to estimate both <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​, along with their corresponding exact and asymptotic confidence sequences (CSs):</p>
 <div class="cell">
 <details class="code-fold">
@@ -350,7 +346,7 @@ font-style: inherit;">return</span>(comparison_df)</span>
 <span id="cb3-41">}</span></code></pre></div>
 </details>
 </div>
-<p>Finally, we create a function that simulates an experiment of size N where each tuple <img src="https://latex.codecogs.com/png.latex?(X_i,%20W_i,%20Y_i)"> is received sequentially. At each sample size <img src="https://latex.codecogs.com/png.latex?n%20%5Cleq%20N">, we re-estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​, and their CSs:</p>
+<p>Finally, we create a function that simulates an experiment of size <img src="https://latex.codecogs.com/png.latex?N"> where each tuple <img src="https://latex.codecogs.com/png.latex?(X_i,%20W_i,%20Y_i)"> is received sequentially. At each sample size <img src="https://latex.codecogs.com/png.latex?n%20%5Cleq%20N">, we re-estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​, and their CSs:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -609,7 +605,6 @@ font-style: inherit;">return</span>(estimates)</span>
 </section>
 <section id="run-the-simulation" class="level3">
 <h3 class="anchored" data-anchor-id="run-the-simulation">Run the simulation</h3>
-<p>Now, let’s run our simulation for N = 500 and plot <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">, and their CSs at each step</p>
 <p>We then run our simulation for <img src="https://latex.codecogs.com/png.latex?N%20=%20500"> and plot the estimates <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​ along with their CSs at each step. The red dotted line is the true value of <img src="https://latex.codecogs.com/png.latex?%5Ctau"> and the vertical blue line indicates the sample size when the corresponding estimator becomes statistically significant.</p>
 <div class="cell">
 <details class="code-fold">
@@ -796,7 +791,6 @@ font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
 <section id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" class="level2">
 <h2 class="anchored" data-anchor-id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores">Simulate non-fixed-probability randomized data (but known propensity scores)</h2>
 <p>Next, we simulate a randomized experiment where propensity scores are generated as a known function of covariates. Specifically, the propensity score for unit <img src="https://latex.codecogs.com/png.latex?i"> is given by <img src="https://latex.codecogs.com/png.latex?e_i%20=%200.05%20+%200.5*Z_%7Bi1%7D%20+%200.3*Z_%7Bi2%7D%20+%200.1*Z_%7Bi3%7D,">​ where <img src="https://latex.codecogs.com/png.latex?%5C%7BZ_%7Bi1%7D,%20Z_%7Bi2%7D,%20Z_%7Bi3%7D%5C%7D"> are binary covariates. The potential outcomes are defined as <img src="https://latex.codecogs.com/png.latex?Y_i(W_i)%20=%200.5%20+%200.5*W_i%20+%203*X_%7Bi1%7D%20+%203*X_%7Bi2%7D%20+%201*X_%7Bi3%7D%20+%200.5*Z_%7Bi1%7D%20+%200.3*Z_%7Bi2%7D%20+%200.1*Z_%7Bi3%7D%20+%20%5Cepsilon_i,"> with <img src="https://latex.codecogs.com/png.latex?W_i">​ representing the treatment status, the true average treatment effect (ATE) <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%200.5">, and <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_i%20%5Csim%20%5Ctext%7BNormal%7D(0,%201)">. In this setup, a simple regression of <img src="https://latex.codecogs.com/png.latex?Y_i">​ on an intercept and <img src="https://latex.codecogs.com/png.latex?W_i">, weighted by the inverse propensity scores <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Be_i%7D">, yields an unbiased estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BIPW%7D">​ of <img src="https://latex.codecogs.com/png.latex?%5Ctau">. Similarly, the covariate-adjusted regression <img src="https://latex.codecogs.com/png.latex?Y_i%20%5Csim%20%5Calpha%20+%20%5Ctau%20*%20W_i%20+%20%5Cbeta%5ET*X_i">, when weighted by the inverse propensity scores, produces an unbiased estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCAIPW%7D"> that typically has lower variance.</p>
-<p>We will run create a new function to generate data from this experimental setup and will run our simulation for N = 2000. Same as above, we’ll plot <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BIPW%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCAIPW%7D">, and their CSs at each step.</p>
 <p>We then create a function to generate data based on this experimental setup and run our simulation for <img src="https://latex.codecogs.com/png.latex?N%20=%202000">. As before, we plot <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BIPW%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCAIPW%7D"> and their corresponding confidence sequences (CSs) at each step.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1156,7 +1150,7 @@ font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
 </section>
 <section id="type-1-error-control" class="level2">
 <h2 class="anchored" data-anchor-id="type-1-error-control">Type 1 error control</h2>
-<p>Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%200">). For each simulation, we record whether a Type 1 error is ever committed. That is, whether the CS ever fails to cover <img src="https://latex.codecogs.com/png.latex?%5Ctau">. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20%5Calpha">.</p>
+<p>Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%200">). For each simulation, we record whether a Type 1 error is ever committed; that is, whether the CS ever fails to cover <img src="https://latex.codecogs.com/png.latex?%5Ctau">. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20%5Calpha">.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -1224,9 +1218,9 @@ background-color: null;
 font-style: inherit;">1000</span>,</span>
 <span id="cb7-9">      <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">ate =</span> <span class="fl" style="color: #AD0000;
+font-style: inherit;">ate =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">0.5</span></span>
+font-style: inherit;">0</span></span>
 <span id="cb7-10">    ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
@@ -1296,15 +1290,19 @@ font-style: inherit;">mean</span>(any_error))</span>
 <pre><code># A tibble: 4 × 2
   Method                                  `Type 1 error`
   &lt;chr&gt;                                            &lt;dbl&gt;
-1 Sequential CS                                     0.03
-2 Sequential CS w/o covariates                      0.02
-3 Sequential asymptotic CS                          0.02
-4 Sequential asymptotic CS w/o covariates           0   </code></pre>
+1 Sequential CS                                     0.04
+2 Sequential CS w/o covariates                      0.01
+3 Sequential asymptotic CS                          0.03
+4 Sequential asymptotic CS w/o covariates           0.01</code></pre>
 </div>
 </div>
-<p>We see that, indeed, Type 1 error is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20%5Calpha">.</p>
+<p>We see that, indeed, Type 1 error is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20%5Calpha%20=%200.05"> for all estimators.</p>
+<section id="credits" class="level3">
+<h3 class="anchored" data-anchor-id="credits">Credits</h3>
+<p>A lot of the code for this was based on the paper’s <a href="https://github.com/michaellindon/avlm">official repository</a> and was crafted in tandem with my trusty AI assistant (ChatGPT).</p>
 
 
+</section>
 </section>
 
  ]]></description>

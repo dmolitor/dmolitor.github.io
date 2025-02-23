@@ -191,7 +191,10 @@ window.Quarto = {
   <li><a href="#run-the-simulation" id="toc-run-the-simulation" class="nav-link" data-scroll-target="#run-the-simulation">Run the simulation</a></li>
   </ul></li>
   <li><a href="#simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" id="toc-simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" class="nav-link" data-scroll-target="#simulate-non-fixed-probability-randomized-data-but-known-propensity-scores">Simulate non-fixed-probability randomized data (but known propensity scores)</a></li>
-  <li><a href="#type-1-error-control" id="toc-type-1-error-control" class="nav-link" data-scroll-target="#type-1-error-control">Type 1 error control</a></li>
+  <li><a href="#type-1-error-control" id="toc-type-1-error-control" class="nav-link" data-scroll-target="#type-1-error-control">Type 1 error control</a>
+  <ul class="collapse">
+  <li><a href="#credits" id="toc-credits" class="nav-link" data-scroll-target="#credits">Credits</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -232,7 +235,7 @@ window.Quarto = {
 
 
 <p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <span class="math inline">\(\tau = E[Y_i(1) - Y_i(0)].\)</span> These estimators typically yield both point estimates and confidence intervals (CIs) such that <span class="math display">\[P(\tau \in \text{CI}) &lt;= \alpha\]</span> where <span class="math inline">\(\alpha\)</span> is the significance level and <span class="math inline">\(\text{CI}\)</span> is a random interval constructed from our data this probability holds before the CI is constructed.</p>
-<p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size N. A surprisingly common practice is to collect some data, estimate <span class="math inline">\(\tau\)</span> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <span class="math inline">\(\tau\)</span>. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <span class="math inline">\(\alpha\)</span>.</p>
+<p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size <span class="math inline">\(N\)</span>. A surprisingly common practice is to collect some data, estimate <span class="math inline">\(\tau\)</span> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <span class="math inline">\(\tau\)</span>. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <span class="math inline">\(\alpha\)</span>.</p>
 <p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <span class="math display">\[P(\forall n, \delta \in \text{CS}_{\delta, n}) \geq 1 - \alpha,\]</span> where <span class="math inline">\(\delta\)</span> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <span class="math inline">\(\alpha\)</span>.</p>
 <p>This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.</p>
 <section id="simulate-rct" class="level2">
@@ -244,8 +247,7 @@ window.Quarto = {
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(slider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -266,7 +268,6 @@ window.Quarto = {
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now, for a dataset comprised of these units <span class="math inline">\(\{(X_i, W_i, Y_i)\}_{i=1}^N\)</span> let’s construct a function that will estimate both <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span> as well as the corresponding exact and asymptotic CSs.</p>
 <p>Next, for a dataset comprising these units <span class="math inline">\(\{(X_i, W_i, Y_i)\}_{i=1}^N\)</span>​, we construct a function to estimate both <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span>​, along with their corresponding exact and asymptotic confidence sequences (CSs):</p>
 <div class="cell">
 <details class="code-fold">
@@ -314,7 +315,7 @@ window.Quarto = {
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Finally, we create a function that simulates an experiment of size N where each tuple <span class="math inline">\((X_i, W_i, Y_i)\)</span> is received sequentially. At each sample size <span class="math inline">\(n \leq N\)</span>, we re-estimate <span class="math inline">\(\hat{\tau}_{DM}\)</span>, <span class="math inline">\(\hat{\tau}_{CA}\)</span>​, and their CSs:</p>
+<p>Finally, we create a function that simulates an experiment of size <span class="math inline">\(N\)</span> where each tuple <span class="math inline">\((X_i, W_i, Y_i)\)</span> is received sequentially. At each sample size <span class="math inline">\(n \leq N\)</span>, we re-estimate <span class="math inline">\(\hat{\tau}_{DM}\)</span>, <span class="math inline">\(\hat{\tau}_{CA}\)</span>​, and their CSs:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -367,7 +368,6 @@ window.Quarto = {
 </section>
 <section id="run-the-simulation" class="level3">
 <h3 class="anchored" data-anchor-id="run-the-simulation">Run the simulation</h3>
-<p>Now, let’s run our simulation for N = 500 and plot <span class="math inline">\(\hat{\tau}_{DM}\)</span>, <span class="math inline">\(\hat{\tau}_{CA}\)</span>, and their CSs at each step</p>
 <p>We then run our simulation for <span class="math inline">\(N = 500\)</span> and plot the estimates <span class="math inline">\(\hat{\tau}_{DM}\)</span> and <span class="math inline">\(\hat{\tau}_{CA}\)</span>​ along with their CSs at each step. The red dotted line is the true value of <span class="math inline">\(\tau\)</span> and the vertical blue line indicates the sample size when the corresponding estimator becomes statistically significant.</p>
 <div class="cell">
 <details class="code-fold">
@@ -407,7 +407,6 @@ window.Quarto = {
 <section id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores" class="level2">
 <h2 class="anchored" data-anchor-id="simulate-non-fixed-probability-randomized-data-but-known-propensity-scores">Simulate non-fixed-probability randomized data (but known propensity scores)</h2>
 <p>Next, we simulate a randomized experiment where propensity scores are generated as a known function of covariates. Specifically, the propensity score for unit <span class="math inline">\(i\)</span> is given by <span class="math display">\[e_i = 0.05 + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3},\]</span>​ where <span class="math inline">\(\{Z_{i1}, Z_{i2}, Z_{i3}\}\)</span> are binary covariates. The potential outcomes are defined as <span class="math display">\[Y_i(W_i) = 0.5 + 0.5*W_i + 3*X_{i1} + 3*X_{i2} + 1*X_{i3} + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3} + \epsilon_i,\]</span> with <span class="math inline">\(W_i\)</span>​ representing the treatment status, the true average treatment effect (ATE) <span class="math inline">\(\tau = 0.5\)</span>, and <span class="math inline">\(\epsilon_i \sim \text{Normal}(0, 1)\)</span>. In this setup, a simple regression of <span class="math inline">\(Y_i\)</span>​ on an intercept and <span class="math inline">\(W_i\)</span>, weighted by the inverse propensity scores <span class="math inline">\(\frac{1}{e_i}\)</span>, yields an unbiased estimate <span class="math inline">\(\hat{\tau}_{IPW}\)</span>​ of <span class="math inline">\(\tau\)</span>. Similarly, the covariate-adjusted regression <span class="math inline">\(Y_i \sim \alpha + \tau * W_i + \beta^T*X_i\)</span>, when weighted by the inverse propensity scores, produces an unbiased estimate <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span> that typically has lower variance.</p>
-<p>We will run create a new function to generate data from this experimental setup and will run our simulation for N = 2000. Same as above, we’ll plot <span class="math inline">\(\hat{\tau}_{IPW}\)</span>, <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span>, and their CSs at each step.</p>
 <p>We then create a function to generate data based on this experimental setup and run our simulation for <span class="math inline">\(N = 2000\)</span>. As before, we plot <span class="math inline">\(\hat{\tau}_{IPW}\)</span>, <span class="math inline">\(\hat{\tau}_{CAIPW}\)</span> and their corresponding confidence sequences (CSs) at each step.</p>
 <div class="cell">
 <details class="code-fold">
@@ -467,7 +466,7 @@ window.Quarto = {
 </section>
 <section id="type-1-error-control" class="level2">
 <h2 class="anchored" data-anchor-id="type-1-error-control">Type 1 error control</h2>
-<p>Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with <span class="math inline">\(\tau = 0\)</span>). For each simulation, we record whether a Type 1 error is ever committed. That is, whether the CS ever fails to cover <span class="math inline">\(\tau\)</span>. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is <span class="math inline">\(\leq \alpha\)</span>.</p>
+<p>Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with <span class="math inline">\(\tau = 0\)</span>). For each simulation, we record whether a Type 1 error is ever committed; that is, whether the CS ever fails to cover <span class="math inline">\(\tau\)</span>. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is <span class="math inline">\(\leq \alpha\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -479,7 +478,7 @@ window.Quarto = {
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">model_dm_fn =</span> <span class="cf">function</span>(data) <span class="fu">lm</span>(y <span class="sc">~</span> t, data),</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">draw_fn =</span> <span class="cf">function</span>(ate) <span class="fu">draw</span>(<span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">ate =</span> ate),</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">1000</span>,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">ate =</span> <span class="fl">0.5</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">ate =</span> <span class="dv">0</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">sim_i =</span> index)</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  }</span>
@@ -499,15 +498,19 @@ window.Quarto = {
 <pre><code># A tibble: 4 × 2
   Method                                  `Type 1 error`
   &lt;chr&gt;                                            &lt;dbl&gt;
-1 Sequential CS                                     0.03
-2 Sequential CS w/o covariates                      0.02
-3 Sequential asymptotic CS                          0.02
-4 Sequential asymptotic CS w/o covariates           0   </code></pre>
+1 Sequential CS                                     0.04
+2 Sequential CS w/o covariates                      0.01
+3 Sequential asymptotic CS                          0.03
+4 Sequential asymptotic CS w/o covariates           0.01</code></pre>
 </div>
 </div>
-<p>We see that, indeed, Type 1 error is <span class="math inline">\(\leq \alpha\)</span>.</p>
+<p>We see that, indeed, Type 1 error is <span class="math inline">\(\leq \alpha = 0.05\)</span> for all estimators.</p>
+<section id="credits" class="level3">
+<h3 class="anchored" data-anchor-id="credits">Credits</h3>
+<p>A lot of the code for this was based on the paper’s <a href="https://github.com/michaellindon/avlm">official repository</a> and was crafted in tandem with my trusty AI assistant (ChatGPT).</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
