@@ -19,7 +19,7 @@
 
 
 
-<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%20E%5BY_i(1)%20-%20Y_i(0)%5D."> These estimators typically yield both point estimates and confidence intervals (CIs) such that <img src="https://latex.codecogs.com/png.latex?P(%5Ctau%20%5Cin%20%5Ctext%7BCI%7D)%20%3C=%20%5Calpha"> where <img src="https://latex.codecogs.com/png.latex?%5Calpha"> is the significance level and <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCI%7D"> is a random interval constructed from our data this probability holds before the CI is constructed.</p>
+<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%20E%5BY_i(1)%20-%20Y_i(0)%5D."> These estimators typically yield both point estimates and confidence intervals (CIs) such that <img src="https://latex.codecogs.com/png.latex?P(%5Ctau%20%5Cin%20%5Ctext%7BCI%7D)%20%3C=%20%5Calpha,"> where <img src="https://latex.codecogs.com/png.latex?%5Calpha"> is the significance level and <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCI%7D"> is a random interval constructed from our data.</p>
 <p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size <img src="https://latex.codecogs.com/png.latex?N">. A surprisingly common practice is to collect some data, estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau"> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau">. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
 <p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <img src="https://latex.codecogs.com/png.latex?P(%5Cforall%20n,%20%5Cdelta%20%5Cin%20%5Ctext%7BCS%7D_%7B%5Cdelta,%20n%7D)%20%5Cgeq%201%20-%20%5Calpha,"> where <img src="https://latex.codecogs.com/png.latex?%5Cdelta"> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
 <p>This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.</p>
@@ -1291,9 +1291,9 @@ font-style: inherit;">mean</span>(any_error))</span>
   Method                                  `Type 1 error`
   &lt;chr&gt;                                            &lt;dbl&gt;
 1 Sequential CS                                     0.04
-2 Sequential CS w/o covariates                      0.01
-3 Sequential asymptotic CS                          0.03
-4 Sequential asymptotic CS w/o covariates           0.01</code></pre>
+2 Sequential CS w/o covariates                      0.04
+3 Sequential asymptotic CS                          0.04
+4 Sequential asymptotic CS w/o covariates           0.03</code></pre>
 </div>
 </div>
 <p>We see that, indeed, Type 1 error is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20%5Calpha%20=%200.05"> for all estimators.</p>

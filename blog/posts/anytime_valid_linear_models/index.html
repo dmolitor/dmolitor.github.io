@@ -234,7 +234,7 @@ window.Quarto = {
 </header>
 
 
-<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <span class="math inline">\(\tau = E[Y_i(1) - Y_i(0)].\)</span> These estimators typically yield both point estimates and confidence intervals (CIs) such that <span class="math display">\[P(\tau \in \text{CI}) &lt;= \alpha\]</span> where <span class="math inline">\(\alpha\)</span> is the significance level and <span class="math inline">\(\text{CI}\)</span> is a random interval constructed from our data this probability holds before the CI is constructed.</p>
+<p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <span class="math inline">\(\tau = E[Y_i(1) - Y_i(0)].\)</span> These estimators typically yield both point estimates and confidence intervals (CIs) such that <span class="math display">\[P(\tau \in \text{CI}) &lt;= \alpha,\]</span> where <span class="math inline">\(\alpha\)</span> is the significance level and <span class="math inline">\(\text{CI}\)</span> is a random interval constructed from our data.</p>
 <p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size <span class="math inline">\(N\)</span>. A surprisingly common practice is to collect some data, estimate <span class="math inline">\(\tau\)</span> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <span class="math inline">\(\tau\)</span>. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <span class="math inline">\(\alpha\)</span>.</p>
 <p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <span class="math display">\[P(\forall n, \delta \in \text{CS}_{\delta, n}) \geq 1 - \alpha,\]</span> where <span class="math inline">\(\delta\)</span> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <span class="math inline">\(\alpha\)</span>.</p>
 <p>This method is not only practically significant but also easy to implement using standard linear regression outputs in R. The simulations that follow will demonstrate the usefulness of this approach.</p>
@@ -499,9 +499,9 @@ window.Quarto = {
   Method                                  `Type 1 error`
   &lt;chr&gt;                                            &lt;dbl&gt;
 1 Sequential CS                                     0.04
-2 Sequential CS w/o covariates                      0.01
-3 Sequential asymptotic CS                          0.03
-4 Sequential asymptotic CS w/o covariates           0.01</code></pre>
+2 Sequential CS w/o covariates                      0.04
+3 Sequential asymptotic CS                          0.04
+4 Sequential asymptotic CS w/o covariates           0.03</code></pre>
 </div>
 </div>
 <p>We see that, indeed, Type 1 error is <span class="math inline">\(\leq \alpha = 0.05\)</span> for all estimators.</p>
