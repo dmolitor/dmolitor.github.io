@@ -22,7 +22,7 @@ image: "./thumbnail.jpg"
 
 Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as $\tau = E[Y_i(1) - Y_i(0)].$ These estimators typically yield both point estimates and confidence intervals (CIs) such that $$P(\tau \in \text{CI}) <= \alpha$$ where $\alpha$ is the significance level and $\text{CI}$ is a random interval constructed from our data this probability holds before the CI is constructed.
 
-One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size N. A surprisingly common practice is to collect some data, estimate $\tau$ and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate $\tau$. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level $\alpha$.
+One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size $N$. A surprisingly common practice is to collect some data, estimate $\tau$ and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate $\tau$. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level $\alpha$.
 
 To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that $$P(\forall n, \delta \in \text{CS}_{\delta, n}) \geq 1 - \alpha,$$ where $\delta$ represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below $\alpha$.
 
@@ -41,7 +41,6 @@ These simulations will rely on the following packages:
 #| code-summary: "Show the code"
 library(dplyr)
 library(ggplot2)
-library(slider)
 ```
 
 ```{r}
@@ -76,10 +75,6 @@ draw <- function(arm, ate, sigma = 1.0) {
   cbind(data.frame("y" = y, "t" = arm), data.frame(t(covar)))
 }
 ```
-
-Now, for a dataset comprised of these units $\{(X_i, W_i, Y_i)\}_{i=1}^N$
-let's construct a function that will estimate both $\hat{\tau}_{DM}$ and
-$\hat{\tau}_{CA}$ as well as the corresponding exact and asymptotic CSs.
 
 Next, for a dataset comprising these units $\{(X_i, W_i, Y_i)\}_{i=1}^N$​, we construct a function to estimate both $\hat{\tau}_{DM}$ and
 $\hat{\tau}_{CA}$​, along with their corresponding exact and asymptotic confidence sequences (CSs):
@@ -130,7 +125,7 @@ compare <- function(model_ca, model_dm, data, iter, ate = 0.5) {
 }
 ```
 
-Finally, we create a function that simulates an experiment of size N where each tuple $(X_i, W_i, Y_i)$ is received sequentially. At each sample size $n \leq N$, we re-estimate $\hat{\tau}_{DM}$, $\hat{\tau}_{CA}$​, and their CSs: 
+Finally, we create a function that simulates an experiment of size $N$ where each tuple $(X_i, W_i, Y_i)$ is received sequentially. At each sample size $n \leq N$, we re-estimate $\hat{\tau}_{DM}$, $\hat{\tau}_{CA}$​, and their CSs: 
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
@@ -183,9 +178,6 @@ simulate <- function(model_ca_fn, model_dm_fn, draw_fn, n, ate) {
 
 ### Run the simulation
 
-Now, let's run our simulation for N = 500 and plot $\hat{\tau}_{DM}$,
-$\hat{\tau}_{CA}$, and their CSs at each step
-
 We then run our simulation for $N = 500$ and plot the estimates $\hat{\tau}_{DM}$ and
 $\hat{\tau}_{CA}$​ along with their CSs at each step. The red dotted line is the true value of $\tau$ and the vertical blue line indicates the sample size when the corresponding estimator becomes statistically significant.
 ```{r}
@@ -218,10 +210,6 @@ ggplot(estimates, aes(x = i, y = estimate, ymin = lower, ymax = upper)) +
 ## Simulate non-fixed-probability randomized data (but known propensity scores)
 
 Next, we simulate a randomized experiment where propensity scores are generated as a known function of covariates. Specifically, the propensity score for unit $i$ is given by $$e_i = 0.05 + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3},$$​ where $\{Z_{i1}, Z_{i2}, Z_{i3}\}$ are binary covariates. The potential outcomes are defined as $$Y_i(W_i) = 0.5 + 0.5*W_i + 3*X_{i1} + 3*X_{i2} + 1*X_{i3} + 0.5*Z_{i1} + 0.3*Z_{i2} + 0.1*Z_{i3} + \epsilon_i,$$ with $W_i$​ representing the treatment status, the true average treatment effect (ATE) $\tau = 0.5$, and $\epsilon_i \sim \text{Normal}(0, 1)$. In this setup, a simple regression of $Y_i$​ on an intercept and $W_i$, weighted by the inverse propensity scores $\frac{1}{e_i}$, yields an unbiased estimate $\hat{\tau}_{IPW}$​ of $\tau$. Similarly, the covariate-adjusted regression $Y_i \sim \alpha + \tau * W_i + \beta^T*X_i$, when weighted by the inverse propensity scores, produces an unbiased estimate $\hat{\tau}_{CAIPW}$ that typically has lower variance.
-
-We will run create a new function to generate data from this experimental setup
-and will run our simulation for N = 2000. Same as above, we'll plot $\hat{\tau}_{IPW}$,
-$\hat{\tau}_{CAIPW}$, and their CSs at each step.
 
 We then create a function to generate data based on this experimental setup and run our simulation for $N = 2000$. As before, we plot $\hat{\tau}_{IPW}$,
 $\hat{\tau}_{CAIPW}$ and their corresponding confidence sequences (CSs) at each step.
@@ -277,7 +265,7 @@ As expected, including covariates significantly improves the precision of our AT
 
 ## Type 1 error control
 
-Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with $\tau = 0$). For each simulation, we record whether a Type 1 error is ever committed. That is, whether the CS ever fails to cover $\tau$. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is $\leq \alpha$.
+Finally, we assess the empirical Type I error control by running multiple simulations under the null hypothesis (i.e., with $\tau = 0$). For each simulation, we record whether a Type 1 error is ever committed; that is, whether the CS ever fails to cover $\tau$. The overall empirical Type I error is then the fraction of simulations in which the CS commits a Type I error. This global guarantee is analogous to the property of a standard CI: before data is observed, we know that the probability of a Type I error is $\leq \alpha$.
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
@@ -290,7 +278,7 @@ estimates <- lapply(
       model_dm_fn = function(data) lm(y ~ t, data),
       draw_fn = function(ate) draw(rbinom(1, 1, 0.5), ate = ate),
       n = 1000,
-      ate = 0.5
+      ate = 0
     ) |>
     mutate(sim_i = index)
   }
@@ -307,4 +295,8 @@ error_rate <- estimates |>
 error_rate
 ```
 
-We see that, indeed, Type 1 error is $\leq \alpha$.
+We see that, indeed, Type 1 error is $\leq \alpha = 0.05$ for all estimators.
+
+### Credits
+
+A lot of the code for this was based on the paper's [official repository](https://github.com/michaellindon/avlm) and was crafted in tandem with my trusty AI assistant (ChatGPT).
