@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/posts/conjoint_analysis/index.html",
       "/blog/posts/anytime_valid_linear_models/index.html",
       "/blog/posts/robust_adaptive_exp/index.html",
       "/blog/posts/conformal-beyond-exchangeability/index.html",

@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-03-06">
+<meta name="description" content="An empirical example based on Causal Inference in Conjoint Analysis: Understanding Multidimensional Choices via Stated Preference Experiments by Hainmueller, Hopkins, and Yamamoto.">
+
+<title>Anytime-valid Inference on the AMCE in Conjoint Experiments – Daniel Molitor</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<link href="../../../media/_favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-2fa0555fe88427c29efa1b60aaf9e62d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6d7e7b9b3dbd114c66b233ded7072392.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-1a88ddd1106fe35f7458ba2af1b6e4a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-7f652a60e23338e3b385d703fd8f7564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+<script type="text/javascript">
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-154890377-1', 'auto');
+
+ga('send', {
+  hitType: 'pageview',
+  'anonymizeIp': true,
+});
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-md " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title"><strong>Daniel Molitor</strong></span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../research/index.html"> 
+<span class="menu-text"><strong>Research</strong></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../media/_cv.pdf"> 
+<span class="menu-text"><strong>CV</strong></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text"><strong>Scratchpad</strong></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/dmolitor" title="Daniel's GitHub" class="quarto-navigation-tool px-1" aria-label="Daniel's GitHub"><i class="bi bi-github"></i></a>
+    <a href="https://x.com/danieljmolitor" title="Daniel's Twitter" class="quarto-navigation-tool px-1" aria-label="Daniel's Twitter"><i class="bi bi-twitter-x"></i></a>
+    <a href="mailto:molitdj97@gmail.com" title="Daniel's Email" class="quarto-navigation-tool px-1" aria-label="Daniel's Email"><i class="bi bi-envelope-fill"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#candidate-experiment-setup" id="toc-candidate-experiment-setup" class="nav-link active" data-scroll-target="#candidate-experiment-setup">Candidate experiment — setup</a></li>
+  <li><a href="#candidate-experiment-fixed-n-analysis" id="toc-candidate-experiment-fixed-n-analysis" class="nav-link" data-scroll-target="#candidate-experiment-fixed-n-analysis">Candidate experiment — fixed-n analysis</a>
+  <ul class="collapse">
+  <li><a href="#dependencies-and-data-prep" id="toc-dependencies-and-data-prep" class="nav-link" data-scroll-target="#dependencies-and-data-prep">Dependencies and data prep</a></li>
+  <li><a href="#estimating-fixed-n-amces" id="toc-estimating-fixed-n-amces" class="nav-link" data-scroll-target="#estimating-fixed-n-amces">Estimating fixed-n AMCEs</a></li>
+  <li><a href="#estimating-fixed-n-marginal-means" id="toc-estimating-fixed-n-marginal-means" class="nav-link" data-scroll-target="#estimating-fixed-n-marginal-means">Estimating fixed-n marginal means</a></li>
+  </ul></li>
+  <li><a href="#candidate-experiment-sequential-analysis" id="toc-candidate-experiment-sequential-analysis" class="nav-link" data-scroll-target="#candidate-experiment-sequential-analysis">Candidate experiment — sequential analysis</a>
+  <ul class="collapse">
+  <li><a href="#estimating-anytime-valid-p-values-and-confidence-sequences" id="toc-estimating-anytime-valid-p-values-and-confidence-sequences" class="nav-link" data-scroll-target="#estimating-anytime-valid-p-values-and-confidence-sequences">Estimating anytime-valid p-values and confidence sequences</a></li>
+  <li><a href="#estimating-sequential-amces" id="toc-estimating-sequential-amces" class="nav-link" data-scroll-target="#estimating-sequential-amces">Estimating sequential AMCEs</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Anytime-valid Inference on the AMCE in Conjoint Experiments</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Conjoints</div>
+    <div class="quarto-category">Anytime-valid Inference</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>An empirical example based on <a href="https://doi.org/10.1093/pan/mpt024">Causal Inference in Conjoint Analysis: Understanding Multidimensional Choices via Stated Preference Experiments by Hainmueller, Hopkins, and Yamamoto.</a></p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 6, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In this post I’ll be exploring an empirical example to demonstrate how we can target the Average Marginal Component Effect (AMCE) and perform a standard, fixed-n analysis, and how we can adopt methods from the anytime-valid literature to perform a sequential analysis of the AMCE.</p>
+<p>For background, see <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/">this super-detailed discussion of conjoint analysis</a> and <a href="https://www.andrewheiss.com/blog/2022/05/20/marginalia/">this one on marginal effects</a> by Andrew Heiss.</p>
+<section id="candidate-experiment-setup" class="level2">
+<h2 class="anchored" data-anchor-id="candidate-experiment-setup">Candidate experiment — setup</h2>
+<p>The empirical example we’ll base this analysis on is the candidate experiment in Hainmueller et al.’s <a href="https://doi.org/10.1093/pan/mpt024">Causal Inference in Conjoint Analysis</a> paper. Instead of describing it myself I’ll just include the paper’s description of the experiment:</p>
+<blockquote class="blockquote">
+<p>The choice between competing candidates for elected office is central to democracy. Candidates typically differ on a variety of dimensions, including their personal background and demographic characteristics, issue positions, and prior experience. The centrality of partisanship to voter decision making is amply documented [ref], so we focus here on the less-examined role of candidates’ personal traits [ref]. Within the United States, there is constant speculation about the role of candidates’ personal backgrounds in generating support or opposition; here, we harness conjoint analysis to examine those claims. <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We focus on eight attributes of would-be presidential candidates, all of which have emerged in recent campaigns. Six of these attributes can take on one of six values, including the candidates’ religion (Catholic, Evangelical Protestant, Mainline Protestant, Mormon, Jewish, or None), college education (no college, state university, community college, Baptist college, Ivy League college, or small college), profession (lawyer, high school teacher, business owner, farmer, doctor, or car dealer), annual income ($32K, $54K, $65K, $92K, $210K, and $5.1M), racial/ethnic background (Hispanic, White, Caucasian, Black, Asian American, and Native American), and age (36, 45, 52, 60, 68, and 75). 3 Two other attributes take on only two values: military service (served or not) and gender (male or female). Each respondent to our online survey—administered through Amazon’s Mechanical Turk [ref]—saw six pairs of profiles that were generated using the fully randomized approach described below. Figure A.1 in the Supplemental Information (SI) illustrates one choice presented to one respondent. The profiles were presented side-by-side, with each pair of profiles on a separate screen. To ease the cognitive burden for respondents while also minimizing primacy and recency effects, the attributes were presented in a randomized order that was fixed across the six pairings for each respondent. <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On the same screen as each candidate pairing, respondents were asked multiple questions which serve as dependent variables. First, they were asked to choose between the two candidates, a “forced-choice” design that enables us to evaluate the role of each attribute value in the assessment of one profile relative to another. This question closely resembles real-world voter decision making, in which respondents must cast a single ballot between competing candidates who vary on multiple dimensions. In the second and third questions following the profiles, the respondents rated each candidate on a one to seven scale, enabling evaluations of the levels of absolute support or opposition to each profile separately.</p>
+</blockquote>
+</section>
+<section id="candidate-experiment-fixed-n-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="candidate-experiment-fixed-n-analysis">Candidate experiment — fixed-n analysis</h2>
+<p>The data for the candidate experiment is publically available <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/data/candidate.dta">here</a> or <a href="https://doi.org/10.7910/DVN/THJYQR">here</a>. Let’s begin by loading some necessary packages and the data:</p>
+<section id="dependencies-and-data-prep" class="level3">
+<h3 class="anchored" data-anchor-id="dependencies-and-data-prep">Dependencies and data prep</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"/Users/dmolitor/Downloads/candidate.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now let’s make the column names be nice and readable.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>variable_lookup <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>variable,    <span class="sc">~</span>variable_nice,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmilitary"</span>, <span class="st">"Military"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atreligion"</span>, <span class="st">"Religion"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ated"</span>,       <span class="st">"Education"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atprof"</span>,     <span class="st">"Profession"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmale"</span>,     <span class="st">"Gender"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atinc"</span>,      <span class="st">"Income"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atrace"</span>,     <span class="st">"Race"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atage"</span>,      <span class="st">"Age"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(candidate) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">respondent =</span> resID) <span class="sc">|&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> atmilitary<span class="sc">:</span>atmale,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fn =</span> \(x) <span class="fu">vapply</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      x,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      \(y) <span class="fu">filter</span>(variable_lookup, variable <span class="sc">==</span> y)<span class="sc">$</span>variable_nice,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">character</span>(<span class="dv">1</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(candidate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 3,466
+Columns: 11
+$ respondent &lt;fct&gt; A2NEN4NSNS2O8S, A2NEN4NSNS2O8S, A2NEN4NSNS2O8S, A2NEN4NSNS2…
+$ Military   &lt;fct&gt; Did Not Serve, Served, Did Not Serve, Served, Served, Serve…
+$ Religion   &lt;fct&gt; Mormon, None, Catholic, Mainline protestant, None, Mainline…
+$ Education  &lt;fct&gt; Community college, No BA, Small college, Small college, Bap…
+$ Profession &lt;fct&gt; Car dealer, High school teacher, Farmer, Doctor, Doctor, La…
+$ Income     &lt;fct&gt; 5.1M, 65K, 32K, 54K, 5.1M, 54K, 5.1M, 5.1M, 32K, 54K, 32K, …
+$ Race       &lt;fct&gt; White, Asian American, Native American, White, Native Ameri…
+$ Age        &lt;fct&gt; 75, 60, 68, 75, 45, 52, 52, 75, 75, 60, 45, 45, 45, 60, 36,…
+$ Gender     &lt;fct&gt; Female, Male, Female, Male, Female, Male, Male, Female, Fem…
+$ selected   &lt;dbl&gt; 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0,…
+$ rating     &lt;dbl&gt; 0.3333333, 0.5000000, 0.6666667, 0.6666667, 0.3333333, 0.50…</code></pre>
+</div>
+</div>
+<p>Each row in the dataset represents one candidate profile out of 1,733 candidate comparisons made by 311 survey respondents. Each of the candidate comparisons has 2 candidate profiles to choose between, so the total number of profiles in the data is 3,466 (1,733 x 2). The <code>selected</code> column is a binary outcome indicating whether the survey respondent (identified in the <code>respondent</code> column) selected that profile as the preferred candidate.</p>
+</section>
+<section id="estimating-fixed-n-amces" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-fixed-n-amces">Estimating fixed-n AMCEs</h3>
+<p>The first estimand of interest is the AMCE. In potential outcomes notation you can define the AMCE as the average difference in potential outcomes when you change the level of a particular attribute while averaging over the joint distribution of the other attributes. For example, let</p>
+<ul>
+<li><span class="math inline">\(Y_i(X_j=x_j,X_{−j})\)</span> be the potential outcome for respondent <span class="math inline">\(i\)</span> given candidate profile <span class="math inline">\(X\)</span> when the candidate profile has attribute <span class="math inline">\(j\)</span> set to <span class="math inline">\(X_j=x_j\)</span> and the other attributes <span class="math inline">\(X_{-j}\)</span>​ set to some arbitrary values.</li>
+<li><span class="math inline">\(X_j^*\)</span> be the baseline (or reference) level for attribute <span class="math inline">\(j\)</span>.</li>
+</ul>
+<p>Then the AMCE for changing attribute <span class="math inline">\(j\)</span> from <span class="math inline">\(X_j=X_j^*\)</span>​ to <span class="math inline">\(X_j=x_j\)</span>​ can be written as <span class="math display">\[\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],\]</span> where expectation <span class="math inline">\(E_{X_{-j}}\)</span>​​ is taken over the joint distribution of the other attributes.</p>
+<p>Fortunately, this estimand can be easily estimated with a regression model. Even better, we can simultaneously estimate AMCEs for all attributes by including all attribute variables in our regression model. <strong>Note:</strong> Since survey participants each responded to multiple questions it is essential that we cluster standard errors at the respondent level.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to add the reference level for each of our attributes</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>add_reference <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">low =</span> <span class="st">"conf.low"</span>, <span class="at">high =</span> <span class="st">"conf.high"</span>) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"contrast"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"contrast"</span>, <span class="st">"reference"</span>), <span class="at">sep =</span> <span class="st">" - "</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    data <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">contrast =</span> reference) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">distinct</span>(term, contrast, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(estimate, {{low}}, {{high}}), <span class="sc">~</span> <span class="dv">0</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_reference</span>(marginal_effects),</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> contrast,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/Fixed-n AMCE estimation-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimating-fixed-n-marginal-means" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-fixed-n-marginal-means">Estimating fixed-n marginal means</h3>
+<p>Another estimand of interest is a purely descriptive quantity—marginal means. The marginal mean for a specific value <span class="math inline">\(x_j\)</span>​ of some attribute <span class="math inline">\(j\)</span> is defined as the average observed outcome for all profiles where that attribute takes on the value <span class="math inline">\(X_j = x_j\)</span>​, averaging over the joint distribution of all other attributes. In mathematical notation, this is expressed as <span class="math display">\[\mu(x_j) := E[Y | X_j=x_j],\]</span> where <span class="math inline">\(Y\)</span> are the observed outcomes, <span class="math inline">\(X_j\)</span>​ is the attribute of interest, and the expectation <span class="math inline">\(E\)</span> is taken over the distribution of all other attributes <span class="math inline">\(X_{-j}\)</span>​. This expression simply calculates the average observed outcome when <span class="math inline">\(X_j=x_j\)</span>​, without invoking any counterfactual or potential outcomes framework.</p>
+<p>We could estimate this non-parametrically just with <code>group_by()</code> and <code>summarize()</code> but we can also get the same result with corresponding CIs using a regression like above.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function to calculate the marginal mean for a single attribute</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>marginal_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(model, attribute) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> <span class="fu">avg_predictions</span>(model, <span class="st">"balanced"</span>, <span class="at">by =</span> attribute)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> mms <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="st">"level"</span> <span class="ot">=</span> {{attribute}}) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="st">"term"</span> <span class="ot">=</span> {{attribute}})</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(mms)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>marginal_means <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Military"</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Religion"</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Education"</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Profession"</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Income"</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Race"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Age"</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Gender"</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(attribute) <span class="fu">marginal_mean</span>(model, attribute)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  marginal_means,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> level,</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Marginal Means"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="candidate-experiment-sequential-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="candidate-experiment-sequential-analysis">Candidate experiment — sequential analysis</h2>
+<p>All the analysis performed up to this point has been utilizing estimators that are fixed-n valid. In short, this means that they are only valid for a pre-specified <span class="math inline">\(N\)</span>. We run an experiment, collect <span class="math inline">\(N\)</span> samples, and analyze the data. Our estimators give us certain statistical guarantees at this fixed sample size. For example, each of the estimated parameters above has a corresponding 95% confidence interval (CI). In the fixed-n setting, each individual AMCE (or marginal mean) CI has a 95% probability of containing the true parameter value—at least from a frequentist perspective.</p>
+<p>As researchers, we may be particularly interested in estimating AMCEs for certain attributes and we may want to ensure that we have sufficient sample size to have sufficient statistical power to detect non-zero AMCEs for those attributes. Typically researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be highly inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments.</p>
+<p>What we would <strong>love</strong> is to be able to continuously monitor our conjoint experiment as we collect data and watch our AMCE (or marginal means) estimates and their CIs and to stop the experiment as soon as the AMCE for our attribute of interest is statistically significant. Our current estimators for the AMCE are not suitable for this. For a little more detail on why, see my <a href="https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/">simulations on anytime-valid linear models</a>. In short, if we repeatedly calculate our AMCE estimates and 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will massively increase and will converge to 1 the more often we do this.</p>
+<p>However, there is a solution to this! The blog post above details methods for estimating linear regression coefficients that allow us to do exactly this while keeping the probability of committing a Type 1 error below our nominal significance level (e.g.&nbsp;<span class="math inline">\(\alpha = 0.05\)</span>). We refer to this as anytime-valid inference on our regression coefficients. In particular, the methods above develop anytime-valid p-values and confidence sequences (anytime-valid corollary to CIs) for linear regression coefficients.</p>
+<section id="estimating-anytime-valid-p-values-and-confidence-sequences" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating anytime-valid p-values and confidence sequences</h3>
+<p>The wonderful thing about these anytime-valid p-values and CSs is that they can be easily estimated directly from standard regression outputs, e.g.&nbsp;from <code>lm()</code> in R. Below I will quickly demonstrate how we can adapt the code from above for estimating AMCES to output anytime-valid CSs and p-values instead of the usual fixed-n CIs and p-values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Same code as before</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculate anytime-valid p-values and CSs</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>marginal_effects_sequential <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">delta =</span> marginal_effects<span class="sc">$</span>estimate,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">se =</span> marginal_effects<span class="sc">$</span>std.error,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> model<span class="sc">$</span>nobs,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_params =</span> model<span class="sc">$</span>nparams,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_effects)),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> marginal_effects<span class="sc">$</span>term,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrast =</span> marginal_effects<span class="sc">$</span>contrast</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Check the full code for calculating the anytime-valid values <a href="https://github.com/dmolitor/dmolitor.github.io">here</a>.</p>
+<p>For now we will take these methods for granted and will simply show how to apply them to our data so that we can continuously monitor our conjoint experiment and stop it once our estimates of interest are statistically significant!</p>
+</section>
+<section id="estimating-sequential-amces" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-sequential-amces">Estimating sequential AMCEs</h3>
+<p>For all following code we will focus on a couple attributes of interest; military service and religion. We will simulate a dynamic experiment where we are running the conjoint and collecting data in real time. Using our anytime-valid linear regression estimates, we can estimate and plot our AMCEs and 95% confidence sequences (anytime-valid corollary to CIs) as often as we want while controlling the probability of committing a Type 1 error.</p>
+<p>We will iterate through our conjoint in batches of 70 survey responses and we will estimate our AMCES and confidence sequences (CSs) after each batch. We will observe how our AMCE estimates change over time and how we can monitor statistical significance (and even choose to stop the conjoint early) based on this!</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample a random row from a dataframe;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Return the row and the dataframe minus the row</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sample_rows <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">size =</span> <span class="dv">1</span>) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(data), <span class="at">size =</span> size)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  row <span class="ot">&lt;-</span> data[idx, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> data[<span class="sc">-</span>idx, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"rows"</span> <span class="ot">=</span> row, <span class="st">"data"</span> <span class="ot">=</span> data)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>chunk_size <span class="ot">&lt;-</span> <span class="dv">99</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>candidate_sim <span class="ot">&lt;-</span> candidate</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="fu">tibble</span>()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>sim_estimates <span class="ot">&lt;-</span> <span class="fu">tibble</span>()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">100</span>, <span class="fu">nrow</span>(candidate_sim), <span class="at">by =</span> chunk_size)) {</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Randomly sample a set of survey responses</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  sim_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    sim_data,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample_rows</span>(candidate_sim, <span class="at">size =</span> chunk_size)<span class="sc">$</span>rows</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estimate our model</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  sim_model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> Gender,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> sim_data,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate marginal effects</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(sim_model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate sequential p-values and CSs</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim_seq <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta =</span> marginal_eff_sim<span class="sc">$</span>estimate,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> marginal_eff_sim<span class="sc">$</span>std.error,</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> sim_model<span class="sc">$</span>nobs,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_params =</span> sim_model<span class="sc">$</span>nparams,</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_eff_sim)),</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">term =</span> marginal_eff_sim<span class="sc">$</span>term,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">contrast =</span> marginal_eff_sim<span class="sc">$</span>contrast</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_reference</span>(<span class="at">low =</span> <span class="st">"cs_lower"</span>, <span class="at">high =</span> <span class="st">"cs_upper"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Military"</span>, <span class="st">"Profession"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">iter =</span> <span class="fu">floor</span>(i<span class="sc">/</span>chunk_size))</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Append data</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  sim_estimates <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(sim_estimates, marginal_eff_sim_seq)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the CSs over time</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>plot_anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  sim_estimates,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> estimate,</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> contrast,</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmin =</span> cs_lower,</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmax =</span> cs_upper,</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> term</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">5</span>, .<span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    iter,</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">transition_length =</span> <span class="dv">1</span>,</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">state_length =</span> <span class="dv">1</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn this into a video</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>animation <span class="ot">&lt;-</span> <span class="fu">animate</span>(</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>  plot_anim,</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">renderer =</span> <span class="fu">av_renderer</span>(),</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">4</span>,</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">res =</span> <span class="dv">200</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div style="text-align: center;">
+<p><video controls="" style="width: 60%;"> <source src="./anytime_valid_cs.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>We can watch through the duration of our simulated conjoint as the precision of our estimates increases and some of them are estimated as statistically significant.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/dmolitor\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://quarto.org/">
+<p>Built with Quarto</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
