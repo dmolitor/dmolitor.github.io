@@ -82,11 +82,14 @@ necessary packages and the data:
 library(dplyr)
 library(fixest)
 library(forcats)
+library(future)
+library(future.apply)
 library(gganimate)
 library(ggplot2)
 library(ggtext)
 library(haven)
 library(marginaleffects)
+library(progressr)
 library(scales)
 library(tibble)
 library(tidyr)
@@ -218,7 +221,6 @@ above.
 ```{r}
 #| label: Fixed-n marginal means
 #| fig-height: 10
-#| eval: false
 
 # A function to calculate the marginal mean for a single attribute
 marginal_mean <- function(model, attribute) {
@@ -343,16 +345,16 @@ marginal_effects_sequential <- sequential_f_cs(
 ```
 
 Check the full code for calculating the anytime-valid values
-[here](https://github.com/dmolitor/dmolitor.github.io).
+[here](https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R).
 
-For now we will take these methods for granted and will simply show how to apply
-them to our data so that we can continuously monitor our conjoint
+From now on, we will take these methods for granted and will simply show how to
+apply them to our data so that we can continuously monitor our conjoint
 experiment and stop it once our estimates of interest are statistically
 significant!
 
 ### Estimating sequential AMCEs
 
-For all following code we will focus on a couple attributes of interest; military
+<!-- For all following code we will focus on a couple attributes of interest; military
 service and religion. We will simulate a dynamic experiment where we are running
 the conjoint and collecting data in real time. Using our anytime-valid linear
 regression estimates, we can estimate and plot our AMCEs and 95% confidence
@@ -470,3 +472,172 @@ anim_save("./blog/posts/conjoint_analysis/anytime_valid_cs.mp4", animation)
 
 We can watch through the duration of our simulated conjoint as the precision of
 our estimates increases and some of them are estimated as statistically significant.
+
+### Simulations -->
+
+First, let's chalk up a function that will simulate a random respondent for a
+conjoint experiment with specified AMCEs. Then we'll simulate a conjoint experiment
+with a binary outcome (selected or not selected) and two attributes. Attribute 1 has
+3 levels and Attribute 2 has 5 levels. The true AMCEs for each attribute and 
+attribute level are as follows:
+
+| Attribute | Level | True AMCE |
+|-----------|-------|-----------|
+| 1 | 2 | 0.2 |
+| 1 | 3 | 0.1 |
+| 2 | 2 | -0.1 |
+| 2 | 3 | 0.15 |
+| 2 | 4 | 0.3 |
+| 2 | 5 | -0.2 |
+
+```{r}
+#| label: Simulation DGP
+#| eval: false
+
+# Function to simulate a random survey participant
+simulate_profile <- function(amce_attr1, amce_attr2, intercept = 0.5) {
+  attr1_levels <- c("Level 1", names(amce_attr1))
+  attr2_levels <- c("Level 1", names(amce_attr2))
+  # Randomly sample a level for each attribute (uniformly)
+  attr1_val <- sample(attr1_levels, 1)
+  attr2_val <- sample(attr2_levels, 1)
+  # Determine the effect for attribute 1: baseline gets effect 0
+  effect1 <- if (attr1_val == "Level 1") 0 else amce_attr1[attr1_val]
+  # Determine the effect for attribute 2: baseline gets effect 0
+  effect2 <- if (attr2_val == "Level 1") 0 else amce_attr2[attr2_val]
+  # Compute the latent probability p
+  p <- intercept + effect1 + effect2
+  # Ensure that p is within [0, 1]
+  stopifnot(p >= 0 && p <= 1)
+  # Simulate the binary outcome using p as the success probability.
+  outcome <- rbinom(1, size = 1, prob = p)
+  return(tibble(
+    attr1 = attr1_val,
+    attr2 = attr2_val,
+    outcome = outcome,
+    p = p
+  ))
+}
+
+# Specify the attribute-level AMCEs for attribute 1 & 2
+amce_attr1 <- c("Level 2" = 0.2, "Level 3" = 0.1)
+amce_attr2 <- c("Level 2" = -0.1, "Level 3" = 0.15, "Level 4" = 0.3, "Level 5" = -0.2)
+```
+
+Next, let's simulate running our conjoint experiment online and estimating
+our AMCEs in an online fashion. We'll first simulate 100 survey participants
+and then we will estimate our AMCEs for every additional participant for a total sample of $N = 1000$.
+```{r}
+#| label: Simulation execution
+#| eval: false
+
+# "Gather" 100 survey responses before estimating
+sim_data <- bind_rows(lapply(1:100, \(i) simulate_profile(amce_attr1, amce_attr2, 0.3)))
+# Initialize tibble to collect our AMCE estimates
+sim_estimates <- tibble()
+
+# Simulate a sequential conjoint with total N=1000
+pb <- txtProgressBar(min = 1, max = 1000, style = 3)
+for (i in 1:1000) {
+  # Randomly simulate a survey participant
+  sim_data <- bind_rows(
+    sim_data,
+   simulate_profile(amce_attr1, amce_attr2, 0.3)
+  )
+  # Estimate our model
+  sim_model <- feglm(
+    outcome ~ attr1 + attr2,
+    data = sim_data,
+    family = "binomial"
+  )
+  # Calculate marginal effects
+  marginal_eff_sim <- avg_slopes(sim_model, newdata = "mean")
+  # Calculate sequential p-values and CSs
+  marginal_eff_sim_seq <- sequential_f_cs(
+    delta = marginal_eff_sim$estimate,
+    se = marginal_eff_sim$std.error,
+    n = sim_model$nobs,
+    n_params = sim_model$nparams,
+    Z = solve(get_vcov(marginal_eff_sim)),
+    term = marginal_eff_sim$term,
+    contrast = marginal_eff_sim$contrast
+  ) |>
+    add_reference(low = "cs_lower", high = "cs_upper") |>
+    mutate(iter = i)
+  # Append data
+  sim_estimates <- bind_rows(sim_estimates, marginal_eff_sim_seq)
+  setTxtProgressBar(pb, i)
+}
+close(pb)
+```
+
+Now, let's plot the progression of the AMCE estimates over time.
+```{r}
+#| label: Plot AMCE estimates
+#| eval: false
+truth <- tribble(
+  ~term, ~contrast, ~estimate,
+  "attr1", "Level 2", 0.2,
+  "attr1", "Level 3", 0.1,
+  "attr2", "Level 2", -0.1,
+  "attr2", "Level 3", 0.15,
+  "attr2", "Level 4", 0.3,
+  "attr2", "Level 5", -0.2
+)
+
+# Plot the CSs over time
+plot_anim <- ggplot(
+  sim_estimates,
+    aes(
+      x = estimate,
+      y = contrast,
+      xmin = cs_lower,
+      xmax = cs_upper,
+      color = term
+    )
+  ) +
+  geom_point(data = truth, aes(x = estimate, y = contrast), inherit.aes = FALSE, shape = 17, size = 2) +
+  geom_vline(xintercept = 0, color = "gray70") +
+  geom_point() +
+  geom_linerange() +
+  facet_wrap(~ term, ncol = 1, scales = "free_y", drop = TRUE) +
+  scale_x_continuous(labels = label_percent()) +
+  coord_cartesian(xlim = c(-.5, .5)) +
+  labs(x = "Estimated AMCE (percentage points)", y = "") +
+  theme_minimal() +
+  theme(axis.text.y = element_markdown(), legend.position = "none") +
+  transition_states(
+    iter,
+    transition_length = 3,
+    state_length = 0
+  ) +
+  ease_aes()
+
+# Turn this into a video
+animation <- animate(
+  plot_anim,
+  renderer = av_renderer(),
+  nframes = 300,
+  height = 4,
+  width = 4,
+  units = "in",
+  res = 200
+)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation)
+```
+
+<div style="text-align: center;">
+  <video controls style="width: 60%;">
+    <source src="./anytime_valid_sim.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
+
+We can watch as our estimates and CSs converge towards the truth over time,
+providing valid coverage despite estimating AMCEs and corresponding
+p-values and CSs at each step!
