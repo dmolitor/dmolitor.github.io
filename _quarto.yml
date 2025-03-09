@@ -43,7 +43,7 @@ format:
     theme: 
       dark: superhero
       light: sandstone
-    highlight-style: github
+    highlight-style: atom-one
     css: styles.css
     toc: true
     page-layout: full
