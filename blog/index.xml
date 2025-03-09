@@ -47,30 +47,39 @@ background-color: null;
 font-style: inherit;">library</span>(forcats)</span>
 <span id="cb1-4"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(gganimate)</span>
+font-style: inherit;">library</span>(future)</span>
 <span id="cb1-5"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(ggplot2)</span>
+font-style: inherit;">library</span>(future.apply)</span>
 <span id="cb1-6"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(ggtext)</span>
+font-style: inherit;">library</span>(gganimate)</span>
 <span id="cb1-7"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(haven)</span>
+font-style: inherit;">library</span>(ggplot2)</span>
 <span id="cb1-8"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(marginaleffects)</span>
+font-style: inherit;">library</span>(ggtext)</span>
 <span id="cb1-9"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(scales)</span>
+font-style: inherit;">library</span>(haven)</span>
 <span id="cb1-10"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(tibble)</span>
+font-style: inherit;">library</span>(marginaleffects)</span>
 <span id="cb1-11"><span class="fu" style="color: #4758AB;
 background-color: null;
+font-style: inherit;">library</span>(progressr)</span>
+<span id="cb1-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(scales)</span>
+<span id="cb1-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tibble)</span>
+<span id="cb1-14"><span class="fu" style="color: #4758AB;
+background-color: null;
 font-style: inherit;">library</span>(tidyr)</span>
-<span id="cb1-12"></span>
-<span id="cb1-13">candidate <span class="ot" style="color: #003B4F;
+<span id="cb1-15"></span>
+<span id="cb1-16">candidate <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -672,6 +681,13 @@ font-style: inherit;">legend.position =</span> <span class="st" style="color: #2
 background-color: null;
 font-style: inherit;">"none"</span>)</span></code></pre></div>
 </details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conjoint_analysis/index_files/figure-html/Fixed-n marginal means-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -791,169 +807,482 @@ background-color: null;
 font-style: inherit;">$</span>contrast</span>
 <span id="cb6-25">)</span></code></pre></div>
 </div>
-<p>Check the full code for calculating the anytime-valid values <a href="https://github.com/dmolitor/dmolitor.github.io">here</a>.</p>
-<p>For now we will take these methods for granted and will simply show how to apply them to our data so that we can continuously monitor our conjoint experiment and stop it once our estimates of interest are statistically significant!</p>
+<p>Check the full code for calculating the anytime-valid values <a href="https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R">here</a>.</p>
+<p>From now on, we will take these methods for granted and will simply show how to apply them to our data so that we can continuously monitor our conjoint experiment and stop it once our estimates of interest are statistically significant!</p>
 </section>
 <section id="estimating-sequential-amces" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-sequential-amces">Estimating sequential AMCEs</h3>
-<p>For all following code we will focus on a couple attributes of interest; military service and religion. We will simulate a dynamic experiment where we are running the conjoint and collecting data in real time. Using our anytime-valid linear regression estimates, we can estimate and plot our AMCEs and 95% confidence sequences (anytime-valid corollary to CIs) as often as we want while controlling the probability of committing a Type 1 error.</p>
-<p>We will iterate through our conjoint in batches of 70 survey responses and we will estimate our AMCES and confidence sequences (CSs) after each batch. We will observe how our AMCE estimates change over time and how we can monitor statistical significance (and even choose to stop the conjoint early) based on this!</p>
+<!-- For all following code we will focus on a couple attributes of interest; military
+service and religion. We will simulate a dynamic experiment where we are running
+the conjoint and collecting data in real time. Using our anytime-valid linear
+regression estimates, we can estimate and plot our AMCEs and 95% confidence
+sequences (anytime-valid corollary to CIs) as often as we want while controlling
+the probability of committing a Type 1 error.
+
+We will iterate through our conjoint in batches of 70 survey responses
+and we will estimate our AMCES and confidence sequences (CSs) after each batch.
+We will observe how our AMCE estimates change over time and how we can monitor statistical
+significance (and even choose to stop the conjoint early) based on this!
+
+
+::: {.cell}
+
+```{.r .cell-code}
+# Sample a random row from a dataframe;
+# Return the row and the dataframe minus the row
+sample_rows <- function(data, size = 1) {
+  idx <- sample(1:nrow(data), size = size)
+  row <- data[idx, , drop = FALSE]
+  data <- data[-idx, , drop = FALSE]
+  list("rows" = row, "data" = data)
+}
+
+chunk_size <- 99
+candidate_sim <- candidate
+sim_data <- tibble()
+sim_estimates <- tibble()
+
+for (i in seq(100, nrow(candidate_sim), by = chunk_size)) {
+  # Randomly sample a set of survey responses
+  sim_data <- bind_rows(
+    sim_data,
+    sample_rows(candidate_sim, size = chunk_size)$rows
+  )
+  # Estimate our model
+  sim_model <- feglm(
+    selected ~ Military + Religion + Education + Profession + Income + Race + Age
+        + Gender,
+    data = sim_data,
+    family = "binomial",
+    cluster = ~ respondent
+  )
+  # Calculate marginal effects
+  marginal_eff_sim <- avg_slopes(sim_model, newdata = "mean")
+  # Calculate sequential p-values and CSs
+  marginal_eff_sim_seq <- sequential_f_cs(
+    delta = marginal_eff_sim$estimate,
+    se = marginal_eff_sim$std.error,
+    n = sim_model$nobs,
+    n_params = sim_model$nparams,
+    Z = solve(get_vcov(marginal_eff_sim)),
+    term = marginal_eff_sim$term,
+    contrast = marginal_eff_sim$contrast
+  ) |>
+    add_reference(low = "cs_lower", high = "cs_upper") |>
+    filter(term %in% c("Military", "Profession")) |>
+    mutate(iter = floor(i/chunk_size))
+  # Append data
+  sim_estimates <- bind_rows(sim_estimates, marginal_eff_sim_seq)
+}
+
+# Plot the CSs over time
+plot_anim <- ggplot(
+  sim_estimates,
+    aes(
+      x = estimate,
+      y = contrast,
+      xmin = cs_lower,
+      xmax = cs_upper,
+      color = term
+    )
+  ) +
+  geom_vline(xintercept = 0, color = "gray70") +
+  geom_point() +
+  geom_linerange() +
+  facet_wrap(~ term, ncol = 1, scales = "free_y", drop = TRUE) +
+  scale_x_continuous(labels = label_percent()) +
+  coord_cartesian(xlim = c(-.5, .5)) +
+  labs(x = "Estimated AMCE (percentage points)", y = "") +
+  theme_minimal() +
+  theme(axis.text.y = element_markdown(), legend.position = "none") +
+  transition_states(
+    iter,
+    transition_length = 1,
+    state_length = 1
+  )
+
+# Turn this into a video
+animation <- animate(
+  plot_anim,
+  renderer = av_renderer(),
+  height = 4,
+  width = 4,
+  units = "in",
+  res = 200
+)
+```
+:::
+
+::: {.cell}
+
+:::
+
+
+
+<div style="text-align: center;">
+  <video controls style="width: 60%;">
+    <source src="./anytime_valid_cs.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
+
+We can watch through the duration of our simulated conjoint as the precision of
+our estimates increases and some of them are estimated as statistically significant.
+
+### Simulations -->
+<p>First, let’s chalk up a function that will simulate a random respondent for a conjoint experiment with specified AMCEs. Then we’ll simulate a conjoint experiment with a binary outcome (selected or not selected) and two attributes. Attribute 1 has 3 levels and Attribute 2 has 5 levels. The true AMCEs for each attribute and attribute level are as follows:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Attribute</th>
+<th>Level</th>
+<th>True AMCE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>2</td>
+<td>0.2</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>3</td>
+<td>0.1</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>2</td>
+<td>-0.1</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>3</td>
+<td>0.15</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>4</td>
+<td>0.3</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>5</td>
+<td>-0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Sample a random row from a dataframe;</span></span>
-<span id="cb7-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Return the row and the dataframe minus the row</span></span>
-<span id="cb7-3">sample_rows <span class="ot" style="color: #003B4F;
+font-style: inherit;"># Function to simulate a random survey participant</span></span>
+<span id="cb7-2">simulate_profile <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">function</span>(data, <span class="at" style="color: #657422;
+font-style: inherit;">function</span>(amce_attr1, amce_attr2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">intercept =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) {</span>
+<span id="cb7-3">  attr1_levels <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 1"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(amce_attr1))</span>
+<span id="cb7-4">  attr2_levels <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 1"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(amce_attr2))</span>
+<span id="cb7-5">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Randomly sample a level for each attribute (uniformly)</span></span>
+<span id="cb7-6">  attr1_val <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(attr1_levels, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-7">  attr2_val <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(attr2_levels, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Determine the effect for attribute 1: baseline gets effect 0</span></span>
+<span id="cb7-9">  effect1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (attr1_val <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 1"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> amce_attr1[attr1_val]</span>
+<span id="cb7-10">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Determine the effect for attribute 2: baseline gets effect 0</span></span>
+<span id="cb7-11">  effect2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (attr2_val <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 1"</span>) <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> amce_attr2[attr2_val]</span>
+<span id="cb7-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute the latent probability p</span></span>
+<span id="cb7-13">  p <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> intercept <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> effect1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> effect2</span>
+<span id="cb7-14">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Ensure that p is within [0, 1]</span></span>
+<span id="cb7-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stopifnot</span>(p <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;&amp;</span> p <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-16">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simulate the binary outcome using p as the success probability.</span></span>
+<span id="cb7-17">  outcome <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rbinom</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1</span>) {</span>
-<span id="cb7-4">  idx <span class="ot" style="color: #003B4F;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prob =</span> p)</span>
+<span id="cb7-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb7-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">attr1 =</span> attr1_val,</span>
+<span id="cb7-20">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">attr2 =</span> attr2_val,</span>
+<span id="cb7-21">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">outcome =</span> outcome,</span>
+<span id="cb7-22">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">p =</span> p</span>
+<span id="cb7-23">  ))</span>
+<span id="cb7-24">}</span>
+<span id="cb7-25"></span>
+<span id="cb7-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Specify the attribute-level AMCEs for attribute 1 &amp; 2</span></span>
+<span id="cb7-27">amce_attr1 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">sample</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 2"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 3"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>)</span>
+<span id="cb7-28">amce_attr2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 2"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 3"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 4"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 5"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>)</span></code></pre></div>
+</details>
+</div>
+<p>Next, let’s simulate running our conjoint experiment online and estimating our AMCEs in an online fashion. We’ll first simulate 100 survey participants and then we will estimate our AMCEs for every additional participant for a total sample of <img src="https://latex.codecogs.com/png.latex?N%20=%201000">.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># "Gather" 100 survey responses before estimating</span></span>
+<span id="cb8-2">sim_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">nrow</span>(data), <span class="at" style="color: #657422;
+font-style: inherit;">100</span>, \(i) <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">size =</span> size)</span>
-<span id="cb7-5">  row <span class="ot" style="color: #003B4F;
+font-style: inherit;">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">&lt;-</span> data[idx, , drop <span class="ot" style="color: #003B4F;
+font-style: inherit;">0.3</span>)))</span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>]</span>
-<span id="cb7-6">  data <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> data[<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span>idx, , drop <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>]</span>
-<span id="cb7-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"rows"</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> row, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"data"</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> data)</span>
-<span id="cb7-8">}</span>
-<span id="cb7-9"></span>
-<span id="cb7-10">chunk_size <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">99</span></span>
-<span id="cb7-11">candidate_sim <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> candidate</span>
-<span id="cb7-12">sim_data <span class="ot" style="color: #003B4F;
+font-style: inherit;"># Initialize tibble to collect our AMCE estimates</span></span>
+<span id="cb8-4">sim_estimates <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">tibble</span>()</span>
-<span id="cb7-13">sim_estimates <span class="ot" style="color: #003B4F;
+<span id="cb8-5"></span>
+<span id="cb8-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simulate a sequential conjoint with total N=1000</span></span>
+<span id="cb8-7">pb <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">tibble</span>()</span>
-<span id="cb7-14"></span>
-<span id="cb7-15"><span class="cf" style="color: #003B4F;
+font-style: inherit;">txtProgressBar</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb8-8"><span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">100</span>, <span class="fu" style="color: #4758AB;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">nrow</span>(candidate_sim), <span class="at" style="color: #657422;
+font-style: inherit;">1000</span>) {</span>
+<span id="cb8-9">  <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">by =</span> chunk_size)) {</span>
-<span id="cb7-16">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Randomly sample a set of survey responses</span></span>
-<span id="cb7-17">  sim_data <span class="ot" style="color: #003B4F;
+font-style: inherit;"># Randomly simulate a survey participant</span></span>
+<span id="cb8-10">  sim_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">bind_rows</span>(</span>
-<span id="cb7-18">    sim_data,</span>
-<span id="cb7-19">    <span class="fu" style="color: #4758AB;
+<span id="cb8-11">    sim_data,</span>
+<span id="cb8-12">   <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">sample_rows</span>(candidate_sim, <span class="at" style="color: #657422;
+font-style: inherit;">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">size =</span> chunk_size)<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>rows</span>
-<span id="cb7-20">  )</span>
-<span id="cb7-21">  <span class="co" style="color: #5E5E5E;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb8-13">  )</span>
+<span id="cb8-14">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Estimate our model</span></span>
-<span id="cb7-22">  sim_model <span class="ot" style="color: #003B4F;
+<span id="cb8-15">  sim_model <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">feglm</span>(</span>
-<span id="cb7-23">    selected <span class="sc" style="color: #5E5E5E;
+<span id="cb8-16">    outcome <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">~</span> Military <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">~</span> attr1 <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">+</span> Religion <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Education <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Profession <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Income <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Race <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Age</span>
-<span id="cb7-24">        <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> Gender,</span>
-<span id="cb7-25">    <span class="at" style="color: #657422;
+font-style: inherit;">+</span> attr2,</span>
+<span id="cb8-17">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> sim_data,</span>
-<span id="cb7-26">    <span class="at" style="color: #657422;
+<span id="cb8-18">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"binomial"</span>,</span>
-<span id="cb7-27">    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">cluster =</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> respondent</span>
-<span id="cb7-28">  )</span>
-<span id="cb7-29">  <span class="co" style="color: #5E5E5E;
+font-style: inherit;">"binomial"</span></span>
+<span id="cb8-19">  )</span>
+<span id="cb8-20">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Calculate marginal effects</span></span>
-<span id="cb7-30">  marginal_eff_sim <span class="ot" style="color: #003B4F;
+<span id="cb8-21">  marginal_eff_sim <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -962,55 +1291,55 @@ background-color: null;
 font-style: inherit;">newdata =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"mean"</span>)</span>
-<span id="cb7-31">  <span class="co" style="color: #5E5E5E;
+<span id="cb8-22">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Calculate sequential p-values and CSs</span></span>
-<span id="cb7-32">  marginal_eff_sim_seq <span class="ot" style="color: #003B4F;
+<span id="cb8-23">  marginal_eff_sim_seq <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sequential_f_cs</span>(</span>
-<span id="cb7-33">    <span class="at" style="color: #657422;
+<span id="cb8-24">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">delta =</span> marginal_eff_sim<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>estimate,</span>
-<span id="cb7-34">    <span class="at" style="color: #657422;
+<span id="cb8-25">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">se =</span> marginal_eff_sim<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>std.error,</span>
-<span id="cb7-35">    <span class="at" style="color: #657422;
+<span id="cb8-26">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> sim_model<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>nobs,</span>
-<span id="cb7-36">    <span class="at" style="color: #657422;
+<span id="cb8-27">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n_params =</span> sim_model<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>nparams,</span>
-<span id="cb7-37">    <span class="at" style="color: #657422;
+<span id="cb8-28">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Z =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">solve</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">get_vcov</span>(marginal_eff_sim)),</span>
-<span id="cb7-38">    <span class="at" style="color: #657422;
+<span id="cb8-29">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">term =</span> marginal_eff_sim<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>term,</span>
-<span id="cb7-39">    <span class="at" style="color: #657422;
+<span id="cb8-30">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">contrast =</span> marginal_eff_sim<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>contrast</span>
-<span id="cb7-40">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb8-31">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb7-41">    <span class="fu" style="color: #4758AB;
+<span id="cb8-32">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_reference</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1023,70 +1352,149 @@ background-color: null;
 font-style: inherit;">"cs_upper"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb7-42">    <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(term <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Military"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Profession"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb7-43">    <span class="fu" style="color: #4758AB;
+<span id="cb8-33">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">iter =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">floor</span>(i<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span>chunk_size))</span>
-<span id="cb7-44">  <span class="co" style="color: #5E5E5E;
+font-style: inherit;">iter =</span> i)</span>
+<span id="cb8-34">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Append data</span></span>
-<span id="cb7-45">  sim_estimates <span class="ot" style="color: #003B4F;
+<span id="cb8-35">  sim_estimates <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">bind_rows</span>(sim_estimates, marginal_eff_sim_seq)</span>
-<span id="cb7-46">}</span>
-<span id="cb7-47"></span>
-<span id="cb7-48"><span class="co" style="color: #5E5E5E;
+<span id="cb8-36">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">setTxtProgressBar</span>(pb, i)</span>
+<span id="cb8-37">}</span>
+<span id="cb8-38"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">close</span>(pb)</span></code></pre></div>
+</details>
+</div>
+<p>Now, let’s plot the progression of the AMCE estimates over time.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">truth <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tribble</span>(</span>
+<span id="cb9-2">  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>term, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>contrast, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>estimate,</span>
+<span id="cb9-3">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 2"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>,</span>
+<span id="cb9-4">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 3"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb9-5">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 2"</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,</span>
+<span id="cb9-6">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 3"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>,</span>
+<span id="cb9-7">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 4"</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>,</span>
+<span id="cb9-8">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"attr2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Level 5"</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span></span>
+<span id="cb9-9">)</span>
+<span id="cb9-10"></span>
+<span id="cb9-11"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Plot the CSs over time</span></span>
-<span id="cb7-49">plot_anim <span class="ot" style="color: #003B4F;
+<span id="cb9-12">plot_anim <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(</span>
-<span id="cb7-50">  sim_estimates,</span>
-<span id="cb7-51">    <span class="fu" style="color: #4758AB;
+<span id="cb9-13">  sim_estimates,</span>
+<span id="cb9-14">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(</span>
-<span id="cb7-52">      <span class="at" style="color: #657422;
+<span id="cb9-15">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> estimate,</span>
-<span id="cb7-53">      <span class="at" style="color: #657422;
+<span id="cb9-16">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> contrast,</span>
-<span id="cb7-54">      <span class="at" style="color: #657422;
+<span id="cb9-17">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">xmin =</span> cs_lower,</span>
-<span id="cb7-55">      <span class="at" style="color: #657422;
+<span id="cb9-18">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">xmax =</span> cs_upper,</span>
-<span id="cb7-56">      <span class="at" style="color: #657422;
+<span id="cb9-19">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">color =</span> term</span>
-<span id="cb7-57">    )</span>
-<span id="cb7-58">  ) <span class="sc" style="color: #5E5E5E;
+<span id="cb9-20">    )</span>
+<span id="cb9-21">  ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-59">  <span class="fu" style="color: #4758AB;
+<span id="cb9-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> truth, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> estimate, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> contrast), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inherit.aes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">17</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-23">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_vline</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1099,17 +1507,17 @@ background-color: null;
 font-style: inherit;">"gray70"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-60">  <span class="fu" style="color: #4758AB;
+<span id="cb9-24">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-61">  <span class="fu" style="color: #4758AB;
+<span id="cb9-25">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_linerange</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-62">  <span class="fu" style="color: #4758AB;
+<span id="cb9-26">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -1128,7 +1536,7 @@ background-color: null;
 font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-63">  <span class="fu" style="color: #4758AB;
+<span id="cb9-27">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_x_continuous</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1137,7 +1545,7 @@ background-color: null;
 font-style: inherit;">label_percent</span>()) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-64">  <span class="fu" style="color: #4758AB;
+<span id="cb9-28">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">coord_cartesian</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1152,7 +1560,7 @@ background-color: null;
 font-style: inherit;">5</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-65">  <span class="fu" style="color: #4758AB;
+<span id="cb9-29">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1165,12 +1573,12 @@ background-color: null;
 font-style: inherit;">""</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-66">  <span class="fu" style="color: #4758AB;
+<span id="cb9-30">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-67">  <span class="fu" style="color: #4758AB;
+<span id="cb9-31">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -1183,63 +1591,73 @@ background-color: null;
 font-style: inherit;">"none"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb7-68">  <span class="fu" style="color: #4758AB;
+<span id="cb9-32">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">transition_states</span>(</span>
-<span id="cb7-69">    iter,</span>
-<span id="cb7-70">    <span class="at" style="color: #657422;
+<span id="cb9-33">    iter,</span>
+<span id="cb9-34">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">transition_length =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1</span>,</span>
-<span id="cb7-71">    <span class="at" style="color: #657422;
+font-style: inherit;">3</span>,</span>
+<span id="cb9-35">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">state_length =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1</span></span>
-<span id="cb7-72">  )</span>
-<span id="cb7-73"></span>
-<span id="cb7-74"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">0</span></span>
+<span id="cb9-36">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb9-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ease_aes</span>()</span>
+<span id="cb9-38"></span>
+<span id="cb9-39"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Turn this into a video</span></span>
-<span id="cb7-75">animation <span class="ot" style="color: #003B4F;
+<span id="cb9-40">animation <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">animate</span>(</span>
-<span id="cb7-76">  plot_anim,</span>
-<span id="cb7-77">  <span class="at" style="color: #657422;
+<span id="cb9-41">  plot_anim,</span>
+<span id="cb9-42">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">av_renderer</span>(),</span>
-<span id="cb7-78">  <span class="at" style="color: #657422;
+<span id="cb9-43">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nframes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>,</span>
+<span id="cb9-44">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>,</span>
-<span id="cb7-79">  <span class="at" style="color: #657422;
+<span id="cb9-45">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>,</span>
-<span id="cb7-80">  <span class="at" style="color: #657422;
+<span id="cb9-46">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"in"</span>,</span>
-<span id="cb7-81">  <span class="at" style="color: #657422;
+<span id="cb9-47">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">200</span></span>
-<span id="cb7-82">)</span></code></pre></div>
+<span id="cb9-48">)</span></code></pre></div>
 </details>
 </div>
 <div style="text-align: center;">
-<p><video controls="" style="width: 60%;"> <source src="./anytime_valid_cs.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+<p><video controls="" style="width: 60%;"> <source src="./anytime_valid_sim.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
 </div>
-<p>We can watch through the duration of our simulated conjoint as the precision of our estimates increases and some of them are estimated as statistically significant.</p>
+<p>We can watch as our estimates and CSs converge towards the truth over time, providing valid coverage despite estimating AMCEs and corresponding p-values and CSs at each step!</p>
 
 
 </section>
