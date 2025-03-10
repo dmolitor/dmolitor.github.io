@@ -681,6 +681,13 @@ font-style: inherit;">legend.position =</span> <span class="st" style="color: #2
 background-color: null;
 font-style: inherit;">"none"</span>)</span></code></pre></div>
 </details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conjoint_analysis/index_files/figure-html/Fixed-n marginal means-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -1653,9 +1660,7 @@ font-style: inherit;">200</span></span>
 <span id="cb9-54">)</span></code></pre></div>
 </details>
 </div>
-<div style="text-align: center;">
-<p><video controls="" playsinline="" webkit-playsinline="" style="width: 60%;"> <source src="./anytime_valid_sim.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
-</div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="anytime_valid_sim.mp4"></video></div>
 <p>We can watch as our estimates and CSs converge towards the truth (diamond shaped points) over time, providing valid coverage despite estimating AMCEs and corresponding p-values and CSs at each step!</p>
 
 
@@ -6183,7 +6188,7 @@ font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">300</span>)</span>
 <span id="cb5-5">width_plot.show()</span></code></pre></div>
-<div id="3f2238f9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="5">
+<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -6778,7 +6783,7 @@ font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
 <span id="cb8-11">width_plot.show()</span></code></pre></div>
-<div id="41a80cb9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="8">
+<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
