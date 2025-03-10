@@ -18,23 +18,20 @@ categories: [Conjoints, Anytime-valid Inference]
 image: "./thumbnail.jpg"
 ---
 
-In this post I'll be exploring an empirical example to demonstrate how we can
-target the Average Marginal Component Effect (AMCE) and perform a standard,
-fixed-n analysis, and how we can adopt methods from the anytime-valid
-literature to perform a sequential analysis of the AMCE.
+In this post, I demonstrate how to estimate Average Marginal Component Effects (AMCE)
+in a conjoint experiment using both a fixed‑n approach and a sequential, anytime‑valid
+approach.
 
 For background, see
 [this super-detailed discussion of conjoint analysis](https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/)
-and [this one on marginal effects](https://www.andrewheiss.com/blog/2022/05/20/marginalia/)
+and [this guide on marginal effects](https://www.andrewheiss.com/blog/2022/05/20/marginalia/)
 by Andrew Heiss.
 
-## Candidate experiment --- setup
+## Candidate Experiment -- Setup
 
-The empirical example we'll base this analysis on is the candidate experiment
-in Hainmueller et al.'s
-[Causal Inference in Conjoint Analysis](https://doi.org/10.1093/pan/mpt024)
-paper. Instead of describing it myself I'll just include the paper's
-description of the experiment:
+Our analysis is based on the candidate experiment from Hainmueller et al.'s
+[Causal Inference in Conjoint Analysis](https://doi.org/10.1093/pan/mpt024).
+Below is the paper’s description:
 
 > The choice between competing candidates for elected office is central to democracy. Candidates
 typically differ on a variety of dimensions, including their personal background and demographic
@@ -67,14 +64,14 @@ dimensions. In the second and third questions following the profiles, the respon
 each candidate on a one to seven scale, enabling evaluations of the levels of absolute support or
 opposition to each profile separately.
 
-## Candidate experiment --- fixed-n analysis
+## Candidate Experiment -- Fixed-N Analysis
 
 The data for the candidate experiment is publically available
 [here](https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/data/candidate.dta)
-or [here](https://doi.org/10.7910/DVN/THJYQR). Let's begin by loading some
+or [here](https://doi.org/10.7910/DVN/THJYQR). Let's begin by loading the
 necessary packages and the data:
 
-### Dependencies and data prep
+### Data Prep
 ```{r}
 #| output: false
 #| label: Dependencies
@@ -82,25 +79,17 @@ necessary packages and the data:
 library(dplyr)
 library(fixest)
 library(forcats)
-library(future)
-library(future.apply)
 library(gganimate)
 library(ggplot2)
-library(ggtext)
 library(haven)
 library(marginaleffects)
-library(progressr)
 library(scales)
 library(tibble)
 library(tidyr)
 
 candidate <- read_dta("/Users/dmolitor/Downloads/candidate.dta")
-```
 
-Now let's make the column names be nice and readable.
-```{r}
-#| label: Data cleaning
-
+# Make the variable names nice and readable
 variable_lookup <- tribble(
   ~variable,    ~variable_nice,
   "atmilitary", "Military",
@@ -133,26 +122,24 @@ between, so the total number of profiles in the data is 3,466 (1,733 x 2). The `
 is a binary outcome indicating whether the survey respondent (identified in the `respondent` column)
 selected that profile as the preferred candidate.
 
-### Estimating fixed-n AMCEs
+Each row represents one candidate profile from 1,733 comparisons (311 respondents × 2 profiles per comparison = 3,466 profiles).
+The `selected` column indicates whether the respondent (identified in the `respondent` column) chose that profile.
 
-The first estimand of interest is the AMCE. In potential outcomes notation you can define the 
-AMCE as the average difference in potential outcomes when you change the level of a
-particular attribute while averaging over the joint distribution of the other attributes.
-For example, let
+### Estimating AMCEs
 
-- $Y_i(X_j=x_j,X_{−j})$ be the potential outcome for respondent $i$ given
-candidate profile $X$ when the candidate profile has attribute $j$ set to $X_j=x_j$ and
-the other attributes $X_{-j}$​ set to some arbitrary values.
+The primary estimand of interest is the Average Marginal Component Effect (AMCE). 
+The AMCE measures the average change in the outcome when an attribute shifts from a
+baseline level to an alternative, averaging over the joint distribution other attributes.
+In potential outcomes notation:
+
+- $Y_i(X_j=x_j,X_{−j})$ be the potential outcome for respondent $i$ when attribute $j$ is set to $X_j=x_j$​ and other attributes $X_{-j}$​​ vary.
 - $X_j^*$ be the baseline (or reference) level for attribute $j$.
 
-Then the AMCE for changing attribute $j$ from $X_j=X_j^*$​ to $X_j=x_j$​ can be written as
+Then,
 $$\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],$$
 where expectation $E_{X_{-j}}$​​ is taken over the joint distribution of the other attributes.
 
-Fortunately, this estimand can be easily estimated with a regression model. Even better,
-we can simultaneously estimate AMCEs for all attributes by including all attribute
-variables in our regression model. **Note:** Since survey participants each responded to
-multiple questions it is essential that we cluster standard errors at the respondent level.
+We estimate this using a regression model that includes all attributes. **Note**: Cluster standard errors at the respondent level since each respondent provides multiple observations.
 ```{r}
 #| label: Fixed-n AMCE estimation
 #| fig-height: 10
@@ -200,27 +187,24 @@ ggplot(
   scale_x_continuous(labels = label_percent()) +
   labs(x = "Estimated AMCE (percentage points)", y = "") +
   theme_minimal() +
-  theme(axis.text.y = element_markdown(), legend.position = "none")
+  theme(legend.position = "none")
 ```
 
-### Estimating fixed-n marginal means
+### Estimating Marginal Means
 
 Another estimand of interest is a purely descriptive quantity---marginal means.
-The marginal mean for a specific value $x_j$​ of some attribute $j$ is defined as the
-average observed outcome for all profiles where that attribute takes on the value
-$X_j = x_j$​, averaging over the joint distribution of all other attributes.
-In mathematical notation, this is expressed as $$\mu(x_j) := E[Y | X_j=x_j],$$
+The marginal mean for a particular value $x_j$​ of attribute $j$ is:
+$$\mu(x_j) := E_{X_{-j}}[Y | X_j=x_j],$$
 where $Y$ are the observed outcomes, $X_j$​ is the attribute of interest, and
-the expectation $E$ is taken over the distribution of all other attributes $X_{-j}$​.
-This expression simply calculates the average observed outcome when $X_j=x_j$​, without
-invoking any counterfactual or potential outcomes framework.
+the expectation $E$ is taken over the joint distribution of all other attributes $X_{-j}$​.
 
-We could estimate this non-parametrically just with `group_by()` and `summarize()`
-but we can also get the same result with corresponding CIs using a regression like
-above.
+We could estimate this non-parametrically (using `group_by()` and `summarize()`)
+or via regression which will give us corresponding CIs, p-values, etc. in one fell
+swoop.
 ```{r}
 #| label: Fixed-n marginal means
 #| fig-height: 10
+#| eval: false
 
 # A function to calculate the marginal mean for a single attribute
 marginal_mean <- function(model, attribute) {
@@ -264,54 +248,38 @@ ggplot(
   scale_x_continuous(labels = scales::label_percent()) +
   labs(x = "Marginal Means", y = "") +
   theme_minimal() +
-  theme(axis.text.y = element_markdown(), legend.position = "none")
+  theme(legend.position = "none")
 ```
 
-## Candidate experiment --- sequential analysis
+## Candidate Experiment -- Sequential Analysis
 
-All the analysis performed up to this point has been utilizing estimators
-that are fixed-n valid. In short, this means that they are only valid for
-a pre-specified $N$. We run an experiment, collect $N$ samples, and analyze
-the data. Our estimators give us certain statistical guarantees at this
-fixed sample size. For example, each of the estimated parameters above has
-a corresponding 95% confidence interval (CI). In the fixed-n setting, each
-individual AMCE (or marginal mean) CI has a 95% probability of containing
-the true parameter value---at least from a frequentist perspective.
-
-As researchers, we may be particularly interested in estimating AMCEs for
-certain attributes and we may want to ensure that we have sufficient sample
-size to have sufficient statistical power to detect non-zero AMCEs for those
-attributes. Typically researchers will utilize power calculations to determine
-sufficient sample sizes to detect treatment effects of interest prior to
-running an experiment. However, power calculations rely on unverifiable
-assumptions which can cause them to be highly inaccurate not to mention
-difficult to perform, particularly in the context of conjoint experiments.
-
-What we would **love** is to be able to continuously monitor our conjoint
-experiment as we collect data and watch our AMCE (or marginal means) estimates
-and their CIs and to stop the experiment as soon as the AMCE for our
-attribute of interest is statistically significant. Our current estimators
-for the AMCE are not suitable for this. For a little more detail on why,
-see my [simulations on anytime-valid linear models](https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/). In short, if we repeatedly calculate
-our AMCE estimates and 95% CIs and collect more data until they are
+Fixed‑$N$ estimators provide valid inference at a single predetermined sample size $N$
+(e.g., 95% confidence intervals are valid only at single $N$). Typically,
+researchers will utilize power calculations to determine sufficient sample sizes
+to detect treatment effects of interest prior to running an experiment.
+However, power calculations rely on unverifiable assumptions which can cause them to
+be inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments.
+Instead of relying on power calculations, researchers often would like to monitor 
+statistical results as data accumulate and stop once their estimates become
+statistically significant. However, if we repeatedly calculate
+our AMCE estimates and fixed-$N$ 95% CIs and collect more data until they are
 statistically significant, our probability of committing a Type 1 error
-will massively increase and will converge to 1 the more often we do this.
+will far exceed the nominal significance level ($\alpha = 0.05$).
 
-However, there is a solution to this! The blog post above details methods
-for estimating linear regression coefficients that allow us to do
-exactly this while keeping the probability of committing a Type 1 error
-below our nominal significance level (e.g. $\alpha = 0.05$). We refer
-to this as anytime-valid inference on our regression coefficients.
-In particular, the methods above develop anytime-valid p-values and confidence
-sequences (anytime-valid corollary to CIs) for linear regression coefficients.
+Anytime‑valid inference offers a solution by yielding p‑values and
+confidence sequences (CSs) that remain valid even if we "peek" at the data
+and stop the experiment once our estimates are statistically significant.
+In [this blog post](https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/)
+I explore methods by Lindon et al. that develop anytime-valid p-values and CSs for
+linear regression models. These methods adapt standard regression outputs
+(e.g., from lm() in R) to produce anytime‑valid p‑values and CSs.
 
-### Estimating anytime-valid p-values and confidence sequences
+### Estimating Anytime-Valid p-values and Confidence Sequences
 
-The wonderful thing about these anytime-valid p-values and CSs is that they can
-be easily estimated directly from standard regression outputs, e.g. from `lm()`
-in R. Below I will quickly demonstrate how we can adapt the code from above for
+Below I will demonstrate how we can adapt our code for
 estimating AMCES to output anytime-valid CSs and p-values instead of the usual
-fixed-n CIs and p-values.
+fixed-n CIs and p-values.  Check the full code for calculating anytime-valid CSs
+[here](https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R).
 ```{r}
 #| code-fold: false
 #| eval: false
@@ -344,142 +312,10 @@ marginal_effects_sequential <- sequential_f_cs(
 )
 ```
 
-Check the full code for calculating the anytime-valid values
-[here](https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R).
-
-From now on, we will take these methods for granted and will simply show how to
-apply them to our data so that we can continuously monitor our conjoint
-experiment and stop it once our estimates of interest are statistically
-significant!
-
 ### Estimating sequential AMCEs
 
-<!-- For all following code we will focus on a couple attributes of interest; military
-service and religion. We will simulate a dynamic experiment where we are running
-the conjoint and collecting data in real time. Using our anytime-valid linear
-regression estimates, we can estimate and plot our AMCEs and 95% confidence
-sequences (anytime-valid corollary to CIs) as often as we want while controlling
-the probability of committing a Type 1 error.
-
-We will iterate through our conjoint in batches of 70 survey responses
-and we will estimate our AMCES and confidence sequences (CSs) after each batch.
-We will observe how our AMCE estimates change over time and how we can monitor statistical
-significance (and even choose to stop the conjoint early) based on this!
-```{r}
-#| eval: false
-#| label: Animate sequential testing
-#| warning: false
-#| error: false
-#| message: false
-
-# Sample a random row from a dataframe;
-# Return the row and the dataframe minus the row
-sample_rows <- function(data, size = 1) {
-  idx <- sample(1:nrow(data), size = size)
-  row <- data[idx, , drop = FALSE]
-  data <- data[-idx, , drop = FALSE]
-  list("rows" = row, "data" = data)
-}
-
-chunk_size <- 99
-candidate_sim <- candidate
-sim_data <- tibble()
-sim_estimates <- tibble()
-
-for (i in seq(100, nrow(candidate_sim), by = chunk_size)) {
-  # Randomly sample a set of survey responses
-  sim_data <- bind_rows(
-    sim_data,
-    sample_rows(candidate_sim, size = chunk_size)$rows
-  )
-  # Estimate our model
-  sim_model <- feglm(
-    selected ~ Military + Religion + Education + Profession + Income + Race + Age
-        + Gender,
-    data = sim_data,
-    family = "binomial",
-    cluster = ~ respondent
-  )
-  # Calculate marginal effects
-  marginal_eff_sim <- avg_slopes(sim_model, newdata = "mean")
-  # Calculate sequential p-values and CSs
-  marginal_eff_sim_seq <- sequential_f_cs(
-    delta = marginal_eff_sim$estimate,
-    se = marginal_eff_sim$std.error,
-    n = sim_model$nobs,
-    n_params = sim_model$nparams,
-    Z = solve(get_vcov(marginal_eff_sim)),
-    term = marginal_eff_sim$term,
-    contrast = marginal_eff_sim$contrast
-  ) |>
-    add_reference(low = "cs_lower", high = "cs_upper") |>
-    filter(term %in% c("Military", "Profession")) |>
-    mutate(iter = floor(i/chunk_size))
-  # Append data
-  sim_estimates <- bind_rows(sim_estimates, marginal_eff_sim_seq)
-}
-
-# Plot the CSs over time
-plot_anim <- ggplot(
-  sim_estimates,
-    aes(
-      x = estimate,
-      y = contrast,
-      xmin = cs_lower,
-      xmax = cs_upper,
-      color = term
-    )
-  ) +
-  geom_vline(xintercept = 0, color = "gray70") +
-  geom_point() +
-  geom_linerange() +
-  facet_wrap(~ term, ncol = 1, scales = "free_y", drop = TRUE) +
-  scale_x_continuous(labels = label_percent()) +
-  coord_cartesian(xlim = c(-.5, .5)) +
-  labs(x = "Estimated AMCE (percentage points)", y = "") +
-  theme_minimal() +
-  theme(axis.text.y = element_markdown(), legend.position = "none") +
-  transition_states(
-    iter,
-    transition_length = 1,
-    state_length = 1
-  )
-
-# Turn this into a video
-animation <- animate(
-  plot_anim,
-  renderer = av_renderer(),
-  height = 4,
-  width = 4,
-  units = "in",
-  res = 200
-)
-```
-
-```{r}
-#| echo: false
-#| eval: false
-#| label: Save animation
-anim_save("./blog/posts/conjoint_analysis/anytime_valid_cs.mp4", animation)
-```
-
-<div style="text-align: center;">
-  <video controls style="width: 60%;">
-    <source src="./anytime_valid_cs.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-We can watch through the duration of our simulated conjoint as the precision of
-our estimates increases and some of them are estimated as statistically significant.
-
-### Simulations -->
-
-First, let's chalk up a function that will simulate a random respondent for a
-conjoint experiment with specified AMCEs. Then we'll simulate a conjoint experiment
-with a binary outcome (selected or not selected) and two attributes. Attribute 1 has
-3 levels and Attribute 2 has 5 levels. The true AMCEs for each attribute and 
-attribute level are as follows:
+We begin by writing a function that will simulate a random respondent from a conjoint experiment with specified AMCEs.
+Our simulated conjoint experiment will have a binary outcome and two attributes (Attribute 1 with 3 levels, Attribute 2 with 5 levels). The true AMCEs are:
 
 | Attribute | Level | True AMCE |
 |-----------|-------|-----------|
@@ -524,9 +360,8 @@ amce_attr1 <- c("Level 2" = 0.2, "Level 3" = 0.1)
 amce_attr2 <- c("Level 2" = -0.1, "Level 3" = 0.15, "Level 4" = 0.3, "Level 5" = -0.2)
 ```
 
-Next, let's simulate running our conjoint experiment online and estimating
-our AMCEs in an online fashion. We'll first simulate 100 survey participants
-and then we will estimate our AMCEs for every additional participant for a total sample of $N = 1000$.
+We simulate 100 survey participants initially and update our AMCE estimates and
+anytime-valid 95% CSs with each additional participant until reaching $N=1000$.
 ```{r}
 #| label: Simulation execution
 #| eval: false
@@ -571,7 +406,8 @@ for (i in 1:1000) {
 close(pb)
 ```
 
-Now, let's plot the progression of the AMCE estimates over time.
+Finally, we plot the progression of the AMCE estimates and CSs across the entire
+experiment.
 ```{r}
 #| label: Plot AMCE estimates
 #| eval: false
@@ -611,7 +447,7 @@ plot_anim <- ggplot(
   coord_cartesian(xlim = c(-.5, .5)) +
   labs(x = "Estimated AMCE (percentage points)", y = "") +
   theme_minimal() +
-  theme(axis.text.y = element_markdown(), legend.position = "none") +
+  theme(legend.position = "none") +
   transition_states(
     iter,
     transition_length = 3,
@@ -620,9 +456,18 @@ plot_anim <- ggplot(
   ease_aes()
 
 # Turn this into a video
-animation <- animate(
+animation_mp4 <- animate(
   plot_anim,
   renderer = av_renderer(),
+  nframes = 300,
+  height = 4,
+  width = 4,
+  units = "in",
+  res = 200
+)
+animation_gif <- animate(
+  plot_anim,
+  renderer = gifski_renderer(),
   nframes = 300,
   height = 4,
   width = 4,
@@ -634,11 +479,17 @@ animation <- animate(
 ```{r}
 #| eval: false
 #| echo: false
-anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation)
+anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation_mp4)
+anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.webm", animation_mp4)
+anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.gif", animation_gif)
 ```
 
-{{< video anytime_valid_sim.mp4 >}}
+<video controls playsinline style="width: 60%;">
+  <source src="./anytime_valid_sim.mp4" type="video/mp4">
+  <source src="./anytime_valid_sim.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>
 
-We can watch as our estimates and CSs converge towards the truth (diamond shaped points)
-over time, providing valid coverage despite estimating AMCEs and corresponding
+We see our estimates and CSs converge towards the true AMCEs (marked by diamond-shaped points)
+over time, maintaining valid coverage despite estimating AMCEs and corresponding
 p-values and CSs at each step!
