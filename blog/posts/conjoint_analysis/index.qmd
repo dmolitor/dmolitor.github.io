@@ -2,7 +2,7 @@
 title: "Anytime-valid Inference on the AMCE in Conjoint Experiments"
 description: |
   An empirical example based on <a href="https://doi.org/10.1093/pan/mpt024">Causal Inference in Conjoint Analysis: Understanding Multidimensional Choices via Stated Preference Experiments by Hainmueller, Hopkins, and Yamamoto.</a>
-date: "3/6/2025"
+date: "3/10/2025"
 format:
   html:
     toc: true
@@ -122,9 +122,6 @@ between, so the total number of profiles in the data is 3,466 (1,733 x 2). The `
 is a binary outcome indicating whether the survey respondent (identified in the `respondent` column)
 selected that profile as the preferred candidate.
 
-Each row represents one candidate profile from 1,733 comparisons (311 respondents × 2 profiles per comparison = 3,466 profiles).
-The `selected` column indicates whether the respondent (identified in the `respondent` column) chose that profile.
-
 ### Estimating AMCEs
 
 The primary estimand of interest is the Average Marginal Component Effect (AMCE). 
@@ -132,14 +129,14 @@ The AMCE measures the average change in the outcome when an attribute shifts fro
 baseline level to an alternative, averaging over the joint distribution other attributes.
 In potential outcomes notation:
 
-- $Y_i(X_j=x_j,X_{−j})$ be the potential outcome for respondent $i$ when attribute $j$ is set to $X_j=x_j$​ and other attributes $X_{-j}$​​ vary.
-- $X_j^*$ be the baseline (or reference) level for attribute $j$.
+- $Y_i(X_j=x_j,X_{−j})$ is the potential outcome for respondent $i$ when attribute $j$ is set to $X_j=x_j$​ and other attributes $X_{-j}$​​ vary.
+- $X_j^*$ is the baseline (or reference) level for attribute $j$.
 
 Then,
 $$\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],$$
 where expectation $E_{X_{-j}}$​​ is taken over the joint distribution of the other attributes.
 
-We estimate this using a regression model that includes all attributes. **Note**: Cluster standard errors at the respondent level since each respondent provides multiple observations.
+We can estimate the AMCEs for all attributes simultaneously via a regression model that includes all attribute dummy variables. **Note**: Cluster standard errors at the respondent level since each respondent provides multiple observations.
 ```{r}
 #| label: Fixed-n AMCE estimation
 #| fig-height: 10
@@ -253,11 +250,11 @@ ggplot(
 ## Candidate Experiment -- Sequential Analysis
 
 Fixed‑$N$ estimators provide valid inference at a single predetermined sample size $N$
-(e.g., 95% confidence intervals are valid only at single $N$). Typically,
+(e.g., 95% confidence intervals are valid only at a single $N$). Typically,
 researchers will utilize power calculations to determine sufficient sample sizes
 to detect treatment effects of interest prior to running an experiment.
 However, power calculations rely on unverifiable assumptions which can cause them to
-be inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments.
+be inaccurate and difficult to perform, particularly in the context of conjoint experiments.
 Instead of relying on power calculations, researchers often would like to monitor 
 statistical results as data accumulate and stop once their estimates become
 statistically significant. However, if we repeatedly calculate
