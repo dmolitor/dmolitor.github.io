@@ -221,6 +221,7 @@ above.
 ```{r}
 #| label: Fixed-n marginal means
 #| fig-height: 10
+#| eval: false
 
 # A function to calculate the marginal mean for a single attribute
 marginal_mean <- function(model, attribute) {
@@ -596,7 +597,13 @@ plot_anim <- ggplot(
       color = term
     )
   ) +
-  geom_point(data = truth, aes(x = estimate, y = contrast), inherit.aes = FALSE, shape = 17, size = 2) +
+  geom_point(
+    data = truth,
+    aes(x = estimate, y = contrast),
+    inherit.aes = FALSE,
+    shape = 17,
+    size = 2
+  ) +
   geom_vline(xintercept = 0, color = "gray70") +
   geom_point() +
   geom_linerange() +
@@ -632,12 +639,12 @@ anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation)
 ```
 
 <div style="text-align: center;">
-  <video controls style="width: 60%;">
+  <video controls playsinline webkit-playsinline style="width: 60%;">
     <source src="./anytime_valid_sim.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 </div>
 
-We can watch as our estimates and CSs converge towards the truth over time,
-providing valid coverage despite estimating AMCEs and corresponding
+We can watch as our estimates and CSs converge towards the truth (diamond shaped points)
+over time, providing valid coverage despite estimating AMCEs and corresponding
 p-values and CSs at each step!
