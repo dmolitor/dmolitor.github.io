@@ -645,6 +645,13 @@ font-style: inherit;">legend.position =</span> <span class="st" style="color: #2
 background-color: null;
 font-style: inherit;">"none"</span>)</span></code></pre></div>
 </details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://dmolitor.com/blog/posts/conjoint_analysis/index_files/figure-html/Fixed-n marginal means-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -1451,8 +1458,8 @@ font-style: inherit;">ease_aes</span>()</span>
 <span id="cb7-44"></span>
 <span id="cb7-45"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Turn this into a video</span></span>
-<span id="cb7-46">animation_mp4 <span class="ot" style="color: #003B4F;
+font-style: inherit;"># Turn this into a gif</span></span>
+<span id="cb7-46">animation_gif <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1462,7 +1469,7 @@ font-style: inherit;">animate</span>(</span>
 background-color: null;
 font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">av_renderer</span>(),</span>
+font-style: inherit;">gifski_renderer</span>(),</span>
 <span id="cb7-49">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">nframes =</span> <span class="dv" style="color: #AD0000;
@@ -1488,53 +1495,11 @@ background-color: null;
 font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">200</span></span>
-<span id="cb7-54">)</span>
-<span id="cb7-55">animation_gif <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">animate</span>(</span>
-<span id="cb7-56">  plot_anim,</span>
-<span id="cb7-57">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">gifski_renderer</span>(),</span>
-<span id="cb7-58">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nframes =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">300</span>,</span>
-<span id="cb7-59">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,</span>
-<span id="cb7-60">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,</span>
-<span id="cb7-61">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"in"</span>,</span>
-<span id="cb7-62">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">200</span></span>
-<span id="cb7-63">)</span></code></pre></div>
+<span id="cb7-54">)</span></code></pre></div>
 </details>
 </div>
-<!-- <video controls playsinline style="width: 60%;">
-  <source src="./anytime_valid_sim.mp4" type="video/mp4">
-  <source src="./anytime_valid_sim.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video> -->
 <div style="text-align: center;">
-<p><img src="https://dmolitor.com/blog/posts/conjoint_analysis/anytime_valid_sim.gif" class="img-fluid" style="width:60.0%"></p>
+<p><img src="https://dmolitor.com/blog/posts/conjoint_analysis/anytime_valid_sim.gif" class="img-fluid" style="width:75.0%"></p>
 </div>
 <p>We see our estimates and CSs converge towards the true AMCEs (marked by diamond-shaped points) over time, maintaining valid coverage despite estimating AMCEs and corresponding p-values and CSs at each step!</p>
 
@@ -6063,7 +6028,7 @@ font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">300</span>)</span>
 <span id="cb5-5">width_plot.show()</span></code></pre></div>
-<div id="3f2238f9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="5">
+<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -6658,7 +6623,7 @@ font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
 <span id="cb8-11">width_plot.show()</span></code></pre></div>
-<div id="41a80cb9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="8">
+<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
