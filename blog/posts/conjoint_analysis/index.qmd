@@ -13,7 +13,7 @@ format:
     fig-dpi: 300
 execute:
   freeze: true
-page-layout: full
+page-layout: article
 categories: [Conjoints, Anytime-valid Inference]
 image: "./thumbnail.jpg"
 ---
@@ -221,7 +221,6 @@ above.
 ```{r}
 #| label: Fixed-n marginal means
 #| fig-height: 10
-#| eval: false
 
 # A function to calculate the marginal mean for a single attribute
 marginal_mean <- function(model, attribute) {
@@ -638,12 +637,7 @@ animation <- animate(
 anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation)
 ```
 
-<div style="text-align: center;">
-  <video controls playsinline webkit-playsinline style="width: 60%;">
-    <source src="./anytime_valid_sim.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
+{{< video anytime_valid_sim.mp4 >}}
 
 We can watch as our estimates and CSs converge towards the truth (diamond shaped points)
 over time, providing valid coverage despite estimating AMCEs and corresponding
