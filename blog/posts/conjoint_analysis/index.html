@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-03-06">
+<meta name="dcterms.date" content="2025-03-10">
 <meta name="description" content="An empirical example based on Causal Inference in Conjoint Analysis: Understanding Multidimensional Choices via Stated Preference Experiments by Hainmueller, Hopkins, and Yamamoto.">
 
 <title>Anytime-valid Inference on the AMCE in Conjoint Experiments – Daniel Molitor</title>
@@ -224,7 +224,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 6, 2025</p>
+      <p class="date">March 10, 2025</p>
     </div>
   </div>
   
@@ -294,17 +294,16 @@ window.Quarto = {
 </details>
 </div>
 <p>Each row in the dataset represents one candidate profile out of 1,733 candidate comparisons made by 311 survey respondents. Each of the candidate comparisons has 2 candidate profiles to choose between, so the total number of profiles in the data is 3,466 (1,733 x 2). The <code>selected</code> column is a binary outcome indicating whether the survey respondent (identified in the <code>respondent</code> column) selected that profile as the preferred candidate.</p>
-<p>Each row represents one candidate profile from 1,733 comparisons (311 respondents × 2 profiles per comparison = 3,466 profiles). The <code>selected</code> column indicates whether the respondent (identified in the <code>respondent</code> column) chose that profile.</p>
 </section>
 <section id="estimating-amces" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-amces">Estimating AMCEs</h3>
 <p>The primary estimand of interest is the Average Marginal Component Effect (AMCE). The AMCE measures the average change in the outcome when an attribute shifts from a baseline level to an alternative, averaging over the joint distribution other attributes. In potential outcomes notation:</p>
 <ul>
-<li><span class="math inline">\(Y_i(X_j=x_j,X_{−j})\)</span> be the potential outcome for respondent <span class="math inline">\(i\)</span> when attribute <span class="math inline">\(j\)</span> is set to <span class="math inline">\(X_j=x_j\)</span>​ and other attributes <span class="math inline">\(X_{-j}\)</span>​​ vary.</li>
-<li><span class="math inline">\(X_j^*\)</span> be the baseline (or reference) level for attribute <span class="math inline">\(j\)</span>.</li>
+<li><span class="math inline">\(Y_i(X_j=x_j,X_{−j})\)</span> is the potential outcome for respondent <span class="math inline">\(i\)</span> when attribute <span class="math inline">\(j\)</span> is set to <span class="math inline">\(X_j=x_j\)</span>​ and other attributes <span class="math inline">\(X_{-j}\)</span>​​ vary.</li>
+<li><span class="math inline">\(X_j^*\)</span> is the baseline (or reference) level for attribute <span class="math inline">\(j\)</span>.</li>
 </ul>
 <p>Then, <span class="math display">\[\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],\]</span> where expectation <span class="math inline">\(E_{X_{-j}}\)</span>​​ is taken over the joint distribution of the other attributes.</p>
-<p>We estimate this using a regression model that includes all attributes. <strong>Note</strong>: Cluster standard errors at the respondent level since each respondent provides multiple observations.</p>
+<p>We can estimate the AMCEs for all attributes simultaneously via a regression model that includes all attribute dummy variables. <strong>Note</strong>: Cluster standard errors at the respondent level since each respondent provides multiple observations.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -425,7 +424,7 @@ window.Quarto = {
 </section>
 <section id="candidate-experiment-sequential-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="candidate-experiment-sequential-analysis">Candidate Experiment – Sequential Analysis</h2>
-<p>Fixed‑<span class="math inline">\(N\)</span> estimators provide valid inference at a single predetermined sample size <span class="math inline">\(N\)</span> (e.g., 95% confidence intervals are valid only at single <span class="math inline">\(N\)</span>). Typically, researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments. Instead of relying on power calculations, researchers often would like to monitor statistical results as data accumulate and stop once their estimates become statistically significant. However, if we repeatedly calculate our AMCE estimates and fixed-<span class="math inline">\(N\)</span> 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will far exceed the nominal significance level (<span class="math inline">\(\alpha = 0.05\)</span>).</p>
+<p>Fixed‑<span class="math inline">\(N\)</span> estimators provide valid inference at a single predetermined sample size <span class="math inline">\(N\)</span> (e.g., 95% confidence intervals are valid only at a single <span class="math inline">\(N\)</span>). Typically, researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be inaccurate and difficult to perform, particularly in the context of conjoint experiments. Instead of relying on power calculations, researchers often would like to monitor statistical results as data accumulate and stop once their estimates become statistically significant. However, if we repeatedly calculate our AMCE estimates and fixed-<span class="math inline">\(N\)</span> 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will far exceed the nominal significance level (<span class="math inline">\(\alpha = 0.05\)</span>).</p>
 <p>Anytime‑valid inference offers a solution by yielding p‑values and confidence sequences (CSs) that remain valid even if we “peek” at the data and stop the experiment once our estimates are statistically significant. In <a href="https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/">this blog post</a> I explore methods by Lindon et al.&nbsp;that develop anytime-valid p-values and CSs for linear regression models. These methods adapt standard regression outputs (e.g., from lm() in R) to produce anytime‑valid p‑values and CSs.</p>
 <section id="estimating-anytime-valid-p-values-and-confidence-sequences" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating Anytime-Valid p-values and Confidence Sequences</h3>

@@ -10,7 +10,7 @@
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.42</generator>
-<lastBuildDate>Thu, 06 Mar 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 10 Mar 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Anytime-valid Inference on the AMCE in Conjoint Experiments</title>
   <link>https://dmolitor.com/blog/posts/conjoint_analysis/</link>
@@ -179,17 +179,16 @@ font-style: inherit;">glimpse</span>(candidate)</span></code></pre></div>
 </details>
 </div>
 <p>Each row in the dataset represents one candidate profile out of 1,733 candidate comparisons made by 311 survey respondents. Each of the candidate comparisons has 2 candidate profiles to choose between, so the total number of profiles in the data is 3,466 (1,733 x 2). The <code>selected</code> column is a binary outcome indicating whether the survey respondent (identified in the <code>respondent</code> column) selected that profile as the preferred candidate.</p>
-<p>Each row represents one candidate profile from 1,733 comparisons (311 respondents × 2 profiles per comparison = 3,466 profiles). The <code>selected</code> column indicates whether the respondent (identified in the <code>respondent</code> column) chose that profile.</p>
 </section>
 <section id="estimating-amces" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-amces">Estimating AMCEs</h3>
 <p>The primary estimand of interest is the Average Marginal Component Effect (AMCE). The AMCE measures the average change in the outcome when an attribute shifts from a baseline level to an alternative, averaging over the joint distribution other attributes. In potential outcomes notation:</p>
 <ul>
-<li><img src="https://latex.codecogs.com/png.latex?Y_i(X_j=x_j,X_%7B%E2%88%92j%7D)"> be the potential outcome for respondent <img src="https://latex.codecogs.com/png.latex?i"> when attribute <img src="https://latex.codecogs.com/png.latex?j"> is set to <img src="https://latex.codecogs.com/png.latex?X_j=x_j">​ and other attributes <img src="https://latex.codecogs.com/png.latex?X_%7B-j%7D">​​ vary.</li>
-<li><img src="https://latex.codecogs.com/png.latex?X_j%5E*"> be the baseline (or reference) level for attribute <img src="https://latex.codecogs.com/png.latex?j">.</li>
+<li><img src="https://latex.codecogs.com/png.latex?Y_i(X_j=x_j,X_%7B%E2%88%92j%7D)"> is the potential outcome for respondent <img src="https://latex.codecogs.com/png.latex?i"> when attribute <img src="https://latex.codecogs.com/png.latex?j"> is set to <img src="https://latex.codecogs.com/png.latex?X_j=x_j">​ and other attributes <img src="https://latex.codecogs.com/png.latex?X_%7B-j%7D">​​ vary.</li>
+<li><img src="https://latex.codecogs.com/png.latex?X_j%5E*"> is the baseline (or reference) level for attribute <img src="https://latex.codecogs.com/png.latex?j">.</li>
 </ul>
 <p>Then, <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BAMCE%7D(X_j)=E_%7BX_%7B%E2%88%92j%7D%7D%5BY_i(X_j=x_j,X_%7B%E2%88%92j%7D)%E2%88%92Y_i(X_j=X_j%5E%E2%88%97,%20X_%7B%E2%88%92j%7D)%5D,"> where expectation <img src="https://latex.codecogs.com/png.latex?E_%7BX_%7B-j%7D%7D">​​ is taken over the joint distribution of the other attributes.</p>
-<p>We estimate this using a regression model that includes all attributes. <strong>Note</strong>: Cluster standard errors at the respondent level since each respondent provides multiple observations.</p>
+<p>We can estimate the AMCEs for all attributes simultaneously via a regression model that includes all attribute dummy variables. <strong>Note</strong>: Cluster standard errors at the respondent level since each respondent provides multiple observations.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -657,7 +656,7 @@ font-style: inherit;">"none"</span>)</span></code></pre></div>
 </section>
 <section id="candidate-experiment-sequential-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="candidate-experiment-sequential-analysis">Candidate Experiment – Sequential Analysis</h2>
-<p>Fixed‑<img src="https://latex.codecogs.com/png.latex?N"> estimators provide valid inference at a single predetermined sample size <img src="https://latex.codecogs.com/png.latex?N"> (e.g., 95% confidence intervals are valid only at single <img src="https://latex.codecogs.com/png.latex?N">). Typically, researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments. Instead of relying on power calculations, researchers often would like to monitor statistical results as data accumulate and stop once their estimates become statistically significant. However, if we repeatedly calculate our AMCE estimates and fixed-<img src="https://latex.codecogs.com/png.latex?N"> 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will far exceed the nominal significance level (<img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%200.05">).</p>
+<p>Fixed‑<img src="https://latex.codecogs.com/png.latex?N"> estimators provide valid inference at a single predetermined sample size <img src="https://latex.codecogs.com/png.latex?N"> (e.g., 95% confidence intervals are valid only at a single <img src="https://latex.codecogs.com/png.latex?N">). Typically, researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be inaccurate and difficult to perform, particularly in the context of conjoint experiments. Instead of relying on power calculations, researchers often would like to monitor statistical results as data accumulate and stop once their estimates become statistically significant. However, if we repeatedly calculate our AMCE estimates and fixed-<img src="https://latex.codecogs.com/png.latex?N"> 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will far exceed the nominal significance level (<img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%200.05">).</p>
 <p>Anytime‑valid inference offers a solution by yielding p‑values and confidence sequences (CSs) that remain valid even if we “peek” at the data and stop the experiment once our estimates are statistically significant. In <a href="https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/">this blog post</a> I explore methods by Lindon et al.&nbsp;that develop anytime-valid p-values and CSs for linear regression models. These methods adapt standard regression outputs (e.g., from lm() in R) to produce anytime‑valid p‑values and CSs.</p>
 <section id="estimating-anytime-valid-p-values-and-confidence-sequences" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating Anytime-Valid p-values and Confidence Sequences</h3>
@@ -1511,7 +1510,7 @@ font-style: inherit;">200</span></span>
   <category>Conjoints</category>
   <category>Anytime-valid Inference</category>
   <guid>https://dmolitor.com/blog/posts/conjoint_analysis/</guid>
-  <pubDate>Thu, 06 Mar 2025 00:00:00 GMT</pubDate>
+  <pubDate>Mon, 10 Mar 2025 00:00:00 GMT</pubDate>
   <media:content url="https://dmolitor.com/blog/posts/conjoint_analysis/thumbnail.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -6028,7 +6027,7 @@ font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">300</span>)</span>
 <span id="cb5-5">width_plot.show()</span></code></pre></div>
-<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
+<div id="3f2238f9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="5">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -6623,7 +6622,7 @@ font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
 <span id="cb8-11">width_plot.show()</span></code></pre></div>
-<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
+<div id="41a80cb9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="8">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
