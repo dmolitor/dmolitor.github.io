@@ -73,8 +73,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-1a88ddd1106fe35f7458ba2af1b6e4a8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="../../../site_libs/bootstrap/bootstrap-dark-7f652a60e23338e3b385d703fd8f7564.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<script src="../../../site_libs/quarto-contrib/videojs/video.min.js"></script>
-<link href="../../../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -186,16 +184,16 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#candidate-experiment-setup" id="toc-candidate-experiment-setup" class="nav-link active" data-scroll-target="#candidate-experiment-setup">Candidate experiment — setup</a></li>
-  <li><a href="#candidate-experiment-fixed-n-analysis" id="toc-candidate-experiment-fixed-n-analysis" class="nav-link" data-scroll-target="#candidate-experiment-fixed-n-analysis">Candidate experiment — fixed-n analysis</a>
+  <li><a href="#candidate-experiment-setup" id="toc-candidate-experiment-setup" class="nav-link active" data-scroll-target="#candidate-experiment-setup">Candidate Experiment – Setup</a></li>
+  <li><a href="#candidate-experiment-fixed-n-analysis" id="toc-candidate-experiment-fixed-n-analysis" class="nav-link" data-scroll-target="#candidate-experiment-fixed-n-analysis">Candidate Experiment – Fixed-N Analysis</a>
   <ul class="collapse">
-  <li><a href="#dependencies-and-data-prep" id="toc-dependencies-and-data-prep" class="nav-link" data-scroll-target="#dependencies-and-data-prep">Dependencies and data prep</a></li>
-  <li><a href="#estimating-fixed-n-amces" id="toc-estimating-fixed-n-amces" class="nav-link" data-scroll-target="#estimating-fixed-n-amces">Estimating fixed-n AMCEs</a></li>
-  <li><a href="#estimating-fixed-n-marginal-means" id="toc-estimating-fixed-n-marginal-means" class="nav-link" data-scroll-target="#estimating-fixed-n-marginal-means">Estimating fixed-n marginal means</a></li>
+  <li><a href="#data-prep" id="toc-data-prep" class="nav-link" data-scroll-target="#data-prep">Data Prep</a></li>
+  <li><a href="#estimating-amces" id="toc-estimating-amces" class="nav-link" data-scroll-target="#estimating-amces">Estimating AMCEs</a></li>
+  <li><a href="#estimating-marginal-means" id="toc-estimating-marginal-means" class="nav-link" data-scroll-target="#estimating-marginal-means">Estimating Marginal Means</a></li>
   </ul></li>
-  <li><a href="#candidate-experiment-sequential-analysis" id="toc-candidate-experiment-sequential-analysis" class="nav-link" data-scroll-target="#candidate-experiment-sequential-analysis">Candidate experiment — sequential analysis</a>
+  <li><a href="#candidate-experiment-sequential-analysis" id="toc-candidate-experiment-sequential-analysis" class="nav-link" data-scroll-target="#candidate-experiment-sequential-analysis">Candidate Experiment – Sequential Analysis</a>
   <ul class="collapse">
-  <li><a href="#estimating-anytime-valid-p-values-and-confidence-sequences" id="toc-estimating-anytime-valid-p-values-and-confidence-sequences" class="nav-link" data-scroll-target="#estimating-anytime-valid-p-values-and-confidence-sequences">Estimating anytime-valid p-values and confidence sequences</a></li>
+  <li><a href="#estimating-anytime-valid-p-values-and-confidence-sequences" id="toc-estimating-anytime-valid-p-values-and-confidence-sequences" class="nav-link" data-scroll-target="#estimating-anytime-valid-p-values-and-confidence-sequences">Estimating Anytime-Valid p-values and Confidence Sequences</a></li>
   <li><a href="#estimating-sequential-amces" id="toc-estimating-sequential-amces" class="nav-link" data-scroll-target="#estimating-sequential-amces">Estimating sequential AMCEs</a></li>
   </ul></li>
   </ul>
@@ -238,144 +236,122 @@ window.Quarto = {
 </header>
 
 
-<p>In this post I’ll be exploring an empirical example to demonstrate how we can target the Average Marginal Component Effect (AMCE) and perform a standard, fixed-n analysis, and how we can adopt methods from the anytime-valid literature to perform a sequential analysis of the AMCE.</p>
-<p>For background, see <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/">this super-detailed discussion of conjoint analysis</a> and <a href="https://www.andrewheiss.com/blog/2022/05/20/marginalia/">this one on marginal effects</a> by Andrew Heiss.</p>
+<p>In this post, I demonstrate how to estimate Average Marginal Component Effects (AMCE) in a conjoint experiment using both a fixed‑n approach and a sequential, anytime‑valid approach.</p>
+<p>For background, see <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/">this super-detailed discussion of conjoint analysis</a> and <a href="https://www.andrewheiss.com/blog/2022/05/20/marginalia/">this guide on marginal effects</a> by Andrew Heiss.</p>
 <section id="candidate-experiment-setup" class="level2">
-<h2 class="anchored" data-anchor-id="candidate-experiment-setup">Candidate experiment — setup</h2>
-<p>The empirical example we’ll base this analysis on is the candidate experiment in Hainmueller et al.’s <a href="https://doi.org/10.1093/pan/mpt024">Causal Inference in Conjoint Analysis</a> paper. Instead of describing it myself I’ll just include the paper’s description of the experiment:</p>
+<h2 class="anchored" data-anchor-id="candidate-experiment-setup">Candidate Experiment – Setup</h2>
+<p>Our analysis is based on the candidate experiment from Hainmueller et al.’s <a href="https://doi.org/10.1093/pan/mpt024">Causal Inference in Conjoint Analysis</a>. Below is the paper’s description:</p>
 <blockquote class="blockquote">
 <p>The choice between competing candidates for elected office is central to democracy. Candidates typically differ on a variety of dimensions, including their personal background and demographic characteristics, issue positions, and prior experience. The centrality of partisanship to voter decision making is amply documented [ref], so we focus here on the less-examined role of candidates’ personal traits [ref]. Within the United States, there is constant speculation about the role of candidates’ personal backgrounds in generating support or opposition; here, we harness conjoint analysis to examine those claims. <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;We focus on eight attributes of would-be presidential candidates, all of which have emerged in recent campaigns. Six of these attributes can take on one of six values, including the candidates’ religion (Catholic, Evangelical Protestant, Mainline Protestant, Mormon, Jewish, or None), college education (no college, state university, community college, Baptist college, Ivy League college, or small college), profession (lawyer, high school teacher, business owner, farmer, doctor, or car dealer), annual income ($32K, $54K, $65K, $92K, $210K, and $5.1M), racial/ethnic background (Hispanic, White, Caucasian, Black, Asian American, and Native American), and age (36, 45, 52, 60, 68, and 75). 3 Two other attributes take on only two values: military service (served or not) and gender (male or female). Each respondent to our online survey—administered through Amazon’s Mechanical Turk [ref]—saw six pairs of profiles that were generated using the fully randomized approach described below. Figure A.1 in the Supplemental Information (SI) illustrates one choice presented to one respondent. The profiles were presented side-by-side, with each pair of profiles on a separate screen. To ease the cognitive burden for respondents while also minimizing primacy and recency effects, the attributes were presented in a randomized order that was fixed across the six pairings for each respondent. <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On the same screen as each candidate pairing, respondents were asked multiple questions which serve as dependent variables. First, they were asked to choose between the two candidates, a “forced-choice” design that enables us to evaluate the role of each attribute value in the assessment of one profile relative to another. This question closely resembles real-world voter decision making, in which respondents must cast a single ballot between competing candidates who vary on multiple dimensions. In the second and third questions following the profiles, the respondents rated each candidate on a one to seven scale, enabling evaluations of the levels of absolute support or opposition to each profile separately.</p>
 </blockquote>
 </section>
 <section id="candidate-experiment-fixed-n-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="candidate-experiment-fixed-n-analysis">Candidate experiment — fixed-n analysis</h2>
-<p>The data for the candidate experiment is publically available <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/data/candidate.dta">here</a> or <a href="https://doi.org/10.7910/DVN/THJYQR">here</a>. Let’s begin by loading some necessary packages and the data:</p>
-<section id="dependencies-and-data-prep" class="level3">
-<h3 class="anchored" data-anchor-id="dependencies-and-data-prep">Dependencies and data prep</h3>
+<h2 class="anchored" data-anchor-id="candidate-experiment-fixed-n-analysis">Candidate Experiment – Fixed-N Analysis</h2>
+<p>The data for the candidate experiment is publically available <a href="https://www.andrewheiss.com/blog/2023/07/25/conjoint-bayesian-frequentist-guide/data/candidate.dta">here</a> or <a href="https://doi.org/10.7910/DVN/THJYQR">here</a>. Let’s begin by loading the necessary packages and the data:</p>
+<section id="data-prep" class="level3">
+<h3 class="anchored" data-anchor-id="data-prep">Data Prep</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future.apply)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggtext)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(progressr)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"/Users/dmolitor/Downloads/candidate.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"/Users/dmolitor/Downloads/candidate.dta"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the variable names nice and readable</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>variable_lookup <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>variable,    <span class="sc">~</span>variable_nice,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmilitary"</span>, <span class="st">"Military"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atreligion"</span>, <span class="st">"Religion"</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ated"</span>,       <span class="st">"Education"</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atprof"</span>,     <span class="st">"Profession"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmale"</span>,     <span class="st">"Gender"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atinc"</span>,      <span class="st">"Income"</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atrace"</span>,     <span class="st">"Race"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atage"</span>,      <span class="st">"Age"</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(candidate) <span class="sc">|&gt;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">respondent =</span> resID) <span class="sc">|&gt;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> atmilitary<span class="sc">:</span>atmale,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fn =</span> \(x) <span class="fu">vapply</span>(</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>      x,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>      \(y) <span class="fu">filter</span>(variable_lookup, variable <span class="sc">==</span> y)<span class="sc">$</span>variable_nice,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>      <span class="fu">character</span>(<span class="dv">1</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(candidate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-</div>
-<p>Now let’s make the column names be nice and readable.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>variable_lookup <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>variable,    <span class="sc">~</span>variable_nice,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmilitary"</span>, <span class="st">"Military"</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atreligion"</span>, <span class="st">"Religion"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ated"</span>,       <span class="st">"Education"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atprof"</span>,     <span class="st">"Profession"</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atmale"</span>,     <span class="st">"Gender"</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atinc"</span>,      <span class="st">"Income"</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atrace"</span>,     <span class="st">"Race"</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"atage"</span>,      <span class="st">"Age"</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>candidate <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(candidate) <span class="sc">|&gt;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">respondent =</span> resID) <span class="sc">|&gt;</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> atmilitary<span class="sc">:</span>atmale,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fn =</span> \(x) <span class="fu">vapply</span>(</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      x,</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      \(y) <span class="fu">filter</span>(variable_lookup, variable <span class="sc">==</span> y)<span class="sc">$</span>variable_nice,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">character</span>(<span class="dv">1</span>)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(candidate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Rows: 3,466
-Columns: 11
-$ respondent &lt;fct&gt; A2NEN4NSNS2O8S, A2NEN4NSNS2O8S, A2NEN4NSNS2O8S, A2NEN4NSNS2…
-$ Military   &lt;fct&gt; Did Not Serve, Served, Did Not Serve, Served, Served, Serve…
-$ Religion   &lt;fct&gt; Mormon, None, Catholic, Mainline protestant, None, Mainline…
-$ Education  &lt;fct&gt; Community college, No BA, Small college, Small college, Bap…
-$ Profession &lt;fct&gt; Car dealer, High school teacher, Farmer, Doctor, Doctor, La…
-$ Income     &lt;fct&gt; 5.1M, 65K, 32K, 54K, 5.1M, 54K, 5.1M, 5.1M, 32K, 54K, 32K, …
-$ Race       &lt;fct&gt; White, Asian American, Native American, White, Native Ameri…
-$ Age        &lt;fct&gt; 75, 60, 68, 75, 45, 52, 52, 75, 75, 60, 45, 45, 45, 60, 36,…
-$ Gender     &lt;fct&gt; Female, Male, Female, Male, Female, Male, Male, Female, Fem…
-$ selected   &lt;dbl&gt; 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0,…
-$ rating     &lt;dbl&gt; 0.3333333, 0.5000000, 0.6666667, 0.6666667, 0.3333333, 0.50…</code></pre>
-</div>
 </div>
 <p>Each row in the dataset represents one candidate profile out of 1,733 candidate comparisons made by 311 survey respondents. Each of the candidate comparisons has 2 candidate profiles to choose between, so the total number of profiles in the data is 3,466 (1,733 x 2). The <code>selected</code> column is a binary outcome indicating whether the survey respondent (identified in the <code>respondent</code> column) selected that profile as the preferred candidate.</p>
+<p>Each row represents one candidate profile from 1,733 comparisons (311 respondents × 2 profiles per comparison = 3,466 profiles). The <code>selected</code> column indicates whether the respondent (identified in the <code>respondent</code> column) chose that profile.</p>
 </section>
-<section id="estimating-fixed-n-amces" class="level3">
-<h3 class="anchored" data-anchor-id="estimating-fixed-n-amces">Estimating fixed-n AMCEs</h3>
-<p>The first estimand of interest is the AMCE. In potential outcomes notation you can define the AMCE as the average difference in potential outcomes when you change the level of a particular attribute while averaging over the joint distribution of the other attributes. For example, let</p>
+<section id="estimating-amces" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-amces">Estimating AMCEs</h3>
+<p>The primary estimand of interest is the Average Marginal Component Effect (AMCE). The AMCE measures the average change in the outcome when an attribute shifts from a baseline level to an alternative, averaging over the joint distribution other attributes. In potential outcomes notation:</p>
 <ul>
-<li><span class="math inline">\(Y_i(X_j=x_j,X_{−j})\)</span> be the potential outcome for respondent <span class="math inline">\(i\)</span> given candidate profile <span class="math inline">\(X\)</span> when the candidate profile has attribute <span class="math inline">\(j\)</span> set to <span class="math inline">\(X_j=x_j\)</span> and the other attributes <span class="math inline">\(X_{-j}\)</span>​ set to some arbitrary values.</li>
+<li><span class="math inline">\(Y_i(X_j=x_j,X_{−j})\)</span> be the potential outcome for respondent <span class="math inline">\(i\)</span> when attribute <span class="math inline">\(j\)</span> is set to <span class="math inline">\(X_j=x_j\)</span>​ and other attributes <span class="math inline">\(X_{-j}\)</span>​​ vary.</li>
 <li><span class="math inline">\(X_j^*\)</span> be the baseline (or reference) level for attribute <span class="math inline">\(j\)</span>.</li>
 </ul>
-<p>Then the AMCE for changing attribute <span class="math inline">\(j\)</span> from <span class="math inline">\(X_j=X_j^*\)</span>​ to <span class="math inline">\(X_j=x_j\)</span>​ can be written as <span class="math display">\[\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],\]</span> where expectation <span class="math inline">\(E_{X_{-j}}\)</span>​​ is taken over the joint distribution of the other attributes.</p>
-<p>Fortunately, this estimand can be easily estimated with a regression model. Even better, we can simultaneously estimate AMCEs for all attributes by including all attribute variables in our regression model. <strong>Note:</strong> Since survey participants each responded to multiple questions it is essential that we cluster standard errors at the respondent level.</p>
+<p>Then, <span class="math display">\[\text{AMCE}(X_j)=E_{X_{−j}}[Y_i(X_j=x_j,X_{−j})−Y_i(X_j=X_j^∗, X_{−j})],\]</span> where expectation <span class="math inline">\(E_{X_{-j}}\)</span>​​ is taken over the joint distribution of the other attributes.</p>
+<p>We estimate this using a regression model that includes all attributes. <strong>Note</strong>: Cluster standard errors at the respondent level since each respondent provides multiple observations.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to add the reference level for each of our attributes</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>add_reference <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">low =</span> <span class="st">"conf.low"</span>, <span class="at">high =</span> <span class="st">"conf.high"</span>) {</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"contrast"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"contrast"</span>, <span class="st">"reference"</span>), <span class="at">sep =</span> <span class="st">" - "</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    data,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    data <span class="sc">|&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">contrast =</span> reference) <span class="sc">|&gt;</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">distinct</span>(term, contrast, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(estimate, {{low}}, {{high}}), <span class="sc">~</span> <span class="dv">0</span>))</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_reference</span>(marginal_effects),</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> contrast,</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to add the reference level for each of our attributes</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>add_reference <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">low =</span> <span class="st">"conf.low"</span>, <span class="at">high =</span> <span class="st">"conf.high"</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"contrast"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"contrast"</span>, <span class="st">"reference"</span>), <span class="at">sep =</span> <span class="st">" - "</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    data <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">contrast =</span> reference) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">distinct</span>(term, contrast, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(estimate, {{low}}, {{high}}), <span class="sc">~</span> <span class="dv">0</span>))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_reference</span>(marginal_effects),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> contrast,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -386,227 +362,98 @@ $ rating     &lt;dbl&gt; 0.3333333, 0.5000000, 0.6666667, 0.6666667, 0.3333333, 
 </div>
 </div>
 </section>
-<section id="estimating-fixed-n-marginal-means" class="level3">
-<h3 class="anchored" data-anchor-id="estimating-fixed-n-marginal-means">Estimating fixed-n marginal means</h3>
-<p>Another estimand of interest is a purely descriptive quantity—marginal means. The marginal mean for a specific value <span class="math inline">\(x_j\)</span>​ of some attribute <span class="math inline">\(j\)</span> is defined as the average observed outcome for all profiles where that attribute takes on the value <span class="math inline">\(X_j = x_j\)</span>​, averaging over the joint distribution of all other attributes. In mathematical notation, this is expressed as <span class="math display">\[\mu(x_j) := E[Y | X_j=x_j],\]</span> where <span class="math inline">\(Y\)</span> are the observed outcomes, <span class="math inline">\(X_j\)</span>​ is the attribute of interest, and the expectation <span class="math inline">\(E\)</span> is taken over the distribution of all other attributes <span class="math inline">\(X_{-j}\)</span>​. This expression simply calculates the average observed outcome when <span class="math inline">\(X_j=x_j\)</span>​, without invoking any counterfactual or potential outcomes framework.</p>
-<p>We could estimate this non-parametrically just with <code>group_by()</code> and <code>summarize()</code> but we can also get the same result with corresponding CIs using a regression like above.</p>
+<section id="estimating-marginal-means" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-marginal-means">Estimating Marginal Means</h3>
+<p>Another estimand of interest is a purely descriptive quantity—marginal means. The marginal mean for a particular value <span class="math inline">\(x_j\)</span>​ of attribute <span class="math inline">\(j\)</span> is: <span class="math display">\[\mu(x_j) := E_{X_{-j}}[Y | X_j=x_j],\]</span> where <span class="math inline">\(Y\)</span> are the observed outcomes, <span class="math inline">\(X_j\)</span>​ is the attribute of interest, and the expectation <span class="math inline">\(E\)</span> is taken over the joint distribution of all other attributes <span class="math inline">\(X_{-j}\)</span>​.</p>
+<p>We could estimate this non-parametrically (using <code>group_by()</code> and <code>summarize()</code>) or via regression which will give us corresponding CIs, p-values, etc. in one fell swoop.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function to calculate the marginal mean for a single attribute</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>marginal_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(model, attribute) {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> <span class="fu">avg_predictions</span>(model, <span class="st">"balanced"</span>, <span class="at">by =</span> attribute)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> mms <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="st">"level"</span> <span class="ot">=</span> {{attribute}}) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="st">"term"</span> <span class="ot">=</span> {{attribute}})</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(mms)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>marginal_means <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Military"</span>,</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Religion"</span>,</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Education"</span>,</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Profession"</span>,</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Income"</span>,</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Race"</span>,</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Age"</span>,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Gender"</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(attribute) <span class="fu">marginal_mean</span>(model, attribute)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  marginal_means,</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> level,</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()) <span class="sc">+</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Marginal Means"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function to calculate the marginal mean for a single attribute</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>marginal_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(model, attribute) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> <span class="fu">avg_predictions</span>(model, <span class="st">"balanced"</span>, <span class="at">by =</span> attribute)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  mms <span class="ot">&lt;-</span> mms <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="st">"level"</span> <span class="ot">=</span> {{attribute}}) <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="st">"term"</span> <span class="ot">=</span> {{attribute}})</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(mms)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>marginal_means <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Military"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Religion"</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Education"</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Profession"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Income"</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Race"</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Age"</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Gender"</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(attribute) <span class="fu">marginal_mean</span>(model, attribute)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  marginal_means,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> estimate,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> level,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmin =</span> conf.low,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">xmax =</span> conf.high,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> term</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Marginal Means"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/Fixed-n marginal means-1.png" class="img-fluid figure-img" width="2100"></p>
-</figure>
-</div>
-</div>
 </div>
 </section>
 </section>
 <section id="candidate-experiment-sequential-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="candidate-experiment-sequential-analysis">Candidate experiment — sequential analysis</h2>
-<p>All the analysis performed up to this point has been utilizing estimators that are fixed-n valid. In short, this means that they are only valid for a pre-specified <span class="math inline">\(N\)</span>. We run an experiment, collect <span class="math inline">\(N\)</span> samples, and analyze the data. Our estimators give us certain statistical guarantees at this fixed sample size. For example, each of the estimated parameters above has a corresponding 95% confidence interval (CI). In the fixed-n setting, each individual AMCE (or marginal mean) CI has a 95% probability of containing the true parameter value—at least from a frequentist perspective.</p>
-<p>As researchers, we may be particularly interested in estimating AMCEs for certain attributes and we may want to ensure that we have sufficient sample size to have sufficient statistical power to detect non-zero AMCEs for those attributes. Typically researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be highly inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments.</p>
-<p>What we would <strong>love</strong> is to be able to continuously monitor our conjoint experiment as we collect data and watch our AMCE (or marginal means) estimates and their CIs and to stop the experiment as soon as the AMCE for our attribute of interest is statistically significant. Our current estimators for the AMCE are not suitable for this. For a little more detail on why, see my <a href="https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/">simulations on anytime-valid linear models</a>. In short, if we repeatedly calculate our AMCE estimates and 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will massively increase and will converge to 1 the more often we do this.</p>
-<p>However, there is a solution to this! The blog post above details methods for estimating linear regression coefficients that allow us to do exactly this while keeping the probability of committing a Type 1 error below our nominal significance level (e.g.&nbsp;<span class="math inline">\(\alpha = 0.05\)</span>). We refer to this as anytime-valid inference on our regression coefficients. In particular, the methods above develop anytime-valid p-values and confidence sequences (anytime-valid corollary to CIs) for linear regression coefficients.</p>
+<h2 class="anchored" data-anchor-id="candidate-experiment-sequential-analysis">Candidate Experiment – Sequential Analysis</h2>
+<p>Fixed‑<span class="math inline">\(N\)</span> estimators provide valid inference at a single predetermined sample size <span class="math inline">\(N\)</span> (e.g., 95% confidence intervals are valid only at single <span class="math inline">\(N\)</span>). Typically, researchers will utilize power calculations to determine sufficient sample sizes to detect treatment effects of interest prior to running an experiment. However, power calculations rely on unverifiable assumptions which can cause them to be inaccurate not to mention difficult to perform, particularly in the context of conjoint experiments. Instead of relying on power calculations, researchers often would like to monitor statistical results as data accumulate and stop once their estimates become statistically significant. However, if we repeatedly calculate our AMCE estimates and fixed-<span class="math inline">\(N\)</span> 95% CIs and collect more data until they are statistically significant, our probability of committing a Type 1 error will far exceed the nominal significance level (<span class="math inline">\(\alpha = 0.05\)</span>).</p>
+<p>Anytime‑valid inference offers a solution by yielding p‑values and confidence sequences (CSs) that remain valid even if we “peek” at the data and stop the experiment once our estimates are statistically significant. In <a href="https://www.dmolitor.com/blog/posts/anytime_valid_linear_models/">this blog post</a> I explore methods by Lindon et al.&nbsp;that develop anytime-valid p-values and CSs for linear regression models. These methods adapt standard regression outputs (e.g., from lm() in R) to produce anytime‑valid p‑values and CSs.</p>
 <section id="estimating-anytime-valid-p-values-and-confidence-sequences" class="level3">
-<h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating anytime-valid p-values and confidence sequences</h3>
-<p>The wonderful thing about these anytime-valid p-values and CSs is that they can be easily estimated directly from standard regression outputs, e.g.&nbsp;from <code>lm()</code> in R. Below I will quickly demonstrate how we can adapt the code from above for estimating AMCES to output anytime-valid CSs and p-values instead of the usual fixed-n CIs and p-values.</p>
+<h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating Anytime-Valid p-values and Confidence Sequences</h3>
+<p>Below I will demonstrate how we can adapt our code for estimating AMCES to output anytime-valid CSs and p-values instead of the usual fixed-n CIs and p-values. Check the full code for calculating anytime-valid CSs <a href="https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R">here</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Same code as before</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculate anytime-valid p-values and CSs</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>marginal_effects_sequential <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">delta =</span> marginal_effects<span class="sc">$</span>estimate,</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">se =</span> marginal_effects<span class="sc">$</span>std.error,</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> model<span class="sc">$</span>nobs,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_params =</span> model<span class="sc">$</span>nparams,</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_effects)),</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> marginal_effects<span class="sc">$</span>term,</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrast =</span> marginal_effects<span class="sc">$</span>contrast</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Same code as before</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate AMCEs with a logistic regression model</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  selected <span class="sc">~</span> Military <span class="sc">+</span> Religion <span class="sc">+</span> Education <span class="sc">+</span> Profession <span class="sc">+</span> Income <span class="sc">+</span> Race <span class="sc">+</span> Age</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> Gender,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> candidate,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="sc">~</span> respondent</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the marginal effects (AMCEs) as probabilities</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>marginal_effects <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculate anytime-valid p-values and CSs</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>marginal_effects_sequential <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">delta =</span> marginal_effects<span class="sc">$</span>estimate,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">se =</span> marginal_effects<span class="sc">$</span>std.error,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> model<span class="sc">$</span>nobs,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_params =</span> model<span class="sc">$</span>nparams,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_effects)),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> marginal_effects<span class="sc">$</span>term,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrast =</span> marginal_effects<span class="sc">$</span>contrast</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Check the full code for calculating the anytime-valid values <a href="https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R">here</a>.</p>
-<p>From now on, we will take these methods for granted and will simply show how to apply them to our data so that we can continuously monitor our conjoint experiment and stop it once our estimates of interest are statistically significant!</p>
 </section>
 <section id="estimating-sequential-amces" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-sequential-amces">Estimating sequential AMCEs</h3>
-<!-- For all following code we will focus on a couple attributes of interest; military
-service and religion. We will simulate a dynamic experiment where we are running
-the conjoint and collecting data in real time. Using our anytime-valid linear
-regression estimates, we can estimate and plot our AMCEs and 95% confidence
-sequences (anytime-valid corollary to CIs) as often as we want while controlling
-the probability of committing a Type 1 error.
-
-We will iterate through our conjoint in batches of 70 survey responses
-and we will estimate our AMCES and confidence sequences (CSs) after each batch.
-We will observe how our AMCE estimates change over time and how we can monitor statistical
-significance (and even choose to stop the conjoint early) based on this!
-
-
-::: {.cell}
-
-```{.r .cell-code}
-# Sample a random row from a dataframe;
-# Return the row and the dataframe minus the row
-sample_rows <- function(data, size = 1) {
-  idx <- sample(1:nrow(data), size = size)
-  row <- data[idx, , drop = FALSE]
-  data <- data[-idx, , drop = FALSE]
-  list("rows" = row, "data" = data)
-}
-
-chunk_size <- 99
-candidate_sim <- candidate
-sim_data <- tibble()
-sim_estimates <- tibble()
-
-for (i in seq(100, nrow(candidate_sim), by = chunk_size)) {
-  # Randomly sample a set of survey responses
-  sim_data <- bind_rows(
-    sim_data,
-    sample_rows(candidate_sim, size = chunk_size)$rows
-  )
-  # Estimate our model
-  sim_model <- feglm(
-    selected ~ Military + Religion + Education + Profession + Income + Race + Age
-        + Gender,
-    data = sim_data,
-    family = "binomial",
-    cluster = ~ respondent
-  )
-  # Calculate marginal effects
-  marginal_eff_sim <- avg_slopes(sim_model, newdata = "mean")
-  # Calculate sequential p-values and CSs
-  marginal_eff_sim_seq <- sequential_f_cs(
-    delta = marginal_eff_sim$estimate,
-    se = marginal_eff_sim$std.error,
-    n = sim_model$nobs,
-    n_params = sim_model$nparams,
-    Z = solve(get_vcov(marginal_eff_sim)),
-    term = marginal_eff_sim$term,
-    contrast = marginal_eff_sim$contrast
-  ) |>
-    add_reference(low = "cs_lower", high = "cs_upper") |>
-    filter(term %in% c("Military", "Profession")) |>
-    mutate(iter = floor(i/chunk_size))
-  # Append data
-  sim_estimates <- bind_rows(sim_estimates, marginal_eff_sim_seq)
-}
-
-# Plot the CSs over time
-plot_anim <- ggplot(
-  sim_estimates,
-    aes(
-      x = estimate,
-      y = contrast,
-      xmin = cs_lower,
-      xmax = cs_upper,
-      color = term
-    )
-  ) +
-  geom_vline(xintercept = 0, color = "gray70") +
-  geom_point() +
-  geom_linerange() +
-  facet_wrap(~ term, ncol = 1, scales = "free_y", drop = TRUE) +
-  scale_x_continuous(labels = label_percent()) +
-  coord_cartesian(xlim = c(-.5, .5)) +
-  labs(x = "Estimated AMCE (percentage points)", y = "") +
-  theme_minimal() +
-  theme(axis.text.y = element_markdown(), legend.position = "none") +
-  transition_states(
-    iter,
-    transition_length = 1,
-    state_length = 1
-  )
-
-# Turn this into a video
-animation <- animate(
-  plot_anim,
-  renderer = av_renderer(),
-  height = 4,
-  width = 4,
-  units = "in",
-  res = 200
-)
-```
-:::
-
-::: {.cell}
-
-:::
-
-
-
-<div style="text-align: center;">
-  <video controls style="width: 60%;">
-    <source src="./anytime_valid_cs.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-We can watch through the duration of our simulated conjoint as the precision of
-our estimates increases and some of them are estimated as statistically significant.
-
-### Simulations -->
-<p>First, let’s chalk up a function that will simulate a random respondent for a conjoint experiment with specified AMCEs. Then we’ll simulate a conjoint experiment with a binary outcome (selected or not selected) and two attributes. Attribute 1 has 3 levels and Attribute 2 has 5 levels. The true AMCEs for each attribute and attribute level are as follows:</p>
+<p>We begin by writing a function that will simulate a random respondent from a conjoint experiment with specified AMCEs. Our simulated conjoint experiment will have a binary outcome and two attributes (Attribute 1 with 3 levels, Attribute 2 with 5 levels). The true AMCEs are:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -651,145 +498,157 @@ our estimates increases and some of them are estimated as statistically signific
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to simulate a random survey participant</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>simulate_profile <span class="ot">&lt;-</span> <span class="cf">function</span>(amce_attr1, amce_attr2, <span class="at">intercept =</span> <span class="fl">0.5</span>) {</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  attr1_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 1"</span>, <span class="fu">names</span>(amce_attr1))</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  attr2_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 1"</span>, <span class="fu">names</span>(amce_attr2))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Randomly sample a level for each attribute (uniformly)</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  attr1_val <span class="ot">&lt;-</span> <span class="fu">sample</span>(attr1_levels, <span class="dv">1</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  attr2_val <span class="ot">&lt;-</span> <span class="fu">sample</span>(attr2_levels, <span class="dv">1</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Determine the effect for attribute 1: baseline gets effect 0</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  effect1 <span class="ot">&lt;-</span> <span class="cf">if</span> (attr1_val <span class="sc">==</span> <span class="st">"Level 1"</span>) <span class="dv">0</span> <span class="cf">else</span> amce_attr1[attr1_val]</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Determine the effect for attribute 2: baseline gets effect 0</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  effect2 <span class="ot">&lt;-</span> <span class="cf">if</span> (attr2_val <span class="sc">==</span> <span class="st">"Level 1"</span>) <span class="dv">0</span> <span class="cf">else</span> amce_attr2[attr2_val]</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the latent probability p</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> intercept <span class="sc">+</span> effect1 <span class="sc">+</span> effect2</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure that p is within [0, 1]</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(p <span class="sc">&gt;=</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> p <span class="sc">&lt;=</span> <span class="dv">1</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate the binary outcome using p as the success probability.</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  outcome <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> p)</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">tibble</span>(</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">attr1 =</span> attr1_val,</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">attr2 =</span> attr2_val,</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">p =</span> p</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the attribute-level AMCEs for attribute 1 &amp; 2</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>amce_attr1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 2"</span> <span class="ot">=</span> <span class="fl">0.2</span>, <span class="st">"Level 3"</span> <span class="ot">=</span> <span class="fl">0.1</span>)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>amce_attr2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 2"</span> <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="st">"Level 3"</span> <span class="ot">=</span> <span class="fl">0.15</span>, <span class="st">"Level 4"</span> <span class="ot">=</span> <span class="fl">0.3</span>, <span class="st">"Level 5"</span> <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to simulate a random survey participant</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>simulate_profile <span class="ot">&lt;-</span> <span class="cf">function</span>(amce_attr1, amce_attr2, <span class="at">intercept =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  attr1_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 1"</span>, <span class="fu">names</span>(amce_attr1))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  attr2_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 1"</span>, <span class="fu">names</span>(amce_attr2))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Randomly sample a level for each attribute (uniformly)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  attr1_val <span class="ot">&lt;-</span> <span class="fu">sample</span>(attr1_levels, <span class="dv">1</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  attr2_val <span class="ot">&lt;-</span> <span class="fu">sample</span>(attr2_levels, <span class="dv">1</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Determine the effect for attribute 1: baseline gets effect 0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  effect1 <span class="ot">&lt;-</span> <span class="cf">if</span> (attr1_val <span class="sc">==</span> <span class="st">"Level 1"</span>) <span class="dv">0</span> <span class="cf">else</span> amce_attr1[attr1_val]</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Determine the effect for attribute 2: baseline gets effect 0</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  effect2 <span class="ot">&lt;-</span> <span class="cf">if</span> (attr2_val <span class="sc">==</span> <span class="st">"Level 1"</span>) <span class="dv">0</span> <span class="cf">else</span> amce_attr2[attr2_val]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the latent probability p</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> intercept <span class="sc">+</span> effect1 <span class="sc">+</span> effect2</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure that p is within [0, 1]</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(p <span class="sc">&gt;=</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> p <span class="sc">&lt;=</span> <span class="dv">1</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate the binary outcome using p as the success probability.</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  outcome <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> p)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">tibble</span>(</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">attr1 =</span> attr1_val,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">attr2 =</span> attr2_val,</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">p =</span> p</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the attribute-level AMCEs for attribute 1 &amp; 2</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>amce_attr1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 2"</span> <span class="ot">=</span> <span class="fl">0.2</span>, <span class="st">"Level 3"</span> <span class="ot">=</span> <span class="fl">0.1</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>amce_attr2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Level 2"</span> <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="st">"Level 3"</span> <span class="ot">=</span> <span class="fl">0.15</span>, <span class="st">"Level 4"</span> <span class="ot">=</span> <span class="fl">0.3</span>, <span class="st">"Level 5"</span> <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Next, let’s simulate running our conjoint experiment online and estimating our AMCEs in an online fashion. We’ll first simulate 100 survey participants and then we will estimate our AMCEs for every additional participant for a total sample of <span class="math inline">\(N = 1000\)</span>.</p>
+<p>We simulate 100 survey participants initially and update our AMCE estimates and anytime-valid 95% CSs with each additional participant until reaching <span class="math inline">\(N=1000\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># "Gather" 100 survey responses before estimating</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, \(i) <span class="fu">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl">0.3</span>)))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize tibble to collect our AMCE estimates</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>sim_estimates <span class="ot">&lt;-</span> <span class="fu">tibble</span>()</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a sequential conjoint with total N=1000</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">1000</span>, <span class="at">style =</span> <span class="dv">3</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>) {</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Randomly simulate a survey participant</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  sim_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    sim_data,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>   <span class="fu">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl">0.3</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estimate our model</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  sim_model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    outcome <span class="sc">~</span> attr1 <span class="sc">+</span> attr2,</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> sim_data,</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate marginal effects</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(sim_model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate sequential p-values and CSs</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim_seq <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta =</span> marginal_eff_sim<span class="sc">$</span>estimate,</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> marginal_eff_sim<span class="sc">$</span>std.error,</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> sim_model<span class="sc">$</span>nobs,</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_params =</span> sim_model<span class="sc">$</span>nparams,</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_eff_sim)),</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">term =</span> marginal_eff_sim<span class="sc">$</span>term,</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">contrast =</span> marginal_eff_sim<span class="sc">$</span>contrast</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_reference</span>(<span class="at">low =</span> <span class="st">"cs_lower"</span>, <span class="at">high =</span> <span class="st">"cs_upper"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">iter =</span> i)</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Append data</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  sim_estimates <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(sim_estimates, marginal_eff_sim_seq)</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTxtProgressBar</span>(pb, i)</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="fu">close</span>(pb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># "Gather" 100 survey responses before estimating</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, \(i) <span class="fu">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl">0.3</span>)))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize tibble to collect our AMCE estimates</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>sim_estimates <span class="ot">&lt;-</span> <span class="fu">tibble</span>()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a sequential conjoint with total N=1000</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fu">txtProgressBar</span>(<span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">1000</span>, <span class="at">style =</span> <span class="dv">3</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>) {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Randomly simulate a survey participant</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  sim_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    sim_data,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>   <span class="fu">simulate_profile</span>(amce_attr1, amce_attr2, <span class="fl">0.3</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estimate our model</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  sim_model <span class="ot">&lt;-</span> <span class="fu">feglm</span>(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    outcome <span class="sc">~</span> attr1 <span class="sc">+</span> attr2,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> sim_data,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate marginal effects</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(sim_model, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate sequential p-values and CSs</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  marginal_eff_sim_seq <span class="ot">&lt;-</span> <span class="fu">sequential_f_cs</span>(</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta =</span> marginal_eff_sim<span class="sc">$</span>estimate,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> marginal_eff_sim<span class="sc">$</span>std.error,</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> sim_model<span class="sc">$</span>nobs,</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_params =</span> sim_model<span class="sc">$</span>nparams,</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">solve</span>(<span class="fu">get_vcov</span>(marginal_eff_sim)),</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">term =</span> marginal_eff_sim<span class="sc">$</span>term,</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">contrast =</span> marginal_eff_sim<span class="sc">$</span>contrast</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_reference</span>(<span class="at">low =</span> <span class="st">"cs_lower"</span>, <span class="at">high =</span> <span class="st">"cs_upper"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">iter =</span> i)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Append data</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  sim_estimates <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(sim_estimates, marginal_eff_sim_seq)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTxtProgressBar</span>(pb, i)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="fu">close</span>(pb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now, let’s plot the progression of the AMCE estimates over time.</p>
+<p>Finally, we plot the progression of the AMCE estimates and CSs across the entire experiment.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>term, <span class="sc">~</span>contrast, <span class="sc">~</span>estimate,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr1"</span>, <span class="st">"Level 2"</span>, <span class="fl">0.2</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr1"</span>, <span class="st">"Level 3"</span>, <span class="fl">0.1</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 2"</span>, <span class="sc">-</span><span class="fl">0.1</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 3"</span>, <span class="fl">0.15</span>,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 4"</span>, <span class="fl">0.3</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 5"</span>, <span class="sc">-</span><span class="fl">0.2</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the CSs over time</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plot_anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  sim_estimates,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> estimate,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> contrast,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmin =</span> cs_lower,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmax =</span> cs_upper,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> term</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> truth,</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> contrast),</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">17</span>,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">2</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">5</span>, .<span class="dv">5</span>)) <span class="sc">+</span></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_markdown</span>(), <span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    iter,</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">transition_length =</span> <span class="dv">3</span>,</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">state_length =</span> <span class="dv">0</span></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>()</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn this into a video</span></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>animation <span class="ot">&lt;-</span> <span class="fu">animate</span>(</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  plot_anim,</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">renderer =</span> <span class="fu">av_renderer</span>(),</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">nframes =</span> <span class="dv">300</span>,</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">4</span>,</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">res =</span> <span class="dv">200</span></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>term, <span class="sc">~</span>contrast, <span class="sc">~</span>estimate,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr1"</span>, <span class="st">"Level 2"</span>, <span class="fl">0.2</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr1"</span>, <span class="st">"Level 3"</span>, <span class="fl">0.1</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 2"</span>, <span class="sc">-</span><span class="fl">0.1</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 3"</span>, <span class="fl">0.15</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 4"</span>, <span class="fl">0.3</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"attr2"</span>, <span class="st">"Level 5"</span>, <span class="sc">-</span><span class="fl">0.2</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the CSs over time</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plot_anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  sim_estimates,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> estimate,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> contrast,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmin =</span> cs_lower,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmax =</span> cs_upper,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> term</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> truth,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> contrast),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">17</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>() <span class="sc">+</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> term, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">drop =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">5</span>, .<span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Estimated AMCE (percentage points)"</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    iter,</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">transition_length =</span> <span class="dv">3</span>,</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">state_length =</span> <span class="dv">0</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>()</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn this into a video</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>animation_mp4 <span class="ot">&lt;-</span> <span class="fu">animate</span>(</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  plot_anim,</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">renderer =</span> <span class="fu">av_renderer</span>(),</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">nframes =</span> <span class="dv">300</span>,</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">4</span>,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">res =</span> <span class="dv">200</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>animation_gif <span class="ot">&lt;-</span> <span class="fu">animate</span>(</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  plot_anim,</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">renderer =</span> <span class="fu">gifski_renderer</span>(),</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">nframes =</span> <span class="dv">300</span>,</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">4</span>,</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">res =</span> <span class="dv">200</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="anytime_valid_sim.mp4"></video></div>
-<p>We can watch as our estimates and CSs converge towards the truth (diamond shaped points) over time, providing valid coverage despite estimating AMCEs and corresponding p-values and CSs at each step!</p>
+<video controls="" playsinline="" style="width: 60%;">
+<source src="./anytime_valid_sim.mp4" type="video/mp4">
+<source src="./anytime_valid_sim.webm" type="video/webm">
+<p>Your browser does not support the video tag. </p>
+<p>We see our estimates and CSs converge towards the true AMCEs (marked by diamond-shaped points) over time, maintaining valid coverage despite estimating AMCEs and corresponding p-values and CSs at each step!</p>
 
 
-</section>
+</video></section>
 </section>
 
 </main> <!-- /main -->
@@ -1374,7 +1233,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>videojs(video_shortcode_videojs_video1);</script>
 
 
 
