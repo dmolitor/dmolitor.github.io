@@ -204,7 +204,6 @@ swoop.
 ```{r}
 #| label: Fixed-n marginal means
 #| fig-height: 10
-#| eval: false
 
 # A function to calculate the marginal mean for a single attribute
 marginal_mean <- function(model, attribute) {
@@ -455,16 +454,7 @@ plot_anim <- ggplot(
   ) +
   ease_aes()
 
-# Turn this into a video
-animation_mp4 <- animate(
-  plot_anim,
-  renderer = av_renderer(),
-  nframes = 300,
-  height = 4,
-  width = 4,
-  units = "in",
-  res = 200
-)
+# Turn this into a gif
 animation_gif <- animate(
   plot_anim,
   renderer = gifski_renderer(),
@@ -479,19 +469,11 @@ animation_gif <- animate(
 ```{r}
 #| eval: false
 #| echo: false
-anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.mp4", animation_mp4)
-anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.webm", animation_mp4)
 anim_save("./blog/posts/conjoint_analysis/anytime_valid_sim.gif", animation_gif)
 ```
 
-<!-- <video controls playsinline style="width: 60%;">
-  <source src="./anytime_valid_sim.mp4" type="video/mp4">
-  <source src="./anytime_valid_sim.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video> -->
-
 <div style="text-align: center;">
-  ![](./anytime_valid_sim.gif){width=60%}
+  ![](./anytime_valid_sim.gif){width=75%}
 </div>
 
 We see our estimates and CSs converge towards the true AMCEs (marked by diamond-shaped points)
