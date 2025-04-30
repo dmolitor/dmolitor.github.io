@@ -9,12 +9,13 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.6.42</generator>
+<generator>quarto-1.7.29</generator>
 <lastBuildDate>Mon, 10 Mar 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Anytime-valid Inference on the AMCE in Conjoint Experiments</title>
   <link>https://dmolitor.com/blog/posts/conjoint_analysis/</link>
   <description><![CDATA[ 
+
 
 
 
@@ -1521,6 +1522,7 @@ font-style: inherit;">200</span></span>
 
 
 
+
 <p>Randomized experiments (A/B tests) are ubiquitous in both academia and the tech sector. They enable robust causal inference regarding the impact of interventions on user or participant outcomes. Under randomization, various estimators provide valid estimates of the average treatment effect (ATE), defined as <img src="https://latex.codecogs.com/png.latex?%5Ctau%20=%20E%5BY_i(1)%20-%20Y_i(0)%5D."> These estimators typically yield both point estimates and confidence intervals (CIs) such that <img src="https://latex.codecogs.com/png.latex?P(%5Ctau%20%5Cin%20%5Ctext%7BCI%7D)%20%3C=%20%5Calpha,"> where <img src="https://latex.codecogs.com/png.latex?%5Calpha"> is the significance level and <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCI%7D"> is a random interval constructed from our data.</p>
 <p>One major issue with common estimators like ordinary least squares (OLS) is that the statistical guarantees for their confidence intervals only hold for a pre-specified sample size <img src="https://latex.codecogs.com/png.latex?N">. A surprisingly common practice is to collect some data, estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau"> and its corresponding 95% CI, and then, if the effect is large but not statistically significant, collect more data and re-estimate <img src="https://latex.codecogs.com/png.latex?%5Ctau">. This process of “data-peeking” may be repeated multiple times. However, such practices violate the statistical guarantees of standard confidence intervals, causing the probability of a Type I error to far exceed the nominal significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
 <p>To address this issue, researchers at Netflix have developed anytime-valid Confidence Sequences (CSs) for linear regression parameters. These CSs have the property that <img src="https://latex.codecogs.com/png.latex?P(%5Cforall%20n,%20%5Cdelta%20%5Cin%20%5Ctext%7BCS%7D_%7B%5Cdelta,%20n%7D)%20%5Cgeq%201%20-%20%5Calpha,"> where <img src="https://latex.codecogs.com/png.latex?%5Cdelta"> represents the regression parameter. Essentially, this means that you can estimate the parameter and update the CS as often as you like, and the probability of committing a Type I error will always remain below <img src="https://latex.codecogs.com/png.latex?%5Calpha">.</p>
@@ -2817,6 +2819,7 @@ font-style: inherit;">mean</span>(any_error))</span>
   <title>Robust Adaptive Experiments</title>
   <link>https://dmolitor.com/blog/posts/robust_adaptive_exp/</link>
   <description><![CDATA[ 
+
 
 
 
@@ -4791,6 +4794,7 @@ font-style: inherit;">"Cumulative reward"</span>)</span>
 
 
 
+
 <section id="dependencies" class="level3">
 <h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
 <div id="6eae1a35" class="cell" data-execution_count="1">
@@ -6291,7 +6295,6 @@ font-style: inherit;">"Width"</span></span>
 
 
 </div>
-        
 </div>
 </div>
 </section>
@@ -6943,7 +6946,6 @@ font-style: inherit;">"Width"</span></span>
 
 
 </div>
-        
 </div>
 </div>
 
@@ -6961,6 +6963,7 @@ font-style: inherit;">"Width"</span></span>
   <title>Building and Deploying Adaptive Experiments with Shiny</title>
   <link>https://dmolitor.com/blog/posts/dynamic_surveys/</link>
   <description><![CDATA[ 
+
 
 
 
