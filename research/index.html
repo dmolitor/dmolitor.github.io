@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.29">
+<meta name="generator" content="quarto-1.7.31">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -32,8 +32,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-958fc32383290b5ef6234cdb9c3ce2d8.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-00039a9b2ce3f1a1ebc67187faa3690e.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-f428fda71a3abb5b1b9c21151da8fd61.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6ec1ea2183979a90750e7180bf9040de.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-d10f269fe37199d3ca9be66e36bcdf51.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -224,6 +224,7 @@ ga('send', {
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
     if (hasAlternateSentinel()) {
@@ -335,13 +336,13 @@ Abstract
 Conjoint experiments have become increasingly popular for studying how multiple attributes influence decision-making. However, determining the optimal sample size required to achieve adequate statistical power in conjoint experiments is challenging; conventional power analysis requires many assumptions to hold simultaneously, and can easily under- or over-estimate the necessary sample size. To overcome these limitations, I propose an alternative approach grounded in recent advances in anytime-valid inference. Rather than relying on conventional power analysis, this approach introduces anytime-valid confidence sequences (CSs) and corresponding p-values for key conjoint estimands, including the AMCE, ACIE, and marginal means. These procedures are computationally simple—building on standard regression outputs, guarantee valid Type I error control at any stopping point, and enable practitioners to continuously monitor their empirical estimates and implement data-driven stopping rules once their estimates of interest achieve sufficient statistical power or precision. In simulations calibrated to real-world conjoint studies, I show that this approach preserves nominal coverage, achieves comparable power to standard fixed-n approaches, and yields average sample savings of 10–40% across a broad range of effect sizes, sample sizes, and attribute levels. This approach gives practitioners a principled, efficient way to determine when to stop data collection without relying on pre-specified power analyses.
 </p>
 </details>
-<a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;"><b>Balancing Power and Efficiency in Adaptive Experiments</b></a>. Daniel Molitor, Samantha Gold.
+<a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold.
 <details>
 <summary>
 Abstract
 </summary>
 <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-This paper introduces the Modified Mixture Adaptive Design (MADMod), an experimental design for conducting adaptive experiments with multiple treatment arms that addresses both efficiency and robust inference. Building on the Mixture Adaptive Design (MAD) framework, MADMod retains anytime-valid confidence sequences—allowing experiments to conclude dynamically—while systematically reallocating samples to ensure each arm achieves sufficient statistical power. By integrating importance weights that decay once an arm’s average treatment effect is detected as significant, MADMod prevents under-allocation to suboptimal arms without sacrificing the efficiency gains of multi-armed bandits. Simulation results demonstrate that, compared to standard adaptive designs, MADMod substantially reduces Type 2 error rates and offers more precise inference across all treatments. This allows researchers to harness the benefits of adaptive sampling and early stopping while maintaining well-powered evaluations of every treatment arm.
+We develop methods for anytime-valid causal inference on the Average Treatment Effect (ATE) in adaptive experiments, addressing two challenges of particular relevance to applied researchers: high variance (low precision) in ATE estimates, and imbalanced statistical power across treatment arms. We propose MADCovar, which substantially improves ATE precision through covariate adjustment, and MADMod, which adaptively reallocates sample to underpowered treatments to improve power across all arms. These methods allow researchers to run adaptive experiments that are both statistically rigorous and practically useful—offering greater control over inference while preserving the efficiency benefits of adaptive designs.
 </p>
 </details>
 

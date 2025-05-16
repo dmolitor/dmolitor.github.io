@@ -9,7 +9,7 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.7.29</generator>
+<generator>quarto-1.7.31</generator>
 <lastBuildDate>Mon, 10 Mar 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Anytime-valid Inference on the AMCE in Conjoint Experiments</title>
