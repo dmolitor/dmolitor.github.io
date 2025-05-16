@@ -42,7 +42,7 @@
         "\n",
         "### Dependencies"
       ],
-      "id": "6600271e"
+      "id": "fd934f47"
     },
     {
       "cell_type": "code",
@@ -63,7 +63,7 @@
         "from src.mad import MAD, MADModified\n",
         "from src.utils import last"
       ],
-      "id": "a83990e8",
+      "id": "3c2075ba",
       "execution_count": null,
       "outputs": []
     },
@@ -76,7 +76,7 @@
         "pn.options.dpi = 150\n",
         "pn.options.figure_size = (5, 2)"
       ],
-      "id": "5f228925",
+      "id": "546ca9ce",
       "execution_count": null,
       "outputs": []
     },
@@ -100,7 +100,7 @@
         "We use Thompson Sampling (TS) as the bandit algorithm and stop the experiment\n",
         "as soon as the ATE reaches statistical significance."
       ],
-      "id": "0813a674"
+      "id": "6ddd680c"
     },
     {
       "cell_type": "code",
@@ -125,7 +125,7 @@
         ")\n",
         "exp_simple.fit(cs_precision=0, verbose=False)"
       ],
-      "id": "ea1f56f0",
+      "id": "b674e01b",
       "execution_count": null,
       "outputs": []
     },
@@ -137,7 +137,7 @@
         "true effect and demonstrating that the corresponding 95% CSs maintain valid\n",
         "coverage."
       ],
-      "id": "c470128c"
+      "id": "385efee1"
     },
     {
       "cell_type": "code",
@@ -156,7 +156,7 @@
         "    + pn.theme(strip_text=pn.element_blank()) \n",
         ")"
       ],
-      "id": "38ad13a8",
+      "id": "1149ebdc",
       "execution_count": null,
       "outputs": []
     },
@@ -169,7 +169,7 @@
         "The underlying bandit algorithm provides additional benefits. Below, we show\n",
         "the total sample size assigned to both arms of the experiment:"
       ],
-      "id": "12b7b445"
+      "id": "fac3a574"
     },
     {
       "cell_type": "code",
@@ -179,7 +179,7 @@
         "#| code-summary: \"Show the code\"\n",
         "exp_simple.plot_n()"
       ],
-      "id": "895a6b8e",
+      "id": "91961917",
       "execution_count": null,
       "outputs": []
     },
@@ -189,7 +189,7 @@
       "source": [
         "and the arm assignment probability over time:"
       ],
-      "id": "0fba13b9"
+      "id": "f2a84aba"
     },
     {
       "cell_type": "code",
@@ -199,7 +199,7 @@
         "#| code-summary: \"Show the code\"\n",
         "exp_simple.plot_probabilities()"
       ],
-      "id": "3c378831",
+      "id": "e0a0741d",
       "execution_count": null,
       "outputs": []
     },
@@ -223,7 +223,7 @@
         "fixed sample size of 20,000. We expect the bandit algorithm to allocate most of\n",
         "the sample to arms 3 and 4, leaving arms 1 and 2 under-powered."
       ],
-      "id": "80f366e6"
+      "id": "42abc714"
     },
     {
       "cell_type": "code",
@@ -278,7 +278,7 @@
         "    + pn.labs(x=\"Arm\", y=\"ATE\", color=\"Method\")\n",
         ")"
       ],
-      "id": "9599ba34",
+      "id": "b67b6a38",
       "execution_count": null,
       "outputs": []
     },
@@ -291,7 +291,7 @@
         "indeed, TS focuses the majority of the sample on arms 3 and 4 to the detriment\n",
         "of power in our experiment."
       ],
-      "id": "d31777b3"
+      "id": "f5a02cb5"
     },
     {
       "cell_type": "code",
@@ -301,7 +301,7 @@
         "#| code-summary: \"Show the code\"\n",
         "exp_complex.plot_n()"
       ],
-      "id": "2df25edf",
+      "id": "370dc393",
       "execution_count": null,
       "outputs": []
     },
@@ -385,7 +385,7 @@
         "The following plots demonstrate the increased power and precision of the\n",
         "modified MAD algorithm."
       ],
-      "id": "907aa45c"
+      "id": "78e56dcd"
     },
     {
       "cell_type": "code",
@@ -443,7 +443,7 @@
         "    + pn.labs(x=\"Arm\", y=\"ATE\", color=\"Method\")\n",
         ")"
       ],
-      "id": "ba063d8d",
+      "id": "dd3611f4",
       "execution_count": null,
       "outputs": []
     },
@@ -454,7 +454,7 @@
         "And the following plot compares the sample assignment to the treatment arms\n",
         "of the two algorithms:"
       ],
-      "id": "1efd4971"
+      "id": "dba6f384"
     },
     {
       "cell_type": "code",
@@ -484,7 +484,7 @@
         "    + pn.labs(x=\"Arm\", y=\"N\", color=\"Method\", fill=\"Method\")\n",
         ")"
       ],
-      "id": "35c94bee",
+      "id": "e77c972b",
       "execution_count": null,
       "outputs": []
     },
@@ -501,7 +501,7 @@
         "vanilla algorithm will also stop early to maintain equal sample sizes in each\n",
         "simulation."
       ],
-      "id": "9e478ee1"
+      "id": "712e62bd"
     },
     {
       "cell_type": "code",
@@ -639,7 +639,7 @@
         "    .drop(columns=[\"se\", \"t_val\"])\n",
         ")"
       ],
-      "id": "e9f41947",
+      "id": "3b82a44f",
       "execution_count": null,
       "outputs": []
     },
@@ -650,7 +650,7 @@
         "The following plot shows the mean (and 95% confidence intervals) of the Type 2\n",
         "error and CS width for both algorithms."
       ],
-      "id": "326d0e92"
+      "id": "0221de81"
     },
     {
       "cell_type": "code",
@@ -686,7 +686,7 @@
         "    + pn.labs(x=\"Arm\", y=\"\", color=\"Method\")\n",
         ")"
       ],
-      "id": "132b6d67",
+      "id": "edc13588",
       "execution_count": null,
       "outputs": []
     },
@@ -703,7 +703,7 @@
         "it allocates significantly more sample to sub-optimal arms compared to the\n",
         "standard MAD algorithm."
       ],
-      "id": "319f1d88"
+      "id": "ae8cf52a"
     },
     {
       "cell_type": "code",
@@ -733,7 +733,7 @@
         "    + pn.labs(x=\"Arm\", y=\"\", color=\"Method\")\n",
         ")"
       ],
-      "id": "baa34c93",
+      "id": "64272ff5",
       "execution_count": null,
       "outputs": []
     },
@@ -744,7 +744,7 @@
         "As a result, this reallocation reduces total reward accumulation. The\n",
         "difference in accumulated reward across the 1,000 simulations is shown below:"
       ],
-      "id": "44136b68"
+      "id": "3808b478"
     },
     {
       "cell_type": "code",
@@ -759,7 +759,7 @@
         "    + pn.labs(x=\"Method\", y=\"Cumulative reward\")\n",
         ")"
       ],
-      "id": "211f6ca5",
+      "id": "34a9dec0",
       "execution_count": null,
       "outputs": []
     },
@@ -775,7 +775,7 @@
         "**ensure dynamic sample allocation**, guaranteeing sufficient power for all\n",
         "(or the top n) treatment arms."
       ],
-      "id": "be3eb5c9"
+      "id": "ff42fc67"
     }
   ],
   "metadata": {
