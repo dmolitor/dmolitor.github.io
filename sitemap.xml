@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dmolitor.com/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.382Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.378Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.365Z</lastmod>
+    <loc>https://dmolitor.com/research/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.339Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/conjoint_analysis/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.374Z</lastmod>
+    <lastmod>2025-05-17T21:55:21.310Z</lastmod>
   </url>
   <url>
-    <loc>https://dmolitor.com/research/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.403Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/robust_adaptive_exp/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.381Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/anytime_valid_linear_models/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.349Z</lastmod>
+    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.301Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/index.html</loc>
-    <lastmod>2025-05-16T02:26:14.349Z</lastmod>
+    <lastmod>2025-05-17T21:55:21.285Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.315Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/robust_adaptive_exp/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.317Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/anytime_valid_linear_models/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.286Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/index.html</loc>
+    <lastmod>2025-05-17T21:55:21.319Z</lastmod>
   </url>
 </urlset>
