@@ -25,7 +25,7 @@
         "\n",
         "### Dependencies\n"
       ],
-      "id": "cfb3a23e"
+      "id": "ca49cfd4"
     },
     {
       "cell_type": "code",
@@ -48,7 +48,7 @@
         "base_dir = Path().cwd()\n",
         "generator = np.random.default_rng()"
       ],
-      "id": "d8dc250f",
+      "id": "00c0bfc7",
       "execution_count": null,
       "outputs": []
     },
@@ -58,7 +58,7 @@
       "source": [
         "### Data\n"
       ],
-      "id": "ee8e7f77"
+      "id": "de9cde8c"
     },
     {
       "cell_type": "code",
@@ -105,7 +105,7 @@
         "        X = pd.DataFrame(X, columns=[f'feature_{i+1}' for i in range(d)])\n",
         "    return (X, y)"
       ],
-      "id": "0255c91b",
+      "id": "272441eb",
       "execution_count": null,
       "outputs": []
     },
@@ -120,7 +120,7 @@
         "which assumes exchangeability, by setting uniform weights. So we only need one \n",
         "function to replicate the results!\n"
       ],
-      "id": "6af771bc"
+      "id": "25f77cb6"
     },
     {
       "cell_type": "code",
@@ -258,7 +258,7 @@
         "    )\n",
         "    return width_plot"
       ],
-      "id": "c65b022c",
+      "id": "6092d194",
       "execution_count": null,
       "outputs": []
     },
@@ -272,7 +272,7 @@
         "all the tags to a uniform value. Standard CP is implemented by setting all the weights\n",
         "to a uniform value as mentioned above.\n"
       ],
-      "id": "a91479f3"
+      "id": "0103e60b"
     },
     {
       "cell_type": "code",
@@ -322,7 +322,7 @@
         "            del out[\"ci\"]\n",
         "            results.append(out)"
       ],
-      "id": "87a84e18",
+      "id": "2fa46fa9",
       "execution_count": null,
       "outputs": []
     },
@@ -332,7 +332,7 @@
       "source": [
         "#### Plots\n"
       ],
-      "id": "1f890e15"
+      "id": "98512061"
     },
     {
       "cell_type": "code",
@@ -350,7 +350,7 @@
         "width_plot = plot_rolling_width(results, window=300)\n",
         "width_plot.show()"
       ],
-      "id": "519ade1b",
+      "id": "dad9fd8d",
       "execution_count": null,
       "outputs": []
     },
@@ -360,7 +360,7 @@
       "source": [
         "#### Table\n"
       ],
-      "id": "6a51d29c"
+      "id": "c750f6d6"
     },
     {
       "cell_type": "code",
@@ -415,7 +415,7 @@
         ")\n",
         "table.show()"
       ],
-      "id": "31e65fa4",
+      "id": "d192a25c",
       "execution_count": null,
       "outputs": []
     },
@@ -430,7 +430,7 @@
         "In the paper they repeat this 200 times to smooth the estimates, but for computational\n",
         "purposes here I only repeated it 50 times.\n"
       ],
-      "id": "6e3b2bf4"
+      "id": "86e9bace"
     },
     {
       "cell_type": "code",
@@ -478,7 +478,7 @@
         "                del out[\"ci\"]\n",
         "                results.append(out)"
       ],
-      "id": "a8bbbf6a",
+      "id": "e26423dc",
       "execution_count": null,
       "outputs": []
     },
@@ -488,7 +488,7 @@
       "source": [
         "#### Plots\n"
       ],
-      "id": "c6a967e9"
+      "id": "30ccf8d6"
     },
     {
       "cell_type": "code",
@@ -512,7 +512,7 @@
         "width_plot = plot_rolling_width(results, window=10, rows=3, repeated=True)\n",
         "width_plot.show()"
       ],
-      "id": "4ce26264",
+      "id": "7ffb0e9b",
       "execution_count": null,
       "outputs": []
     },
@@ -522,7 +522,7 @@
       "source": [
         "#### Table\n"
       ],
-      "id": "fc361b93"
+      "id": "0c07f57e"
     },
     {
       "cell_type": "code",
@@ -589,7 +589,7 @@
         ")\n",
         "table.show()"
       ],
-      "id": "19400caf",
+      "id": "8a54caa6",
       "execution_count": null,
       "outputs": []
     }

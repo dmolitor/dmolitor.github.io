@@ -17,7 +17,7 @@ hide-description: true
 
 <div class="about-text">
 <p>
-Hello there! I'm a third-year PhD student at Cornell's School of Information Science. My research
+Hello there! I'm a third-year PhD candidate at Cornell's School of Information Science. My research
 interests center primarily on policy-relevant applications of adaptive/online experimentation and causal
 inference methods. I love open source software and enjoy building tools and learning new technologies whenever I can. I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor style="text-decoration: none;">supported by an NSF Graduate Research Fellowship</a>!
 </p>
@@ -29,6 +29,8 @@ inference methods. I love open source software and enjoy building tools and lear
 
 |      |       |
 |--    |---------|
+| June 2025 | <a href="https://doi.org/10.1177/00491241251338412" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Ian Lundberg and Jennie Brand is out in <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods & Research</a>. |
+| May 2025 | Passed my A exam --- I'm officially a PhD Candidate! |
 | May 2025 | Jointly presented on <a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;">Anytime-valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2025</a>. |
 | October 2024 | Presented <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://ide.mit.edu/events/code24/" style="text-decoration: none;">CODE@MIT 2024</a>. |
 | August 2024 | <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> was accepted for a presentation at <a href="https://www.asanet.org/2024-annual-meeting/" style="text-decoration: none;">ASA 2024</a>. |
