@@ -46,7 +46,15 @@ include-after-body:
 
 ## Pre-prints
 
-<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg. <i>SocArXiv</i>.
+<a href="https://arxiv.org/abs/2506.20523" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold (2025).
+<details>
+  <summary>Abstract</summary>
+  <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+    Adaptive experiments such as multi-armed bandits offer efficiency gains over traditional randomized experiments but pose two major challenges: invalid inference on the Average Treatment Effect (ATE) due to adaptive sampling and low statistical power for sub-optimal treatments. We address both issues by extending the Mixture Adaptive Design framework of <a href="https://arxiv.org/abs/2311.05794" style="text-decoration: none;">Liang and Bojinov</a>. First, we propose MADCovar, a covariate-adjusted ATE estimator that is unbiased and preserves anytime-valid inference guarantees while substantially improving ATE precision. Second, we introduce MADMod, which dynamically reallocates samples to underpowered arms, enabling more balanced statistical power across treatments without sacrificing valid inference. Both methods retain MAD's core advantage of constructing asymptotic confidence sequences (CSs) that allow researchers to continuously monitor ATE estimates and stop data collection once a desired precision or significance criterion is met. Empirically, we validate both methods using simulations and real-world data. In simulations, MADCovar reduces CS width by up to 60\% relative to MAD. In a large-scale political RCT with 32,000 participants, MADCovar achieves similar precision gains. MADMod improves statistical power and inferential precision across all treatment arms, particularly for suboptimal treatments. Simulations show that MADMod sharply reduces Type II error while preserving the efficiency benefits of adaptive allocation. Together, MADCovar and MADMod make adaptive experiments more practical, reliable, and efficient for applied researchers across many domains. Our proposed methods are implemented through <a href="https://dmolitor.com/pyssed" style="text-decoration: none;">an open-source software package</a>.
+  </p>
+</details>
+
+<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
 <details>
   <summary>Abstract</summary>
   <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
@@ -68,7 +76,7 @@ include-after-body:
   </p>
 </details>
 
-<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al. <i>OSF Pre-prints</i>.
+<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al (2021).
 <details>
   <summary>Abstract</summary>
   <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
@@ -123,13 +131,5 @@ include-after-body:
     This approach gives practitioners a principled, efficient way to determine
     when to stop data collection without relying on pre-specified power
     analyses.
-  </p>
-</details>
-
-<a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold.
-<details>
-  <summary>Abstract</summary>
-  <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-    We develop methods for anytime-valid causal inference on the Average Treatment Effect (ATE) in adaptive experiments, addressing two challenges of particular relevance to applied researchers: high variance (low precision) in ATE estimates, and imbalanced statistical power across treatment arms. We propose MADCovar, which substantially improves ATE precision through covariate adjustment, and MADMod, which adaptively reallocates sample to underpowered treatments to improve power across all arms. These methods allow researchers to run adaptive experiments that are both statistically rigorous and practically useful---offering greater control over inference while preserving the efficiency benefits of adaptive designs.
   </p>
 </details>
