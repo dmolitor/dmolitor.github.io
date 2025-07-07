@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dmolitor.com/research/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.498Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/conjoint_analysis/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.469Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.460Z</lastmod>
+    <loc>https://dmolitor.com/index.html</loc>
+    <lastmod>2025-07-07T23:21:57.315Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.444Z</lastmod>
+    <lastmod>2025-07-07T23:21:57.281Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.473Z</lastmod>
+    <lastmod>2025-07-07T23:21:57.311Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/robust_adaptive_exp/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.476Z</lastmod>
+    <lastmod>2025-07-07T23:21:57.313Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/research/index.html</loc>
+    <lastmod>2025-07-07T23:21:57.336Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/conjoint_analysis/index.html</loc>
+    <lastmod>2025-07-07T23:21:57.306Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/anytime_valid_linear_models/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.444Z</lastmod>
+    <lastmod>2025-07-07T23:21:57.282Z</lastmod>
   </url>
   <url>
-    <loc>https://dmolitor.com/index.html</loc>
-    <lastmod>2025-06-02T18:33:49.477Z</lastmod>
+    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
+    <lastmod>2025-07-07T23:21:57.297Z</lastmod>
   </url>
 </urlset>

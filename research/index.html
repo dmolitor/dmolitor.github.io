@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -32,12 +32,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-f428fda71a3abb5b1b9c21151da8fd61.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6ec1ea2183979a90750e7180bf9040de.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-576503358679a81a1db5f530a11c37f9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f625b96242a0041140da970a27cf6ca7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-91b134af6eafb9a6c390772a555d9e5c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-4cfe1023e5fd96a8f9e826c993f56bc5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -306,7 +306,16 @@ The COVID-19 public health emergency caused widespread economic shutdown and une
 </section>
 <section id="pre-prints" class="level2">
 <h2 class="anchored" data-anchor-id="pre-prints">Pre-prints</h2>
-<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg. <i>SocArXiv</i>.
+<a href="https://arxiv.org/abs/2506.20523" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold (2025).
+<details>
+<summary>
+Abstract
+</summary>
+<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+Adaptive experiments such as multi-armed bandits offer efficiency gains over traditional randomized experiments but pose two major challenges: invalid inference on the Average Treatment Effect (ATE) due to adaptive sampling and low statistical power for sub-optimal treatments. We address both issues by extending the Mixture Adaptive Design framework of <a href="https://arxiv.org/abs/2311.05794" style="text-decoration: none;">Liang and Bojinov</a>. First, we propose MADCovar, a covariate-adjusted ATE estimator that is unbiased and preserves anytime-valid inference guarantees while substantially improving ATE precision. Second, we introduce MADMod, which dynamically reallocates samples to underpowered arms, enabling more balanced statistical power across treatments without sacrificing valid inference. Both methods retain MAD’s core advantage of constructing asymptotic confidence sequences (CSs) that allow researchers to continuously monitor ATE estimates and stop data collection once a desired precision or significance criterion is met. Empirically, we validate both methods using simulations and real-world data. In simulations, MADCovar reduces CS width by up to 60% relative to MAD. In a large-scale political RCT with 32,000 participants, MADCovar achieves similar precision gains. MADMod improves statistical power and inferential precision across all treatment arms, particularly for suboptimal treatments. Simulations show that MADMod sharply reduces Type II error while preserving the efficiency benefits of adaptive allocation. Together, MADCovar and MADMod make adaptive experiments more practical, reliable, and efficient for applied researchers across many domains. Our proposed methods are implemented through <a href="https://dmolitor.com/pyssed" style="text-decoration: none;">an open-source software package</a>.
+</p>
+</details>
+<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
 <details>
 <summary>
 Abstract
@@ -315,7 +324,7 @@ Abstract
 Human choices are often multi-dimensional. For example, a person deciding which of two immigrants is more worthy of admission to a country might weigh the prospective immigrants’ education, age, country of origin, and employment history. Conjoint experiments have rapidly generated new insight into these multidimensional choices. By independently randomizing the attributes of a pair of fictitious profiles, researchers summarize the average contribution that each attribute makes to an overall choice. But what if the effect of one attribute depends on the values of other attributes? We present a method that uses data-adaptive experimentation to search for heterogeneity in the effect of one focal attribute as a function of all other attributes. Our empirical application of this method shows that U.S. adults weigh the education of an immigrant much more heavily for certain immigrants than for others. By targeting the heterogeneous effects of a focal attribute, our approach complements conjoint designs that target the average effects of all attributes.
 </p>
 </details>
-<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al.&nbsp;<i>OSF Pre-prints</i>.
+<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al (2021).
 <details>
 <summary>
 Abstract
@@ -334,15 +343,6 @@ Abstract
 </summary>
 <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
 Conjoint experiments have become increasingly popular for studying how multiple attributes influence decision-making. However, determining the optimal sample size required to achieve adequate statistical power in conjoint experiments is challenging; conventional power analysis requires many assumptions to hold simultaneously, and can easily under- or over-estimate the necessary sample size. To overcome these limitations, I propose an alternative approach grounded in recent advances in anytime-valid inference. Rather than relying on conventional power analysis, this approach introduces anytime-valid confidence sequences (CSs) and corresponding p-values for key conjoint estimands, including the AMCE, ACIE, and marginal means. These procedures are computationally simple—building on standard regression outputs, guarantee valid Type I error control at any stopping point, and enable practitioners to continuously monitor their empirical estimates and implement data-driven stopping rules once their estimates of interest achieve sufficient statistical power or precision. In simulations calibrated to real-world conjoint studies, I show that this approach preserves nominal coverage, achieves comparable power to standard fixed-n approaches, and yields average sample savings of 10–40% across a broad range of effect sizes, sample sizes, and attribute levels. This approach gives practitioners a principled, efficient way to determine when to stop data collection without relying on pre-specified power analyses.
-</p>
-</details>
-<a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold.
-<details>
-<summary>
-Abstract
-</summary>
-<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-We develop methods for anytime-valid causal inference on the Average Treatment Effect (ATE) in adaptive experiments, addressing two challenges of particular relevance to applied researchers: high variance (low precision) in ATE estimates, and imbalanced statistical power across treatment arms. We propose MADCovar, which substantially improves ATE precision through covariate adjustment, and MADMod, which adaptively reallocates sample to underpowered treatments to improve power across all arms. These methods allow researchers to run adaptive experiments that are both statistically rigorous and practically useful—offering greater control over inference while preserving the efficiency benefits of adaptive designs.
 </p>
 </details>
 
