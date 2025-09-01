@@ -54,25 +54,11 @@ include-after-body:
   </p>
 </details>
 
-<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
+<a href="https://doi.org/10.31235/osf.io/69y2j_v2" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
 <details>
   <summary>Abstract</summary>
   <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-    Human choices are often multi-dimensional. For example, a person deciding
-    which of two immigrants is more worthy of admission to a country might
-    weigh the prospective immigrants' education, age, country of origin,
-    and employment history. Conjoint experiments have rapidly generated new
-    insight into these multidimensional choices. By independently randomizing
-    the attributes of a pair of fictitious profiles, researchers summarize the
-    average contribution that each attribute makes to an overall choice. But
-    what if the effect of one attribute depends on the values of other
-    attributes? We present a method that uses data-adaptive experimentation
-    to search for heterogeneity in the effect of one focal attribute as a
-    function of all other attributes. Our empirical application of this method
-    shows that U.S. adults weigh the education of an immigrant much more heavily
-    for certain immigrants than for others. By targeting the heterogeneous
-    effects of a focal attribute, our approach complements conjoint designs
-    that target the average effects of all attributes.
+    Human choices are often both multi-dimensional and interactive. For example, a person deciding which of two immigrants is more worthy of admission to a country might consider their education, and the weight placed on education may depend on other factors such as their age, country of origin, and employment history. We develop a response-adaptive experimental design that summarizes the range of effects of one attribute as a function of all other attributes. Our design involves a complete change of experimental design based on the ex ante choice to study the heterogeneous effects of one focal attribute (education). We update treatment assignment probabilities over the course of the experiment to search for the attribute vector at which the focal attribute has the most positive and most negative effects. By summarizing the full range of effects that exist, our approach complements existing approaches to conjoint experiments that typically aggregate over heterogeneity by marginalizing. We illustrate through two online experiments and provide customizable code infrastructure via a Docker container that other researchers can use to deploy adaptive randomization in online conjoint experiments.
   </p>
 </details>
 
@@ -105,7 +91,7 @@ include-after-body:
 
 ## Works in Progress
 
-<a href="https://www.dmolitor.com/blog/posts/conjoint_analysis/" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>. Daniel Molitor and Jennah Gosciak.
+<a href="https://www.dmolitor.com/blog/posts/conjoint_analysis/" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>. Daniel Molitor, Jennah Gosciak, Michael Lindon.
 <details>
   <summary>Abstract</summary>
   <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">

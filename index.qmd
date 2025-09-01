@@ -17,7 +17,7 @@ hide-description: true
 
 <div class="about-text">
 <p>
-Hello there! I'm a third-year PhD candidate at Cornell's School of Information Science. My research
+Hello there! I'm a fourth-year PhD candidate at Cornell's School of Information Science. My research
 interests center primarily on policy-relevant applications of adaptive/online experimentation and causal
 inference methods. I love open source software and enjoy building tools and learning new technologies whenever I can. I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor style="text-decoration: none;">supported by an NSF Graduate Research Fellowship</a>!
 </p>
