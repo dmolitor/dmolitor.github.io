@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.7.34">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -32,12 +32,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-c1f63da3e08f13bc72dc17e92cfd001d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-e25bb2ec88b96ab004d13ad1d1924df4.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-83aa21ed72f0068e2bb8f0090f02f802.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-f0a4794d096e7901d871e43f74665444.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-91b134af6eafb9a6c390772a555d9e5c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-4cfe1023e5fd96a8f9e826c993f56bc5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-3da2c0f4658039633a7354a9e16f0872.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-db18452c53bf111e08639db25cd4ab98.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -315,13 +315,13 @@ Abstract
 Adaptive experiments such as multi-armed bandits offer efficiency gains over traditional randomized experiments but pose two major challenges: invalid inference on the Average Treatment Effect (ATE) due to adaptive sampling and low statistical power for sub-optimal treatments. We address both issues by extending the Mixture Adaptive Design framework of <a href="https://arxiv.org/abs/2311.05794" style="text-decoration: none;">Liang and Bojinov</a>. First, we propose MADCovar, a covariate-adjusted ATE estimator that is unbiased and preserves anytime-valid inference guarantees while substantially improving ATE precision. Second, we introduce MADMod, which dynamically reallocates samples to underpowered arms, enabling more balanced statistical power across treatments without sacrificing valid inference. Both methods retain MAD’s core advantage of constructing asymptotic confidence sequences (CSs) that allow researchers to continuously monitor ATE estimates and stop data collection once a desired precision or significance criterion is met. Empirically, we validate both methods using simulations and real-world data. In simulations, MADCovar reduces CS width by up to 60% relative to MAD. In a large-scale political RCT with 32,000 participants, MADCovar achieves similar precision gains. MADMod improves statistical power and inferential precision across all treatment arms, particularly for suboptimal treatments. Simulations show that MADMod sharply reduces Type II error while preserving the efficiency benefits of adaptive allocation. Together, MADCovar and MADMod make adaptive experiments more practical, reliable, and efficient for applied researchers across many domains. Our proposed methods are implemented through <a href="https://dmolitor.com/pyssed" style="text-decoration: none;">an open-source software package</a>.
 </p>
 </details>
-<a href="https://osf.io/preprints/socarxiv/69y2j_v1" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
+<a href="https://doi.org/10.31235/osf.io/69y2j_v2" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
 <details>
 <summary>
 Abstract
 </summary>
 <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-Human choices are often multi-dimensional. For example, a person deciding which of two immigrants is more worthy of admission to a country might weigh the prospective immigrants’ education, age, country of origin, and employment history. Conjoint experiments have rapidly generated new insight into these multidimensional choices. By independently randomizing the attributes of a pair of fictitious profiles, researchers summarize the average contribution that each attribute makes to an overall choice. But what if the effect of one attribute depends on the values of other attributes? We present a method that uses data-adaptive experimentation to search for heterogeneity in the effect of one focal attribute as a function of all other attributes. Our empirical application of this method shows that U.S. adults weigh the education of an immigrant much more heavily for certain immigrants than for others. By targeting the heterogeneous effects of a focal attribute, our approach complements conjoint designs that target the average effects of all attributes.
+Human choices are often both multi-dimensional and interactive. For example, a person deciding which of two immigrants is more worthy of admission to a country might consider their education, and the weight placed on education may depend on other factors such as their age, country of origin, and employment history. We develop a response-adaptive experimental design that summarizes the range of effects of one attribute as a function of all other attributes. Our design involves a complete change of experimental design based on the ex ante choice to study the heterogeneous effects of one focal attribute (education). We update treatment assignment probabilities over the course of the experiment to search for the attribute vector at which the focal attribute has the most positive and most negative effects. By summarizing the full range of effects that exist, our approach complements existing approaches to conjoint experiments that typically aggregate over heterogeneity by marginalizing. We illustrate through two online experiments and provide customizable code infrastructure via a Docker container that other researchers can use to deploy adaptive randomization in online conjoint experiments.
 </p>
 </details>
 <a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al (2021).
@@ -336,7 +336,7 @@ The mismatch between the skills that employers seek and the skills that workers 
 </section>
 <section id="works-in-progress" class="level2">
 <h2 class="anchored" data-anchor-id="works-in-progress">Works in Progress</h2>
-<a href="https://www.dmolitor.com/blog/posts/conjoint_analysis/" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>. Daniel Molitor and Jennah Gosciak.
+<a href="https://www.dmolitor.com/blog/posts/conjoint_analysis/" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>. Daniel Molitor, Jennah Gosciak, Michael Lindon.
 <details>
 <summary>
 Abstract
