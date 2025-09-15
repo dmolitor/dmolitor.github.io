@@ -9,7 +9,7 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.7.34</generator>
+<generator>quarto-1.8.24</generator>
 <lastBuildDate>Mon, 10 Mar 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Anytime-valid Inference on the AMCE in Conjoint Experiments</title>
@@ -37,7 +37,7 @@
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(dplyr)</span>
 <span id="cb1-2"><span class="fu" style="color: #4758AB;
@@ -176,7 +176,7 @@ font-style: inherit;">1</span>)</span>
 <span id="cb1-37"></span>
 <span id="cb1-38"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">glimpse</span>(candidate)</span></code></pre></div>
+font-style: inherit;">glimpse</span>(candidate)</span></code></pre></div></div>
 </details>
 </div>
 <p>Each row in the dataset represents one candidate profile out of 1,733 candidate comparisons made by 311 survey respondents. Each of the candidate comparisons has 2 candidate profiles to choose between, so the total number of profiles in the data is 3,466 (1,733 x 2). The <code>selected</code> column is a binary outcome indicating whether the survey respondent (identified in the <code>respondent</code> column) selected that profile as the preferred candidate.</p>
@@ -193,7 +193,7 @@ font-style: inherit;">glimpse</span>(candidate)</span></code></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to add the reference level for each of our attributes</span></span>
 <span id="cb2-2">add_reference <span class="ot" style="color: #003B4F;
@@ -433,7 +433,7 @@ font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"none"</span>)</span></code></pre></div>
+font-style: inherit;">"none"</span>)</span></code></pre></div></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -451,7 +451,7 @@ font-style: inherit;">"none"</span>)</span></code></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># A function to calculate the marginal mean for a single attribute</span></span>
 <span id="cb3-2">marginal_mean <span class="ot" style="color: #003B4F;
@@ -643,7 +643,7 @@ font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"none"</span>)</span></code></pre></div>
+font-style: inherit;">"none"</span>)</span></code></pre></div></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -663,7 +663,7 @@ font-style: inherit;">"none"</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="estimating-anytime-valid-p-values-and-confidence-sequences">Estimating Anytime-Valid p-values and Confidence Sequences</h3>
 <p>Below I will demonstrate how we can adapt our code for estimating AMCES to output anytime-valid CSs and p-values instead of the usual fixed-n CIs and p-values. Check the full code for calculating anytime-valid CSs <a href="https://github.com/dmolitor/dmolitor.github.io/blob/main/blog/posts/conjoint_analysis/utils.R">here</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="do" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="do" style="color: #5E5E5E;
 background-color: null;
 font-style: italic;">## Same code as before</span></span>
 <span id="cb4-2"></span>
@@ -767,7 +767,7 @@ background-color: null;
 font-style: inherit;">contrast =</span> marginal_effects<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>contrast</span>
-<span id="cb4-25">)</span></code></pre></div>
+<span id="cb4-25">)</span></code></pre></div></div>
 </div>
 </section>
 <section id="estimating-sequential-amces" class="level3">
@@ -817,7 +817,7 @@ font-style: inherit;">$</span>contrast</span>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to simulate a random survey participant</span></span>
 <span id="cb5-2">simulate_profile <span class="ot" style="color: #003B4F;
@@ -1015,14 +1015,14 @@ font-style: inherit;">=</span> <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">0.2</span>)</span></code></pre></div>
+font-style: inherit;">0.2</span>)</span></code></pre></div></div>
 </details>
 </div>
 <p>We simulate 100 survey participants initially and update our AMCE estimates and anytime-valid 95% CSs with each additional participant until reaching <img src="https://latex.codecogs.com/png.latex?N=1000">.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># "Gather" 100 survey responses before estimating</span></span>
 <span id="cb6-2">sim_data <span class="ot" style="color: #003B4F;
@@ -1213,14 +1213,14 @@ font-style: inherit;">setTxtProgressBar</span>(pb, i)</span>
 <span id="cb6-37">}</span>
 <span id="cb6-38"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">close</span>(pb)</span></code></pre></div>
+font-style: inherit;">close</span>(pb)</span></code></pre></div></div>
 </details>
 </div>
 <p>Finally, we plot the progression of the AMCE estimates and CSs across the entire experiment.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">truth <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">truth <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1495,7 +1495,7 @@ background-color: null;
 font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">200</span></span>
-<span id="cb7-54">)</span></code></pre></div>
+<span id="cb7-54">)</span></code></pre></div></div>
 </details>
 </div>
 <div style="text-align: center;">
@@ -1535,12 +1535,12 @@ font-style: inherit;">200</span></span>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(dplyr)</span>
 <span id="cb1-2"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
+font-style: inherit;">library</span>(ggplot2)</span></code></pre></div></div>
 </details>
 </div>
 </section>
@@ -1553,7 +1553,7 @@ font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">draw <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">draw <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -1635,14 +1635,14 @@ background-color: null;
 font-style: inherit;">data.frame</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">t</span>(covar)))</span>
-<span id="cb2-6">}</span></code></pre></div>
+<span id="cb2-6">}</span></code></pre></div></div>
 </details>
 </div>
 <p>Next, for a dataset comprising these units <img src="https://latex.codecogs.com/png.latex?%5C%7B(X_i,%20W_i,%20Y_i)%5C%7D_%7Bi=1%7D%5EN">​, we construct a function to estimate both <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​, along with their corresponding exact and asymptotic confidence sequences (CSs):</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">compare <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">compare <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -1847,14 +1847,14 @@ font-style: inherit;">$</span>upper</span>
 <span id="cb3-40">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">return</span>(comparison_df)</span>
-<span id="cb3-41">}</span></code></pre></div>
+<span id="cb3-41">}</span></code></pre></div></div>
 </details>
 </div>
 <p>Finally, we create a function that simulates an experiment of size <img src="https://latex.codecogs.com/png.latex?N"> where each tuple <img src="https://latex.codecogs.com/png.latex?(X_i,%20W_i,%20Y_i)"> is received sequentially. At each sample size <img src="https://latex.codecogs.com/png.latex?n%20%5Cleq%20N">, we re-estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BDM%7D">, <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctau%7D_%7BCA%7D">​, and their CSs:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">simulate <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">simulate <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -2103,7 +2103,7 @@ font-style: inherit;">ungroup</span>()</span>
 <span id="cb4-43">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">return</span>(estimates)</span>
-<span id="cb4-44">}</span></code></pre></div>
+<span id="cb4-44">}</span></code></pre></div></div>
 </details>
 </div>
 </section>
@@ -2113,7 +2113,7 @@ font-style: inherit;">return</span>(estimates)</span>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">estimates <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">estimates <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2280,7 +2280,7 @@ background-color: null;
 font-style: inherit;">+</span></span>
 <span id="cb5-21">  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -2299,7 +2299,7 @@ font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">draw_prop <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">draw_prop <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -2640,7 +2640,7 @@ background-color: null;
 font-style: inherit;">+</span></span>
 <span id="cb6-42">  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -2658,7 +2658,7 @@ font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">estimates <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">estimates <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2788,7 +2788,7 @@ font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mean</span>(any_error))</span>
 <span id="cb7-22"></span>
-<span id="cb7-23">error_rate</span></code></pre></div>
+<span id="cb7-23">error_rate</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 2
@@ -2835,7 +2835,7 @@ font-style: inherit;">mean</span>(any_error))</span>
 <div id="776e451b" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> joblib</span>
 <span id="cb1-2"><span class="im" style="color: #00769E;
@@ -2878,7 +2878,7 @@ font-style: inherit;">import</span> MAD, MADModified</span>
 background-color: null;
 font-style: inherit;">from</span> src.utils <span class="im" style="color: #00769E;
 background-color: null;
-font-style: inherit;">import</span> last</span></code></pre></div>
+font-style: inherit;">import</span> last</span></code></pre></div></div>
 </details>
 </div>
 </section>
@@ -2895,7 +2895,7 @@ font-style: inherit;">import</span> last</span></code></pre></div>
 <div id="c76b9371" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">generator <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">generator <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> np.random.default_rng(seed<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -2989,14 +2989,14 @@ font-style: inherit;">0</span>, verbose<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">False</span>)</span></code></pre></div>
+font-style: inherit;">False</span>)</span></code></pre></div></div>
 </details>
 </div>
 <p>Finally, we plot the MAD-estimated ATE over time, showing convergence to the true effect and demonstrating that the corresponding 95% CSs maintain valid coverage.</p>
 <div id="1bb577ad" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">(</span>
 <span id="cb3-2">    exp_simple.plot_ate_path()</span>
 <span id="cb3-3">    <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3051,7 +3051,7 @@ background-color: null;
 font-style: inherit;">+</span> pn.theme(strip_text<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>pn.element_blank()) </span>
-<span id="cb3-10">)</span></code></pre></div>
+<span id="cb3-10">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3067,7 +3067,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 <div id="98357ee6" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">exp_simple.plot_n()</span></code></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">exp_simple.plot_n()</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3081,7 +3081,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 <div id="c169148a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">exp_simple.plot_probabilities()</span></code></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">exp_simple.plot_probabilities()</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3100,7 +3100,7 @@ font-style: inherit;">=</span>pn.element_blank()) </span>
 <div id="7adb968b" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> reward_fn(arm: <span class="bu" style="color: null;
@@ -3354,7 +3354,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb6-46">)</span></code></pre></div>
+<span id="cb6-46">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3368,7 +3368,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="06d2d297" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">exp_complex.plot_n()</span></code></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">exp_complex.plot_n()</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3415,7 +3415,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="d3568503" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Run the modified algorithm</span></span>
 <span id="cb8-2">mad_modified <span class="op" style="color: #5E5E5E;
@@ -3690,7 +3690,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb8-49">)</span></code></pre></div>
+<span id="cb8-49">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3704,7 +3704,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="95179b17" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">sample_sizes <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">sample_sizes <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.concat([</span>
 <span id="cb9-2">    pd.DataFrame(x) <span class="cf" style="color: #003B4F;
@@ -3840,7 +3840,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb9-21">)</span></code></pre></div>
+<span id="cb9-21">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -3857,7 +3857,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="33091dd6" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="kw" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> delta_fn(x):</span>
@@ -4479,14 +4479,14 @@ background-color: null;
 font-style: inherit;">"se"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"t_val"</span>])</span>
-<span id="cb10-129">)</span></code></pre></div>
+<span id="cb10-129">)</span></code></pre></div></div>
 </details>
 </div>
 <p>The following plot shows the mean (and 95% confidence intervals) of the Type 2 error and CS width for both algorithms.</p>
 <div id="417ba8f2" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">facet_labels <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">facet_labels <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {</span>
 <span id="cb11-2">    <span class="st" style="color: #20794D;
@@ -4605,7 +4605,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb11-27">)</span></code></pre></div>
+<span id="cb11-27">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -4623,7 +4623,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="fc05de57" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">(</span>
 <span id="cb12-2">    pn.ggplot(</span>
 <span id="cb12-3">        metrics_summary[metrics_summary[<span class="st" style="color: #20794D;
 background-color: null;
@@ -4718,7 +4718,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Method"</span>)</span>
-<span id="cb12-21">)</span></code></pre></div>
+<span id="cb12-21">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -4732,7 +4732,7 @@ font-style: inherit;">"Method"</span>)</span>
 <div id="2960088d" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">(</span>
 <span id="cb13-2">    pn.ggplot(reward_df, pn.aes(x<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
@@ -4759,7 +4759,7 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Cumulative reward"</span>)</span>
-<span id="cb13-6">)</span></code></pre></div>
+<span id="cb13-6">)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -4798,7 +4798,7 @@ font-style: inherit;">"Cumulative reward"</span>)</span>
 <section id="dependencies" class="level3">
 <h3 class="anchored" data-anchor-id="dependencies">Dependencies</h3>
 <div id="6eae1a35" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> great_tables <span class="im" style="color: #00769E;
 background-color: null;
@@ -4849,13 +4849,13 @@ background-color: null;
 font-style: inherit;">=</span> Path().cwd()</span>
 <span id="cb1-12">generator <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> np.random.default_rng()</span></code></pre></div>
+font-style: inherit;">=</span> np.random.default_rng()</span></code></pre></div></div>
 </div>
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
 <div id="5f7ed22e" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Electricity data</span></span>
 <span id="cb2-2">electricity <span class="op" style="color: #5E5E5E;
@@ -5221,14 +5221,14 @@ font-style: inherit;">range</span>(d)])</span>
 <span id="cb2-36">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">return</span> (X, y)</span></code></pre></div>
+font-style: inherit;">return</span> (X, y)</span></code></pre></div></div>
 </div>
 </section>
 <section id="functions" class="level3">
 <h3 class="anchored" data-anchor-id="functions">Functions</h3>
 <p>The <code>nexcp_split</code> function implements non-exchangeable split conformal prediction (CP). However, we can force it to also implement standard CP, which assumes exchangeability, by setting uniform weights. So we only need one function to replicate the results!</p>
 <div id="faf2c16b" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> normalize_weights(weights: npt.NDArray):</span>
@@ -5746,14 +5746,14 @@ font-style: inherit;">"Method"</span>)</span>
 <span id="cb3-127">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">return</span> width_plot</span></code></pre></div>
+font-style: inherit;">return</span> width_plot</span></code></pre></div></div>
 </div>
 </section>
 <section id="electricity-example" class="level3">
 <h3 class="anchored" data-anchor-id="electricity-example">Electricity example</h3>
 <p>Note: I implement non-exchangeable split CP with least-squares by using WLS and setting all the tags to a uniform value. Standard CP is implemented by setting all the weights to a uniform value as mentioned above.</p>
 <div id="d93e82e9" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">split_fn <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">split_fn <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
 background-color: null;
@@ -6006,11 +6006,11 @@ font-weight: bold;
 font-style: inherit;">del</span> out[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"ci"</span>]</span>
-<span id="cb4-39">            results.append(out)</span></code></pre></div>
+<span id="cb4-39">            results.append(out)</span></code></pre></div></div>
 </div>
 <section id="plots" class="level4">
 <h4 class="anchored" data-anchor-id="plots">Plots</h4>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">coverage_plot <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">coverage_plot <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> plot_rolling_coverage(results, alpha<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -6030,8 +6030,8 @@ background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">300</span>)</span>
-<span id="cb5-5">width_plot.show()</span></code></pre></div>
-<div id="3f2238f9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="5">
+<span id="cb5-5">width_plot.show()</span></code></pre></div></div>
+<div id="3f2238f9" class="cell quarto-layout-panel" data-execution_count="5" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -6053,7 +6053,7 @@ font-style: inherit;">300</span>)</span>
 <section id="table" class="level4">
 <h4 class="anchored" data-anchor-id="table">Table</h4>
 <div id="7695a52a" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">table <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">table <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
 <span id="cb6-2">    pd</span>
@@ -6204,7 +6204,7 @@ background-color: null;
 font-style: inherit;">"Width"</span></span>
 <span id="cb6-42">    )</span>
 <span id="cb6-43">)</span>
-<span id="cb6-44">table.show()</span></code></pre></div>
+<span id="cb6-44">table.show()</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
 <div id="skvuoqzjls" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
@@ -6254,37 +6254,37 @@ font-style: inherit;">"Width"</span></span>
  
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <tbody>
 <tr class="gt_col_headings gt_spanner_row odd">
-<td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
-<td colspan="2" id="Electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Electricity data</span></td>
-<td colspan="2" id="Permuted electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Permuted electricity data</span></td>
+<th rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></th>
+<th colspan="2" id="Electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Electricity data</span></th>
+<th colspan="2" id="Permuted electricity data" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Permuted electricity data</span></th>
 </tr>
 <tr class="gt_col_headings even">
-<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
-<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
-<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
-<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+<th id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</th>
+<th id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</th>
+<th id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</th>
+<th id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</th>
 </tr>
 </tbody>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</th>
 <td class="gt_row gt_right">0.859</td>
 <td class="gt_row gt_right">0.558</td>
 <td class="gt_row gt_right">0.895</td>
 <td class="gt_row gt_right">0.628</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</th>
 <td class="gt_row gt_right">0.878</td>
 <td class="gt_row gt_right">0.581</td>
 <td class="gt_row gt_right">0.902</td>
 <td class="gt_row gt_right">0.638</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</th>
 <td class="gt_row gt_right">0.880</td>
 <td class="gt_row gt_right">0.497</td>
 <td class="gt_row gt_right">0.895</td>
@@ -6303,7 +6303,7 @@ font-style: inherit;">"Width"</span></span>
 <h3 class="anchored" data-anchor-id="simulated-example">Simulated example</h3>
 <p>This demonstrates the conformal prediction algorithm in the following data settings: i.i.d. data, data generating process with changepoints, and data with distribution drift. In the paper they repeat this 200 times to smooth the estimates, but for computational purposes here I only repeated it 50 times.</p>
 <div id="e8b4d8fb" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">split_fn <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">split_fn <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
 background-color: null;
@@ -6578,11 +6578,11 @@ font-weight: bold;
 font-style: inherit;">del</span> out[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"ci"</span>]</span>
-<span id="cb7-38">                results.append(out)</span></code></pre></div>
+<span id="cb7-38">                results.append(out)</span></code></pre></div></div>
 </div>
 <section id="plots-1" class="level4">
 <h4 class="anchored" data-anchor-id="plots-1">Plots</h4>
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1">coverage_plot <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1">coverage_plot <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> plot_rolling_coverage(</span>
 <span id="cb8-2">    results,</span>
@@ -6624,8 +6624,8 @@ background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
-<span id="cb8-11">width_plot.show()</span></code></pre></div>
-<div id="41a80cb9" class="cell quarto-layout-panel" data-layout-ncol="2" data-execution_count="8">
+<span id="cb8-11">width_plot.show()</span></code></pre></div></div>
+<div id="41a80cb9" class="cell quarto-layout-panel" data-execution_count="8" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -6647,7 +6647,7 @@ font-style: inherit;">True</span>)</span>
 <section id="table-1" class="level4">
 <h4 class="anchored" data-anchor-id="table-1">Table</h4>
 <div id="2d9aaa47" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">table <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">table <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (</span>
 <span id="cb9-2">    pd</span>
@@ -6846,7 +6846,7 @@ background-color: null;
 font-style: inherit;">"Width"</span></span>
 <span id="cb9-54">    )</span>
 <span id="cb9-55">)</span>
-<span id="cb9-56">table.show()</span></code></pre></div>
+<span id="cb9-56">table.show()</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
 <div id="lfyuuzppxt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
@@ -6896,26 +6896,26 @@ font-style: inherit;">"Width"</span></span>
  
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <tbody>
 <tr class="gt_col_headings gt_spanner_row odd">
-<td rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></td>
-<td colspan="2" id="Setting 1 (i.i.d. data)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 1 (i.i.d. data)</span></td>
-<td colspan="2" id="Setting 2 (changepoints)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 2 (changepoints)</span></td>
-<td colspan="2" id="Setting 3 (drift)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 3 (drift)</span></td>
+<th rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"></th>
+<th colspan="2" id="Setting 1 (i.i.d. data)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 1 (i.i.d. data)</span></th>
+<th colspan="2" id="Setting 2 (changepoints)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 2 (changepoints)</span></th>
+<th colspan="2" id="Setting 3 (drift)" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner">Setting 3 (drift)</span></th>
 </tr>
 <tr class="gt_col_headings even">
-<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
-<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
-<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
-<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
-<td id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</td>
-<td id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</td>
+<th id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</th>
+<th id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</th>
+<th id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</th>
+<th id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</th>
+<th id="Coverage" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Coverage</th>
+<th id="Width" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Width</th>
 </tr>
 </tbody>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">CP+LS</th>
 <td class="gt_row gt_right">0.899</td>
 <td class="gt_row gt_right">3.325</td>
 <td class="gt_row gt_right">0.832</td>
@@ -6924,7 +6924,7 @@ font-style: inherit;">"Width"</span></span>
 <td class="gt_row gt_right">3.754</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+LS</th>
 <td class="gt_row gt_right">0.898</td>
 <td class="gt_row gt_right">3.324</td>
 <td class="gt_row gt_right">0.874</td>
@@ -6933,7 +6933,7 @@ font-style: inherit;">"Width"</span></span>
 <td class="gt_row gt_right">4.208</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</td>
+<th class="gt_row gt_left gt_stub" data-quarto-table-cell-role="th">NexCP+WLS</th>
 <td class="gt_row gt_right">0.897</td>
 <td class="gt_row gt_right">3.403</td>
 <td class="gt_row gt_right">0.896</td>
@@ -7034,7 +7034,7 @@ font-style: inherit;">"Width"</span></span>
 <ul>
 <li><p>This is probably really obvious, but especially when you need your Shiny app to be somewhat performant, try to streamline time-consuming calculations as much as possible. For example, in our app, I structured any time-consuming steps so that they would happen either at run-time or after the user had clicked “Submit” on the survey form.</p></li>
 <li><p>The R Shiny software is much more mature than its Python counterpart and as a result the Python API may not surface all features that the R API does. For example the R Shiny API has a well defined way to access client data being sent to the server. To access the current URL you would do something like:</p>
-<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">server <span class="ot" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">server <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -7125,9 +7125,9 @@ background-color: null;
 font-style: inherit;">"</span></span>
 <span id="cb1-11">    )</span>
 <span id="cb1-12">  })</span>
-<span id="cb1-13">}</span></code></pre></div>
+<span id="cb1-13">}</span></code></pre></div></div>
 <p>This feature has yet to be officially implemented in Py Shiny, as noted in <a href="https://github.com/posit-dev/py-shiny/issues/711">this GitHub issue</a> but can be worked around as described in <a href="https://github.com/posit-dev/py-shiny/issues/323#issuecomment-1261513108">this issue</a>. The workaround solution would look something like:</p>
-<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> server(<span class="bu" style="color: null;
@@ -7240,7 +7240,7 @@ font-style: inherit;">"</span></span>
 <span id="cb2-11">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">return</span> url_text</span></code></pre></div></li>
+font-style: inherit;">return</span> url_text</span></code></pre></div></div></li>
 </ul>
 </section>
 <section id="aws-and-docker-swarm-mode" class="level3">
@@ -7254,13 +7254,13 @@ font-style: inherit;">return</span> url_text</span></code></pre></div></li>
 </ul>
 <p>In addition, make sure you add any rules for other ports that are specific to your application. In our case our app was exposed on port 8000 so I needed to add an additional inbound rule for TCP port 8000.</p></li>
 <li><p><strong>Adding worker nodes to swarm</strong>: When adding a worker instance to the swarm on AWS, it is essential to include the <code>--advertise-addr</code> argument. For example:</p>
-<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="ex" style="color: null;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="ex" style="color: null;
 background-color: null;
 font-style: inherit;">docker</span> swarm join <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">--token</span> SWMTKN-1-49nj1abc... manager.node.ip:2377 <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">--advertise-addr</span> worker.node.ip</span></code></pre></div></li>
+font-style: inherit;">--advertise-addr</span> worker.node.ip</span></code></pre></div></div></li>
 <li><p><strong>Configuring HTTPS</strong>: When you deploy your Shiny application on an AWS compute instance, e.g.&nbsp;on port 8000, the application will be available at a url looking something like <strong>http://manager.node.ip:8000</strong>. While this works fine, it will look unusual to the average user and may be flagged by some browsers as insecure and result in warning messages being sent to the user. If it is important to have HTTPS configured for your application, there are a couple ways to approach this. Both require having a domain or sub-domain name available.</p>
 <ol type="1">
 <li>Once you have launched your application (or swarm) on AWS, configure a DNS record on your domain to forward your sub-domain to the public IP address of the server where your application is hosted. This process may vary slightly depending on where you purchased your domain name (e.g.&nbsp;Bluehost, Namecheap).</li>
@@ -7270,13 +7270,13 @@ font-style: inherit;">--advertise-addr</span> worker.node.ip</span></code></pre>
 <p>There are many good online tutorials on exactly how to do <strong>steps 2 and 3</strong>. The main shortcoming with the method described above is that you would have to do all three steps separately every time you re-deploy your services on AWS. If you only deploy once, this may not be an issue. But if you think you might terminate and re-deploy your application multiple times, it may get tiresome. One way around this is to allocate an <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html">AWS Elastic IP address</a> to your account and then create a DNS record on your domain pointing to the elastic IP per <strong>step 1</strong> above. Then, every time you launch your application on a new AWS compute instance you can associate the elastic IP address with your instance, and you don’t need to re-do <strong>step 1</strong>. You will still have to do <strong>steps 2 and 3</strong>, but you can do these steps programmatically. <strong>Step 1</strong> is by far the most time consuming and you will only have to do that once.</p></li>
 <li><p><strong>Persisting data with AWS volumes</strong>: When running your application on AWS, or any cloud provider, there is always the concern that your compute resources might get terminated without any warning. As such, it is essential that all your data be backed up so that it will persist regardless of whether your application terminates or not. For our application, we created an AWS volume and mounted that volume to the local filesystem of the compute instance where our database container was running. We then used a <a href="https://docs.docker.com/storage/bind-mounts/">bind mount</a> to mount that directory on the host machine into the PostgreSQL Docker container.</p></li>
 <li><p><strong>Scaling the application</strong>: Py Shiny is built on <a href="https://www.uvicorn.org/">uvicorn</a>. As a direct result, a user can deploy a Shiny application by simply running the following on the command line:</p>
-<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><span class="ex" style="color: null;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><span class="ex" style="color: null;
 background-color: null;
 font-style: inherit;">uvicorn</span> app:app <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">--host</span> 0.0.0.0 <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">--port</span> 8000</span></code></pre></div>
+font-style: inherit;">--port</span> 8000</span></code></pre></div></div>
 <div class="callout callout-style-simple callout-note">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
@@ -7284,14 +7284,14 @@ font-style: inherit;">--port</span> 8000</span></code></pre></div>
 </div>
 <div class="callout-body-container">
 <p>The first <strong>app</strong> references the file <strong>app.py</strong> where your application is defined, and the second <strong>app</strong> references the final line in your <strong>app.py</strong> file that should look something like:</p>
-<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">app <span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">app <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> App(app_ui, server)</span></code></pre></div>
+font-style: inherit;">=</span> App(app_ui, server)</span></code></pre></div></div>
 </div>
 </div>
 </div>
 <p>Uvicorn has scaling built-in via the <code>--workers</code> argument. If you wanted to scale your application in a super simple way and avoid all the hassle above, it’s as easy as deploying your application on a very large AWS server and running it with something like:</p>
-<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><span class="ex" style="color: null;
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><span class="ex" style="color: null;
 background-color: null;
 font-style: inherit;">uvicorn</span> app:app <span class="at" style="color: #657422;
 background-color: null;
@@ -7299,7 +7299,7 @@ font-style: inherit;">--host</span> 0.0.0.0 <span class="at" style="color: #6574
 background-color: null;
 font-style: inherit;">--port</span> 8000 <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">--workers</span> 20</span></code></pre></div>
+font-style: inherit;">--workers</span> 20</span></code></pre></div></div>
 <p>For several reasons this approach didn’t work for our situation, but it may be a reasonable approach for many people. To see more about self-hosted deployment, see the <a href="https://shiny.posit.co/py/docs/deploy-on-prem.html">Shiny docs</a> or the <a href="https://www.uvicorn.org/deployment/">uvicorn docs</a>.</p></li>
 </ul>
 </section>
