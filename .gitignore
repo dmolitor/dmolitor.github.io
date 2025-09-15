@@ -51,3 +51,4 @@ _site/
 __pycache__
 .Rprofile
 renv/
+**/*.quarto_ipynb
