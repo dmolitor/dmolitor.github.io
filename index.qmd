@@ -39,4 +39,8 @@ inference methods. I love open source software and enjoy building tools and lear
 | May 2024 | Jointly presented <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2024</a>.|
 | April 2023 | Awarded an <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/ style="text-decoration: none;">NSF Graduate Research Fellowship</a>.|
 
-<!-- | July 2024 | <a href="https://files.osf.io/v1/resources/rkw3e/providers/osfstorage/65b132bbebe5e6067ff5e720?action=download&direct&version=1" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Jennie Brand and Ian Lundberg has been conditionally accepted at <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods & Research</a>.  -->
+<br>
+
+A ChatGPT generated summary of my research:
+
+> I develop empirical methods for applied social scientists running online or adaptive experiments such as multi-armed bandits and conjoint experiments. My work bridges causal inference, experimental design, and machine learning to create methods that enable robust causal inference in dynamic experimental settings. Broadly, I aim to make modern experimentation frameworks both practically useful and statistically rigorous for studying real-world behavior and decision-making.
