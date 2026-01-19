@@ -2,34 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://dmolitor.com/research/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.341Z</lastmod>
+    <lastmod>2026-01-19T19:33:23.492Z</lastmod>
   </url>
   <url>
-    <loc>https://dmolitor.com/blog/posts/robust_adaptive_exp/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.318Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/anytime_valid_linear_models/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.286Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.286Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.320Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.302Z</lastmod>
+    <loc>https://dmolitor.com/blog/posts/top_albums_2025/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.447Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/conjoint_analysis/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.311Z</lastmod>
+    <lastmod>2026-01-19T19:33:23.439Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.431Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.472Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.415Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/anytime_valid_linear_models/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.415Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dmolitor.com/blog/posts/robust_adaptive_exp/index.html</loc>
+    <lastmod>2026-01-19T19:33:23.446Z</lastmod>
   </url>
   <url>
     <loc>https://dmolitor.com/blog/posts/dynamic_surveys/index.html</loc>
-    <lastmod>2025-10-09T15:45:03.315Z</lastmod>
+    <lastmod>2026-01-19T19:33:23.444Z</lastmod>
   </url>
 </urlset>
