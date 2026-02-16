@@ -37,8 +37,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-7fb59815a1c41eec7c034637f0c35ff0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-b893ff50185fd547e9d413675a1d4438.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-c18ce21c24e73181afa5acf95e34932f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-18ac8bb0215bc9243a7b627346e788aa.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6bd1b4da55355064fa5bf119b1bd375c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -286,6 +286,24 @@ ga('send', {
 
 <section id="publications" class="level2">
 <h2 class="anchored" data-anchor-id="publications">Publications</h2>
+<a href="https://doi.org/10.31235/osf.io/69y2j_v4" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2026). Forthcoming, <i>Political Analysis</i>.
+<details>
+<summary>
+Abstract
+</summary>
+<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+Human choices are often both multi-dimensional and interactive. For example, a person deciding which of two immigrants is more worthy of admission to a country might weigh their education, and the weight placed on education may depend on other factors such as their age, country of origin, and employment history. We develop a response-adaptive experimental design that summarizes the range of effects of one attribute as a function of all other attributes. Our approach changes several aspects of the experimental design based on the ex ante choice to study the heterogeneous effects of one focal attribute (i.e., education). We update treatment assignment probabilities over the course of the experiment to search for the attribute vector at which the focal attribute has the most positive and most negative effects. By summarizing the full range of effects that exist, our approach complements existing approaches to conjoint experiments that typically aggregate over heterogeneity by marginalizing. We illustrate through two online experiments and provide customizable code infrastructure via a Docker container that other researchers can use to deploy adaptive randomization in online conjoint experiments.
+</p>
+</details>
+<a href="https://arxiv.org/abs/2506.20523" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold (2025). <i>ArXiv</i>.
+<details>
+<summary>
+Abstract
+</summary>
+<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+Adaptive experiments such as multi-armed bandits offer efficiency gains over traditional randomized experiments but pose two major challenges: invalid inference on the Average Treatment Effect (ATE) due to adaptive sampling and low statistical power for sub-optimal treatments. We address both issues by extending the Mixture Adaptive Design framework of <a href="https://arxiv.org/abs/2311.05794" style="text-decoration: none;">Liang and Bojinov</a>. First, we propose MADCovar, a covariate-adjusted ATE estimator that is unbiased and preserves anytime-valid inference guarantees while substantially improving ATE precision. Second, we introduce MADMod, which dynamically reallocates samples to underpowered arms, enabling more balanced statistical power across treatments without sacrificing valid inference. Both methods retain MAD’s core advantage of constructing asymptotic confidence sequences (CSs) that allow researchers to continuously monitor ATE estimates and stop data collection once a desired precision or significance criterion is met. Empirically, we validate both methods using simulations and real-world data. In simulations, MADCovar reduces CS width by up to 60% relative to MAD. In a large-scale political RCT with 32,000 participants, MADCovar achieves similar precision gains. MADMod improves statistical power and inferential precision across all treatment arms, particularly for suboptimal treatments. Simulations show that MADMod sharply reduces Type II error while preserving the efficiency benefits of adaptive allocation. Together, MADCovar and MADMod make adaptive experiments more practical, reliable, and efficient for applied researchers across many domains. Our proposed methods are implemented through <a href="https://dmolitor.com/pyssed" style="text-decoration: none;">an open-source software package</a>.
+</p>
+</details>
 <a href="https://doi.org/10.1177/00491241251338412" style="text-decoration: none;"><b>The Causal Effect of Parent Occupation on Child Occupation: A Multivalued Treatment with Positivity Constraints</b></a>. Ian Lundberg, Daniel Molitor, Jennie Brand (2025). <i>Sociological Methods and Research</i>.
 <details>
 <summary>
@@ -295,6 +313,15 @@ Abstract
 To what degree does parent occupation cause a child’s occupational attainment? We articulate this causal question in the potential outcomes framework. Empirically, we show that adjustment for only two confounding variables substantially reduces the estimated association between parent and child occupation in a U.S. cohort. Methodologically, we highlight complications that arise when the treatment variable (parent occupation) can take many categorical values. A central methodological hurdle is positivity: some occupations (e.g., lawyer) are simply never held by some parents (e.g., those who did not complete college). We show how to overcome this hurdle by reporting summaries within subgroups that focus attention on the causal quantities that can be credibly estimated. Future research should build on the longstanding tradition of descriptive mobility research to answer causal questions.
 </p>
 </details>
+<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al (2021). <i>OSF Preprints</i>.
+<details>
+<summary>
+Abstract
+</summary>
+<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+The mismatch between the skills that employers seek and the skills that workers possess will increase substantially as demand for technically skilled workers accelerates. Skill mismatches disproportionately affect low-income workers and those within industries where relative demand growth for technical skills is strongest. As a result, much emphasis is placed on reskilling workers to ease transitions into new careers. However, utilization of training programs may be sub-optimal if workers are uncertain about the returns to their investment in training. While the U.S. spends billions of dollars annually on reskilling programs and unemployment insurance, there are few measures of program effectiveness that workers or government can use to guide training investment and ensure valuable reskilling outcomes. We demonstrate a causal machine learning method for estimating the value-added returns to training programs in Rhode Island, where enrollment increases future quarterly earnings by $605 on average, ranging from -$1,570 to $3,470 for individual programs. In a nationwide survey (N=2,014), workers prefer information on the value-added returns to earnings following training enrollment, establishing the importance of our estimates for guiding training decisions. For every 10% increase in expected earnings, workers are 17.4% more likely to express interest in training. State and local governments can provide this preferred information on value-added returns using our method and existing administrative data.
+</p>
+</details>
 <a href="https://doi.org/10.1145/3428125" style="text-decoration: none;"><b>Delivering Unemployment Assistance in Times of Crisis: Scalable Cloud Solutions Can Keep Essential Government Programs Running and Supporting Those in Need</b></a>. Mintaka Angell, et al.&nbsp;(2020). <i>Digital Government: Research and Practice</i>.
 <details>
 <summary>
@@ -302,36 +329,6 @@ Abstract
 </summary>
 <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
 The COVID-19 public health emergency caused widespread economic shutdown and unemployment. The resulting surge in Unemployment Insurance claims threatened to overwhelm the legacy systems state workforce agencies rely on to collect, process, and pay claims. In Rhode Island, we developed a scalable cloud solution to collect Pandemic Unemployment Assistance claims as part of a new program created under the Coronavirus Aid, Relief and Economic Security Act to extend unemployment benefits to independent contractors and gig-economy workers not covered by traditional Unemployment Insurance. Our new system was developed, tested, and deployed within 10 days following the passage of the Coronavirus Aid, Relief and Economic Security Act, making Rhode Island the first state in the nation to collect, validate, and pay Pandemic Unemployment Assistance claims. A cloud-enhanced interactive voice response system was deployed a week later to handle the corresponding surge in weekly certifications for continuing unemployment benefits. Cloud solutions can augment legacy systems by offloading processes that are more efficiently handled in modern scalable systems, reserving the limited resources of legacy systems for what they were originally designed. This agile use of combined technologies allowed Rhode Island to deliver timely Pandemic Unemployment Assistance benefits with an estimated cost savings of $502,000 (representing a 411% return on investment).
-</p>
-</details>
-</section>
-<section id="pre-prints" class="level2">
-<h2 class="anchored" data-anchor-id="pre-prints">Pre-prints</h2>
-<a href="https://arxiv.org/abs/2506.20523" style="text-decoration: none;"><b>Anytime-Valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</b></a>. Daniel Molitor, Samantha Gold (2025).
-<details>
-<summary>
-Abstract
-</summary>
-<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-Adaptive experiments such as multi-armed bandits offer efficiency gains over traditional randomized experiments but pose two major challenges: invalid inference on the Average Treatment Effect (ATE) due to adaptive sampling and low statistical power for sub-optimal treatments. We address both issues by extending the Mixture Adaptive Design framework of <a href="https://arxiv.org/abs/2311.05794" style="text-decoration: none;">Liang and Bojinov</a>. First, we propose MADCovar, a covariate-adjusted ATE estimator that is unbiased and preserves anytime-valid inference guarantees while substantially improving ATE precision. Second, we introduce MADMod, which dynamically reallocates samples to underpowered arms, enabling more balanced statistical power across treatments without sacrificing valid inference. Both methods retain MAD’s core advantage of constructing asymptotic confidence sequences (CSs) that allow researchers to continuously monitor ATE estimates and stop data collection once a desired precision or significance criterion is met. Empirically, we validate both methods using simulations and real-world data. In simulations, MADCovar reduces CS width by up to 60% relative to MAD. In a large-scale political RCT with 32,000 participants, MADCovar achieves similar precision gains. MADMod improves statistical power and inferential precision across all treatment arms, particularly for suboptimal treatments. Simulations show that MADMod sharply reduces Type II error while preserving the efficiency benefits of adaptive allocation. Together, MADCovar and MADMod make adaptive experiments more practical, reliable, and efficient for applied researchers across many domains. Our proposed methods are implemented through <a href="https://dmolitor.com/pyssed" style="text-decoration: none;">an open-source software package</a>.
-</p>
-</details>
-<a href="https://doi.org/10.31235/osf.io/69y2j_v2" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2025).
-<details>
-<summary>
-Abstract
-</summary>
-<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-Human choices are often both multi-dimensional and interactive. For example, a person deciding which of two immigrants is more worthy of admission to a country might consider their education, and the weight placed on education may depend on other factors such as their age, country of origin, and employment history. We develop a response-adaptive experimental design that summarizes the range of effects of one attribute as a function of all other attributes. Our design involves a complete change of experimental design based on the ex ante choice to study the heterogeneous effects of one focal attribute (education). We update treatment assignment probabilities over the course of the experiment to search for the attribute vector at which the focal attribute has the most positive and most negative effects. By summarizing the full range of effects that exist, our approach complements existing approaches to conjoint experiments that typically aggregate over heterogeneity by marginalizing. We illustrate through two online experiments and provide customizable code infrastructure via a Docker container that other researchers can use to deploy adaptive randomization in online conjoint experiments.
-</p>
-</details>
-<a href="https://doi.org/10.31219/osf.io/thg23" style="text-decoration: none;"><b>Estimating Value-added Returns to Labor Training Programs with Causal Machine Learning</b></a>. Mintaka Angell, et al (2021).
-<details>
-<summary>
-Abstract
-</summary>
-<p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-The mismatch between the skills that employers seek and the skills that workers possess will increase substantially as demand for technically skilled workers accelerates. Skill mismatches disproportionately affect low-income workers and those within industries where relative demand growth for technical skills is strongest. As a result, much emphasis is placed on reskilling workers to ease transitions into new careers. However, utilization of training programs may be sub-optimal if workers are uncertain about the returns to their investment in training. While the U.S. spends billions of dollars annually on reskilling programs and unemployment insurance, there are few measures of program effectiveness that workers or government can use to guide training investment and ensure valuable reskilling outcomes. We demonstrate a causal machine learning method for estimating the value-added returns to training programs in Rhode Island, where enrollment increases future quarterly earnings by $605 on average, ranging from -$1,570 to $3,470 for individual programs. In a nationwide survey (N=2,014), workers prefer information on the value-added returns to earnings following training enrollment, establishing the importance of our estimates for guiding training decisions. For every 10% increase in expected earnings, workers are 17.4% more likely to express interest in training. State and local governments can provide this preferred information on value-added returns using our method and existing administrative data.
 </p>
 </details>
 </section>
