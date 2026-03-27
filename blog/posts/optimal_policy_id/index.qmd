@@ -2,7 +2,7 @@
 title: "Optimal Policy Identification: an Anytime-Valid Approach"
 description: |
   Developing an anytime-valid approach for optimal policy identification: an extension of <a href="https://arxiv.org/abs/2210.10768">Anytime-valid off-policy inference for contextual bandits by Waudby-Smith, et al.</a>
-date: "3/24/2026"
+date: "3/27/2026"
 format:
   html:
     toc: true
