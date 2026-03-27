@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-03-24">
+<meta name="description" content="Developing an approach for anytime-valid optimal policy identification.">
+
+<title>Optimal Policy Identification: an Anytime-Valid Approach – Daniel Molitor</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<link href="../../../media/_favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e5c0da90bde570b7566f6217e7c63da7.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-cea25e2310d9ee8b66de880732a0fbab.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a5fbdb8824859172f3d149306436cf47.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-84790504c0831a393d156c7b8cd18618.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+<script type="text/javascript">
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-154890377-1', 'auto');
+
+ga('send', {
+  hitType: 'pageview',
+  'anonymizeIp': true,
+});
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-md " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title"><strong>Daniel Molitor</strong></span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../research/index.html"> 
+<span class="menu-text"><strong>Research</strong></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../media/_cv.pdf"> 
+<span class="menu-text"><strong>CV</strong></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../blog/index.html"> 
+<span class="menu-text"><strong>Scratchpad</strong></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/dmolitor" title="Daniel's GitHub" class="quarto-navigation-tool px-1" aria-label="Daniel's GitHub"><i class="bi bi-github"></i></a>
+    <a href="https://x.com/danieljmolitor" title="Daniel's Twitter" class="quarto-navigation-tool px-1" aria-label="Daniel's Twitter"><i class="bi bi-twitter-x"></i></a>
+    <a href="mailto:molitdj97@gmail.com" title="Daniel's Email" class="quarto-navigation-tool px-1" aria-label="Daniel's Email"><i class="bi bi-envelope-fill"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#bandit-designs" id="toc-bandit-designs" class="nav-link active" data-scroll-target="#bandit-designs">Bandit designs</a></li>
+  <li><a href="#setup-and-notation" id="toc-setup-and-notation" class="nav-link" data-scroll-target="#setup-and-notation">Setup and notation</a>
+  <ul class="collapse">
+  <li><a href="#doubly-robust-pseudo-outcomes" id="toc-doubly-robust-pseudo-outcomes" class="nav-link" data-scroll-target="#doubly-robust-pseudo-outcomes">Doubly-robust pseudo-outcomes</a></li>
+  <li><a href="#cs-construction" id="toc-cs-construction" class="nav-link" data-scroll-target="#cs-construction">CS construction</a></li>
+  </ul></li>
+  <li><a href="#finding-the-optimal-policy" id="toc-finding-the-optimal-policy" class="nav-link" data-scroll-target="#finding-the-optimal-policy">Finding the optimal policy</a>
+  <ul class="collapse">
+  <li><a href="#stoppingidentification-time-and-sample-complexity" id="toc-stoppingidentification-time-and-sample-complexity" class="nav-link" data-scroll-target="#stoppingidentification-time-and-sample-complexity">Stopping/Identification time and sample complexity</a></li>
+  </ul></li>
+  <li><a href="#empirical-demonstrations" id="toc-empirical-demonstrations" class="nav-link" data-scroll-target="#empirical-demonstrations">Empirical demonstrations</a>
+  <ul class="collapse">
+  <li><a href="#data-generating-process" id="toc-data-generating-process" class="nav-link" data-scroll-target="#data-generating-process">Data-Generating Process</a></li>
+  <li><a href="#demos" id="toc-demos" class="nav-link" data-scroll-target="#demos">Demos</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Optimal Policy Identification: an Anytime-Valid Approach</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Off-policy Inference</div>
+    <div class="quarto-category">Optimal Policy Identification</div>
+    <div class="quarto-category">Anytime-valid Inference</div>
+    <div class="quarto-category">Bandits</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>Developing an approach for anytime-valid optimal policy identification.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 24, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Suppose we work at a tech firm and are part of a team that is in charge of a personalization algorithm. In particular, the existing personalization algorithm probabilistically assigns users to certain interventions (treatments) based on their individual characteristics. Perhaps the team would like to test a handful of cutting-edge personalization algorithms but are concerned that replacing the current version would risk downgrading user satisfaction and incurring significant costs. We would like to be able to continue collecting data with our existing algorithm (the “status-quo”) and concurrently identify which of the new algorithms would maximize user outcomes (e.g.&nbsp;satisfaction, or click-through). In this blog post we’ll demonstrate how we can identify the outcome-maximizing algorithm with corresponding anytime-valid inferential guarantees.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this example, the personalization algorithm is a particular type of experimental design, but the method we discuss here is broadly applicable across standard randomized designs, multi-arm bandits, and contextual bandits.</p>
+</div>
+</div>
+<section id="bandit-designs" class="level2">
+<h2 class="anchored" data-anchor-id="bandit-designs">Bandit designs</h2>
+<p>The general (contextual) bandit problem can be described informally as follows. An agent (in our case the personalization algorithm) views some contextual information <span class="math inline">\(X_t \in \mathcal{X}\)</span> for subject <span class="math inline">\(t\)</span> (their individual characteristics), assigns them to an intervention <span class="math inline">\(A_t \in \mathcal{A}\)</span> (e.g.&nbsp;to receive a particular advertisement), and observes some reward <span class="math inline">\(R_t\)</span> (e.g.&nbsp;whether the user clicks on it or not). Common examples are <span class="math inline">\(\mathcal{X}\)</span> as <span class="math inline">\(d\)</span>-dimensional Euclidean space, and <span class="math inline">\(\mathcal{A}\)</span> as a binary treatment in <span class="math inline">\(\{0, 1\}\)</span>.</p>
+<p>Our primary objective is to identify the optimal personalization algorithm — the algorithm that maximizes expected rewards (user outcomes). From here on, we will refer to the personalization algorithms as policies (the typical verbiage in the literature). In our setting, a policy <span class="math inline">\(\pi(a | x)\)</span> is simply a conditional distribution over interventions given context <span class="math inline">\(X_t\)</span>. We denote the expected reward under <span class="math inline">\(\pi(a | x)\)</span> as <span class="math inline">\(\nu(\pi) := \mathbb{E}_\pi[R]\)</span>. This setup generalizes to standard randomized designs and multi-arm bandits by setting the context to be constant across all units. However, for the remainder of this post we’ll assume that we’re working with contextual bandits.</p>
+<p>Building on the methods of <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (<a href="#ref-waudby-smith_anytime-valid_2024" role="doc-biblioref">2024</a>)</span>, we will demonstrate how to identify the outcome-maximizing policy from a collection of candidate policies, all while collecting data using the status-quo policy (hereafter referred to as the “logging” policy).</p>
+</section>
+<section id="setup-and-notation" class="level2">
+<h2 class="anchored" data-anchor-id="setup-and-notation">Setup and notation</h2>
+<p>Much of the following notation is taken directly from <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (<a href="#ref-waudby-smith_anytime-valid_2024" role="doc-biblioref">2024</a>)</span>; please see their excellent paper for further details.</p>
+<p>Let <span class="math inline">\(\Pi=\{\pi_1,\dots,\pi_m\}\)</span> denote a finite class of policies, where <span class="math inline">\(m:=|\Pi|\)</span>. We observe contextual bandit data <span class="math inline">\((X_t,A_t,R_t)_{t\ge1}\)</span> generated sequentially by a logging policy <span class="math inline">\((h_t)_{t\ge1}\)</span>. The history at each unit <span class="math inline">\(\mathcal H_t\)</span> is comprised of all the information contained in <span class="math inline">\((X_t,A_t,R_t)_{i-1}^t\)</span>. Formally, conditional on the past history <span class="math inline">\(\mathcal H_{t-1}\)</span> and the current context <span class="math inline">\(X_t\)</span>, the intervention satisfies <span class="math display">\[
+A_t \mid (X_t,\mathcal H_{t-1}) \sim h_t(\cdot \mid X_t),
+\]</span></p>
+<p>We assume the rewards satisfy <span class="math inline">\(R_t\in[0,1]\)</span> almost surely — a common assumption in contextual bandits. For our problem setup to be meaningful, we assume that we are working in the time-invariant policy value setting: for each <span class="math inline">\(\pi\in\Pi\)</span>, let <span class="math display">\[
+\nu_t(\pi):=\mathbb{E}_\pi[R_t | \mathcal H_{t-1}],
+\]</span> and assume that there exists a constant value <span class="math inline">\(\nu(\pi)\in[0,1]\)</span> such that <span class="math inline">\(\nu_t(\pi)=\nu(\pi)\)</span> for all <span class="math inline">\(t\ge1\)</span>. Let <span class="math display">\[
+\pi^\star \in \arg\max_{\pi\in\Pi} \nu(\pi)
+\]</span> denote an optimal policy.</p>
+<p>With this notation in hand, we can now define a key component for estimating our target estimands: <span class="math inline">\(\nu(\pi) \ \forall \pi \in \Pi\)</span>.</p>
+<section id="doubly-robust-pseudo-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="doubly-robust-pseudo-outcomes">Doubly-robust pseudo-outcomes</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We use the term doubly-robust in the sense of constructing regression-adjusted, inverse-weighted pseudo-outcomes that enjoy variance reduction without compromising their validity. Doubly-robust here does NOT imply that the statistical guarantees of our method rely on the regression model being unbiased/consistent. In fact, the guarantees hold even when the regression model is bad (e.g.&nbsp;misspecified, inconsistent, etc).</p>
+</div>
+</div>
+<p>For a candidate policy <span class="math inline">\(\pi\in\Pi\)</span>, define the importance weight at unit <span class="math inline">\(t\)</span> as <span class="math display">\[
+w_t(\pi):=\frac{\pi(A_t\mid X_t)}{h_t(A_t\mid X_t)}.
+\]</span> Let <span class="math inline">\(\widehat r_t(x,a)\)</span> denote any <span class="math inline">\([0, 1]\)</span>-valued predictor of <span class="math inline">\(R_t\)</span> constructed from the history <span class="math inline">\(\mathcal H_{t-1}\)</span>. Define the lower and upper doubly-robust pseudo-outcomes</p>
+<p><span class="math display">\[
+\begin{align}
+\phi_t^{\mathrm{DRL}}(\pi)
+&amp;:= w_t(\pi)\!\left(R_t-\Big[\widehat r_t(X_t,A_t)\wedge \tfrac{k_t}{w_t(\pi)}\Big]\right) \notag\\
+&amp;\quad + \mathbb{E}_{a\sim\pi(\cdot\mid X_t)}
+\!\left(\widehat r_t(X_t,a)\wedge \tfrac{k_t}{w_t(\pi)}\right), \\
+\phi_t^{\mathrm{DRU}}(\pi)
+&amp;:= w_t(\pi)\!\left((1-R_t)-\Big[(1-\widehat r_t(X_t,A_t))\wedge \tfrac{k_t}{w_t(\pi)}\Big]\right) \notag\\
+&amp;\quad + \mathbb{E}_{a\sim\pi(\cdot\mid X_t)}
+\!\left((1-\widehat r_t(X_t,a))\wedge \tfrac{k_t}{w_t(\pi)}\right).
+\end{align}
+\]</span></p>
+<p>Next, we will demonstrate how to use these doubly-robust pseudo-outcomes to construct valid confidence sequences (CSs) for <span class="math inline">\(\nu(\pi)\)</span>.</p>
+</section>
+<section id="cs-construction" class="level3">
+<h3 class="anchored" data-anchor-id="cs-construction">CS construction</h3>
+<p>Let <span class="math inline">\(k_1=k_2=\cdots = k \ge 0\)</span> be a fixed constant and let <span class="math inline">\(\xi_0 \in [0,(1+k)^{-1}]\)</span>. For <span class="math inline">\(t \ge 1\)</span>, define the scaled doubly robust pseudo-outcomes <span class="math display">\[
+\xi_t := \frac{\phi_t}{1+k},
+\]</span> where <span class="math inline">\(\phi_t := \phi_t^{\mathrm{DRL}}\)</span> or <span class="math inline">\(\phi_t^{\mathrm{DRU}}\)</span>, depending on which bound is being constructed. Then define <span class="math display">\[
+\hat{\xi}_0 := \xi_0 \ ; \ \hat{\xi}_t := \left(\frac{1}{t}\sum_{i=1}^t \xi_i\right)\wedge \frac{1}{1+k},
+\]</span> the variance process <span class="math display">\[
+V_t := \sum_{i=1}^t (\xi_i - \hat{\xi}_{i-1})^2,
+\]</span> and the stabilized version <span class="math display">\[
+\bar V_t := V_t \vee 1.
+\]</span></p>
+<p>Let <span class="math inline">\(\alpha \in (0,1)\)</span> denote a significance level and define <span class="math display">\[
+\ell_t(\alpha) := 2\log(\log \bar V_t + 1) + \log\left(\frac{1.65}{\alpha}\right).
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Proposition 3 of <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (<a href="#ref-waudby-smith_anytime-valid_2024" role="doc-biblioref">2024</a>)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Using these quantities, we can construct a valid <span class="math inline">\(1-\alpha\)</span> lower CS for <span class="math inline">\(\nu(\pi)\)</span> as follows: <span class="math display">\[
+L_t^{\mathrm{LIL}}(\pi; \alpha)
+:= (k+1)\left(
+\frac{1}{t}\sum_{i=1}^t \xi_i
+-
+\frac{\sqrt{2.13\,\ell_t(\alpha)\,\bar V_t + 1.76\,\ell_t(\alpha)^2}}{t}
+-
+\frac{1.33\,\ell_t(\alpha)^2}{t}
+\right)\lor 0.
+\]</span></p>
+<p>Analogously, <span class="math inline">\(U_t^{\mathrm{LIL}}(\pi;\alpha)\)</span> denotes a <span class="math inline">\(1-\alpha\)</span> upper CS for <span class="math inline">\(\nu(\pi)\)</span> obtained by replacing <span class="math inline">\(\phi_t^{\mathrm{DRL}}\)</span> with <span class="math inline">\(\phi_t^{\mathrm{DRU}}\)</span> in all prior quantities: <span class="math display">\[
+U_t^{\mathrm{LIL}}(\pi; \alpha)
+:= 1 - (k+1)\left(
+\frac{1}{t}\sum_{i=1}^t \xi_i
+-
+\frac{\sqrt{2.13\,\ell_t(\alpha)\,\bar V_t + 1.76\,\ell_t(\alpha)^2}}{t}
+-
+\frac{1.33\,\ell_t(\alpha)^2}{t}
+\right)\lor 0.
+\]</span></p>
+</div>
+</div>
+<p>From here on, <span class="math inline">\(\left[L_t^{\mathrm{LIL}}(\pi;\alpha), \ U_t^{\mathrm{LIL}}(\pi;\alpha)\right]\)</span> will denote a valid two-sided <span class="math inline">\((1-\alpha)\)</span> CS constructed by a union bound over the lower and upper one-sided CSs, <span class="math inline">\(L_t^{\mathrm{LIL}}(\pi;\alpha/2)\)</span> and <span class="math inline">\(U_t^{\mathrm{LIL}}(\pi;\alpha/2)\)</span>.</p>
+</section>
+</section>
+<section id="finding-the-optimal-policy" class="level2">
+<h2 class="anchored" data-anchor-id="finding-the-optimal-policy">Finding the optimal policy</h2>
+<p>With this CS machinery in place, we can pivot to the challenge of identifying the optimal policy in <span class="math inline">\(\Pi\)</span>. With a fixed, overall significance level <span class="math inline">\(\alpha\)</span>, set the policy-level significance level to <span class="math inline">\(\frac{\alpha}{m}\)</span> for each <span class="math inline">\(\pi\in\Pi\)</span>. It follows by a union bound over <span class="math inline">\(\pi \in \Pi\)</span> that <span class="math display">\[
+\begin{equation}
+\mathbb{P}\left(\nu(\pi) \in \left[L_t^\mathrm{LIL}\left(\pi; \frac{\alpha}{m}\right), U_t^\mathrm{LIL}\left(\pi; \frac{\alpha}{m}\right)\right]: \forall t \ge 1, \forall \pi \in \Pi \right) \ge 1 - \alpha.
+\label{eq:simultaneous_coverage}
+\end{equation}
+\]</span></p>
+<p>Now, we state our first main result:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lemma 1 — Optimal policy set <span class="math inline">\(S_t\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Define the set <span class="math display">\[
+S_t:=\left\{\pi\in\Pi:\ U_t^{\mathrm{LIL}}\left(\pi; \frac{\alpha}{m}\right)\ \ge\ \max_{\pi'\in\Pi} L_t^{\mathrm{LIL}}\left(\pi'; \frac{\alpha}{m}\right)\right\}
+\]</span> and the set of optimal policies <span class="math display">\[
+\Pi^* := \left\{\pi \in \Pi : \nu(\pi) = \underset{\pi'\in\Pi}{\max}\ \nu(\pi') \right\}.
+\]</span> Then, <span class="math display">\[
+\mathbb{P}\left(\Pi^* \subseteq S_t : \forall t \ge 1\right) \ge 1 - \alpha.
+\]</span></p>
+</div>
+</div>
+<p><span class="math inline">\(S_t\)</span> utilizes a simple elimination strategy that trims clearly-sub-optimal policies until the optimal policy set is identified with probability <span class="math inline">\(\ge 1-\alpha\)</span>. This guarantee holds uniformly across all sample sizes <span class="math inline">\(t\)</span> and thus is anytime-valid .</p>
+<section id="stoppingidentification-time-and-sample-complexity" class="level3">
+<h3 class="anchored" data-anchor-id="stoppingidentification-time-and-sample-complexity">Stopping/Identification time and sample complexity</h3>
+<p>Suppose that there is a unique optimal policy <span class="math inline">\(\pi^*\)</span>. Define the suboptimality gap for each <span class="math inline">\(\pi \neq \pi^*\)</span> by <span class="math display">\[
+\Delta_\pi := \nu(\pi^*) - \nu(\pi),
+\]</span> and define <span class="math display">\[
+\Delta_{\min} := \min_{\pi \neq \pi^*}\Delta_\pi &gt; 0.
+\]</span></p>
+<p>Under minimal assumptions, this leads to the following natural stopping time definition and corresponding sample complexity result:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Theorem 1 — Stopping time and sample complexity rate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Define the stopping time <span class="math display">\[
+\tau:=\inf\left\{t\ge1:\ \exists \pi'\in\Pi\ \text{s.t.}\ L_t^{\mathrm{LIL}}\left(\pi';\frac{\alpha}{m}\right)\ &gt;\ \max_{\pi \neq \pi'} U_t^{\mathrm{LIL}}\left(\pi;\frac{\alpha}{m}\right)\right\}.
+\]</span> Then, with probability at least <span class="math inline">\(1-\alpha\)</span>, the following holds: <span class="math inline">\(\tau &lt; \infty\)</span>, <span class="math inline">\(S_\tau = \{\pi^*\}\)</span>, and there exist constants <span class="math inline">\(N&gt;0\)</span>, <span class="math inline">\(m_0 \ge 1\)</span>, and <span class="math inline">\(\Delta_0 \in (0,1)\)</span> such that for all <span class="math inline">\(m \ge m_0\)</span> and all <span class="math inline">\(0&lt;\Delta_{\min}\le \Delta_0\)</span>, <span class="math display">\[
+\tau \le N\,\frac{\log m + \log\log(1/\Delta_{\min})}{\Delta_{\min}^2}.
+\]</span> Equivalently, <span class="math display">\[
+\tau = O\!\left(\frac{\log m + \log\log(1/\Delta_{\min})}{\Delta_{\min}^2}\right) \qquad \text{as } m\to\infty \text{ and } \Delta_{\min}\downarrow 0.
+\]</span></p>
+</div>
+</div>
+<p>This sample complexity bound provides intuition on how we should expect the sample size required to identify <span class="math inline">\(\pi^*\)</span> to grow as a function of <span class="math inline">\(\Delta_{\min}\)</span> and <span class="math inline">\(m\)</span>: while increasing the number of candidate policies <span class="math inline">\(\left(m\right)\)</span> increases the required sample, it does so slowly (basically a log rate); in contrast, as the suboptimality gap <span class="math inline">\(\Delta_{\min}\)</span> gets smaller, the required sample grows at a rapid rate <span class="math inline">\(\left(\frac{1}{\Delta_{\min}^2}\right)\)</span> which quickly dominates the increase caused by <span class="math inline">\(m\)</span>. In short, the sample required to identify <span class="math inline">\(\pi^*\)</span> relies <em>heavily</em> on how big/small <span class="math inline">\(\Delta_{\min}\)</span> is.</p>
+</section>
+</section>
+<section id="empirical-demonstrations" class="level2">
+<h2 class="anchored" data-anchor-id="empirical-demonstrations">Empirical demonstrations</h2>
+<p>Now for the fun part! We can demonstrate the utility of these methods via some simulations.</p>
+<section id="data-generating-process" class="level3">
+<h3 class="anchored" data-anchor-id="data-generating-process">Data-Generating Process</h3>
+<p>All of the following demos (except Demo 4) share the same DGP. Contexts include three variables sampled independently <span class="math inline">\(X_t = (X_1, X_2, X_3)_t \sim \text{Uniform}(0, 1)^3\)</span>, binary treatment <span class="math inline">\(A_t \in \{0, 1\}\)</span>, and the following reward model: <span class="math display">\[
+R_t \sim \text{Beta}(\mu(X_t, A_t)*\kappa, \ (1-\mu(X_t, A_t))*\kappa),
+\]</span></p>
+<p>where <span class="math inline">\(\kappa = 3\)</span> and <span class="math inline">\(\mu(X_t, A_t) = \beta_{A_t, 0} + 0.1\left(X_1 + X_2 + X_3 \right)\)</span>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Action</th>
+<th>Intercept <span class="math inline">\(\beta_{A_t, 0}\)</span></th>
+<th><span class="math inline">\(\mathbb{E}[R | A]\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(A_t\)</span> = 0</td>
+<td>0.25</td>
+<td>0.40</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(A_t\)</span> = 1</td>
+<td>0.55</td>
+<td>0.70</td>
+</tr>
+</tbody>
+</table>
+<p>Since both actions share the same covariate slopes, the optimal action does not depend on context. The logging policy is <span class="math inline">\(h(A_t=1|X) = 0.5\)</span> (uniform randomization). All competing policies <span class="math inline">\(\pi \in \Pi\)</span> assign <span class="math inline">\(\pi(A_t=1|X)=p\)</span> for some <span class="math inline">\(p\in [0, 1]\)</span> independently of context, resulting in policy value <span class="math inline">\(\nu(\pi)=0.7p + 0.4(1-p)\)</span>. The logging policy value is <span class="math inline">\(\nu(h) = 0.55\)</span>. The overall significance level is <span class="math inline">\(\alpha=0.1\)</span>. Finally, our reward predictor <span class="math inline">\(\hat{r}_t\)</span> is an OLS estimator fitted on <span class="math inline">\(\left(\left(X_1, X_2, X_3\right)_i, A_i \right)_{i=1}^{t-1}\)</span>. Our stopping rule stops at the first <span class="math inline">\(t\)</span> when <span class="math inline">\(S_t\)</span> collapses to a single policy (the identified optimal policy).</p>
+</section>
+<section id="demos" class="level3">
+<h3 class="anchored" data-anchor-id="demos">Demos</h3>
+<section id="demo-1-simultaneous-inference-on-pi-and-nupi" class="level4">
+<h4 class="anchored" data-anchor-id="demo-1-simultaneous-inference-on-pi-and-nupi">Demo 1 — Simultaneous inference on <span class="math inline">\(\pi^*\)</span> and <span class="math inline">\(\nu(\pi)\)</span></h4>
+<p><strong>What it shows:</strong> These plots combine to demonstrate how, as we collect data, we can perform simultaneous inference on the optimal policy <span class="math inline">\(\pi^*\)</span> and the true policy values <span class="math inline">\(\nu(\pi)\)</span> for all <span class="math inline">\(\pi \in \Pi\)</span>. In the top panel we see the progression of <span class="math inline">\(S_t\)</span> and how sub-optimal policies are progressively eliminated until uniquely identifying <span class="math inline">\(\pi^*\)</span> at approximately <span class="math inline">\(t=1,300\)</span>. In the bottom panel, we see the CSs for each policy converging towards the true underyling policy value (denoted by the black, dashed horizontal line).</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>We simulate a single experiment with a maximum sample horizon of <span class="math inline">\(T=\)</span> 15,0000.</li>
+</ul>
+<p><img src="./figures/elimination-progression.png" class="img-fluid"> <img src="./figures/cs-progression.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-2-stopping-time-vs.-sub-optimality-gap-and-policy-class-size" class="level4">
+<h4 class="anchored" data-anchor-id="demo-2-stopping-time-vs.-sub-optimality-gap-and-policy-class-size">Demo 2 — Stopping time vs.&nbsp;sub-optimality gap and policy-class size</h4>
+<p><strong>What it shows:</strong> How the stopping time <span class="math inline">\(\tau\)</span> scales with the suboptimality gap <span class="math inline">\(\Delta_{\min}\)</span> and the size of our policy class <span class="math inline">\(m\)</span>. As expected, we see that the sample size required to uniquely identify <span class="math inline">\(\pi^*\)</span> decreases across both <span class="math inline">\(\Delta_{\min}\)</span> and <span class="math inline">\(m\)</span>.</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>We simulate an experiment with a maximum sample horizon of <span class="math inline">\(T=15,0000\)</span>.</li>
+<li>We evaluate the following grid <span class="math inline">\(\Delta_{\min} \in \{0.05, 0.10, 0.15, 0.20, 0.25\}; \ m \in \{2, 5, 10, 20\}\)</span>.</li>
+<li>We run N = 50 trials per <span class="math inline">\((\Delta_{\min}, m)\)</span> pair.</li>
+<li>For this and all remaining demos, we display results with two different types of CSs: LIL CSs (the CSs defined above), and Betting CSs (an alternative CS introduced by <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (<a href="#ref-waudby-smith_anytime-valid_2024" role="doc-biblioref">2024</a>)</span>). We will see that the Betting CSs uniformly outperform the LIL CSs.</li>
+</ul>
+<p><img src="./figures/stopping-time.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-3-optimal-policy-identification-probability-curve" class="level4">
+<h4 class="anchored" data-anchor-id="demo-3-optimal-policy-identification-probability-curve">Demo 3 — Optimal policy identification probability curve</h4>
+<p><strong>What it shows:</strong> The probability of uniquely identifying <span class="math inline">\(\pi^*\)</span> as a function of sample size <span class="math inline">\(t\)</span> — the “detection power curve” of the method. Intuitively, we can uniquely identify <span class="math inline">\(\pi^*\)</span> with high probability far more quickly for larger values of <span class="math inline">\(\Delta_{\min}\)</span>.</p>
+<p><strong>Setup:</strong> Basically a re-formulation of what we show in Demo 2. We plot the optimal policy identification probability across a grid of <span class="math inline">\(\Delta_{\min} \in \{0.05, 0.10, 0.15, 0.20, 0.25\}\)</span> but for a fixed policy class size, <span class="math inline">\(m=2\)</span>.</p>
+<p><img src="./figures/identification-probability.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-4-stopping-time-under-weak-oerlap" class="level4">
+<h4 class="anchored" data-anchor-id="demo-4-stopping-time-under-weak-oerlap">Demo 4 — Stopping time under weak oerlap</h4>
+<p>Suppose that in our population of subjects there exists a high-risk subgroup. For safety reasons, amongst this high-risk subgroup our logging policy can only assign the treatment condition with very low probability, e.g.&nbsp;<span class="math inline">\(h(A_t=1 | X_{\text{high-risk}}) = 0.005\)</span>. However, we may still be interested in understanding what our expected reward would be under a target policy <span class="math inline">\(\pi\)</span> that assigns the high-risk subgroup to the treatment condition with high probability, e.g. <span class="math inline">\(\pi(A_t=1 | X_{\text{high-risk}}) = 0.9\)</span>. In this scenario, which we will refer to as weak overlap, the individual importance weights are <span class="math inline">\(w_t = \frac{0.9}{0.001} = 900\)</span>. In this demo we want to explore how sample requirements for optimal policy identification change under weak overlap.</p>
+<p><strong>What it shows:</strong> How weak overlap between the logging policy <span class="math inline">\(h\)</span> and a target policy <span class="math inline">\(\pi\)</span> in a subset of the covariate space can inflate the stopping time. We plot the empirical distribution of stopping time under both types of CSs across a grid of increasing weak overlap severity. As expected, we see that the sample requirements for identifying <span class="math inline">\(\pi^*\)</span> increase tremendously under significant weak overlap.</p>
+<p><strong>Setup:</strong></p>
+<p>In this demo, we stray slightly from our standard DGP:</p>
+<ul>
+<li><p><strong>Context:</strong> We draw a single covariate <span class="math inline">\(X \sim \text{Uniform}(0, 1)\)</span>.</p></li>
+<li><p><strong>Reward:</strong> The reward model remains the same as before, but with a single covariate.</p></li>
+<li><p><strong>Logging policy:</strong> We will define the high-risk subgroup as all individuals whose covariate <span class="math inline">\(X_t &lt; \text{fraction}_\text{hr}\)</span> where <span class="math inline">\(\text{fraction}_\text{hr} \in [0, 1]\)</span> determines the proportion of the population that fall in the high-risk subgroup. For example, <span class="math inline">\(\text{fraction}_\text{hr} = 0.1\)</span> determines that 10% of the population falls in the high-risk subgroup. We then define the logging policy as <span class="math display">\[
+h(A_t = 1 \mid X_t)
+=
+\begin{cases}
+p_{\mathrm{hr}}, &amp; \text{if } X_t &lt; \mathrm{fraction}_{\mathrm{hr}},\\[6pt]
+0.50, &amp; \text{otherwise.}
+\end{cases}
+\]</span> where <span class="math inline">\(p_\text{hr}\)</span> is some very small value.</p></li>
+<li><p><strong>Weak overlap severity:</strong> We set the optimal policy in <span class="math inline">\(\Pi\)</span> as <span class="math inline">\(\pi^*(A_t = 1 | X_t) = 1\)</span> (always assign to treatment). The resulting max importance weight in the high-risk subgroup is <span class="math inline">\(w_{\max} = 1 / p_\text{hr}\)</span>. The table below delineates the levels of weak overlap severity we will investigate.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Severity</th>
+<th><span class="math inline">\(p_\text{hr}\)</span></th>
+<th><span class="math inline">\(w_{\max}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mild</td>
+<td>1/3</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Moderate</td>
+<td>0.10</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>High</td>
+<td>0.01</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<p><!-- | Severe    | 1/300   | 300     | --></p></li>
+<li><p><strong>High-risk subgroup sizes:</strong> We will also evaluate weak overlap over the following grid of high-risk subgroup sizes: <span class="math inline">\(\text{fraction}_\text{hr} \in \{0.05, 0.10, 0.20\}\)</span> (5%, 10%, 20% of contexts).</p></li>
+<li><p><strong>Policies:</strong> We have one optimal policy and two sub-optimal policies for a total of <span class="math inline">\(m=3\)</span> and we run N = 50 trials for each <span class="math inline">\(\left(p_\text{hr}, \ \text{fraction}_\text{hr}\right)\)</span> pair.</p></li>
+</ul>
+<p><img src="./figures/weak-overlap.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-5-stopping-time-vs.-policy-class-size-m" class="level4">
+<h4 class="anchored" data-anchor-id="demo-5-stopping-time-vs.-policy-class-size-m">Demo 5 — Stopping time vs.&nbsp;policy class size <span class="math inline">\(m\)</span></h4>
+<p><strong>What it shows:</strong> How sample size needed to identify <span class="math inline">\(\pi^*\)</span> scales with the policy class size <span class="math inline">\(m\)</span>. We plot the mean sample size across a grid of <span class="math inline">\(m\)</span> values. As implied by the sample complexity bound in Theorem 1, we see that sample size increases in <span class="math inline">\(m\)</span>, but at a rapidly decreasing rate.</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>Fix <span class="math inline">\(\Delta_{\min} = 0.10\)</span>. Then evaluate mean stopping size across the following grid: <span class="math inline">\(m \in \{2, 5, 10, 20, 50, 100\}\)</span>.</li>
+<li>Calculate the mean sample size across N = 30 trials per <span class="math inline">\(m\)</span> value.</li>
+</ul>
+<p><img src="./figures/m-scaling.png" class="img-fluid"></p>
+</section>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this post we have explored the setting where we have an existing (“status-quo”) intervention assignment policy and would like to test a handful of new policies to find which one maximizes the outcomes of our subjects. In particular, we have demonstrated how we can minimize risk by continuing to collect data with the status-quo policy while concurrently evaluating the full set of new policies on the collected data until we have identified which is the optimal policy. In addition, we can simultaneously do inference on the true expected outcomes under each of our new policies.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-waudby-smith_anytime-valid_2024" class="csl-entry" role="listitem">
+Waudby-Smith, Ian, Lili Wu, Aaditya Ramdas, Nikos Karampatziakis, and Paul Mineiro. 2024. <em>Anytime-Valid Off-Policy Inference for Contextual Bandits</em>. arXiv. <a href="https://doi.org/10.48550/arXiv.2210.10768">https://doi.org/10.48550/arXiv.2210.10768</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/dmolitor\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://quarto.org/">
+<p>Built with Quarto</p>
+</a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

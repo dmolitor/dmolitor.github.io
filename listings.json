@@ -2,6 +2,7 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/posts/optimal_policy_id/index.html",
       "/blog/posts/top_albums_2025/index.html",
       "/blog/posts/conjoint_analysis/index.html",
       "/blog/posts/anytime_valid_linear_models/index.html",

@@ -9,8 +9,260 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.8.27</generator>
-<lastBuildDate>Fri, 16 Jan 2026 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.36</generator>
+<lastBuildDate>Tue, 24 Mar 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Optimal Policy Identification: an Anytime-Valid Approach</title>
+  <link>https://dmolitor.com/blog/posts/optimal_policy_id/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Suppose we work at a tech firm and are part of a team that is in charge of a personalization algorithm. In particular, the existing personalization algorithm probabilistically assigns users to certain interventions (treatments) based on their individual characteristics. Perhaps the team would like to test a handful of cutting-edge personalization algorithms but are concerned that replacing the current version would risk downgrading user satisfaction and incurring significant costs. We would like to be able to continue collecting data with our existing algorithm (the “status-quo”) and concurrently identify which of the new algorithms would maximize user outcomes (e.g.&nbsp;satisfaction, or click-through). In this blog post we’ll demonstrate how we can identify the outcome-maximizing algorithm with corresponding anytime-valid inferential guarantees.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this example, the personalization algorithm is a particular type of experimental design, but the method we discuss here is broadly applicable across standard randomized designs, multi-arm bandits, and contextual bandits.</p>
+</div>
+</div>
+<section id="bandit-designs" class="level2">
+<h2 class="anchored" data-anchor-id="bandit-designs">Bandit designs</h2>
+<p>The general (contextual) bandit problem can be described informally as follows. An agent (in our case the personalization algorithm) views some contextual information <img src="https://latex.codecogs.com/png.latex?X_t%20%5Cin%20%5Cmathcal%7BX%7D"> for subject <img src="https://latex.codecogs.com/png.latex?t"> (their individual characteristics), assigns them to an intervention <img src="https://latex.codecogs.com/png.latex?A_t%20%5Cin%20%5Cmathcal%7BA%7D"> (e.g.&nbsp;to receive a particular advertisement), and observes some reward <img src="https://latex.codecogs.com/png.latex?R_t"> (e.g.&nbsp;whether the user clicks on it or not). Common examples are <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BX%7D"> as <img src="https://latex.codecogs.com/png.latex?d">-dimensional Euclidean space, and <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BA%7D"> as a binary treatment in <img src="https://latex.codecogs.com/png.latex?%5C%7B0,%201%5C%7D">.</p>
+<p>Our primary objective is to identify the optimal personalization algorithm — the algorithm that maximizes expected rewards (user outcomes). From here on, we will refer to the personalization algorithms as policies (the typical verbiage in the literature). In our setting, a policy <img src="https://latex.codecogs.com/png.latex?%5Cpi(a%20%7C%20x)"> is simply a conditional distribution over interventions given context <img src="https://latex.codecogs.com/png.latex?X_t">. We denote the expected reward under <img src="https://latex.codecogs.com/png.latex?%5Cpi(a%20%7C%20x)"> as <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)%20:=%20%5Cmathbb%7BE%7D_%5Cpi%5BR%5D">. This setup generalizes to standard randomized designs and multi-arm bandits by setting the context to be constant across all units. However, for the remainder of this post we’ll assume that we’re working with contextual bandits.</p>
+<p>Building on the methods of <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (2024)</span>, we will demonstrate how to identify the outcome-maximizing policy from a collection of candidate policies, all while collecting data using the status-quo policy (hereafter referred to as the “logging” policy).</p>
+</section>
+<section id="setup-and-notation" class="level2">
+<h2 class="anchored" data-anchor-id="setup-and-notation">Setup and notation</h2>
+<p>Much of the following notation is taken directly from <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (2024)</span>; please see their excellent paper for further details.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?%5CPi=%5C%7B%5Cpi_1,%5Cdots,%5Cpi_m%5C%7D"> denote a finite class of policies, where <img src="https://latex.codecogs.com/png.latex?m:=%7C%5CPi%7C">. We observe contextual bandit data <img src="https://latex.codecogs.com/png.latex?(X_t,A_t,R_t)_%7Bt%5Cge1%7D"> generated sequentially by a logging policy <img src="https://latex.codecogs.com/png.latex?(h_t)_%7Bt%5Cge1%7D">. The history at each unit <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%20H_t"> is comprised of all the information contained in <img src="https://latex.codecogs.com/png.latex?(X_t,A_t,R_t)_%7Bi-1%7D%5Et">. Formally, conditional on the past history <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%20H_%7Bt-1%7D"> and the current context <img src="https://latex.codecogs.com/png.latex?X_t">, the intervention satisfies <img src="https://latex.codecogs.com/png.latex?%0AA_t%20%5Cmid%20(X_t,%5Cmathcal%20H_%7Bt-1%7D)%20%5Csim%20h_t(%5Ccdot%20%5Cmid%20X_t),%0A"></p>
+<p>We assume the rewards satisfy <img src="https://latex.codecogs.com/png.latex?R_t%5Cin%5B0,1%5D"> almost surely — a common assumption in contextual bandits. For our problem setup to be meaningful, we assume that we are working in the time-invariant policy value setting: for each <img src="https://latex.codecogs.com/png.latex?%5Cpi%5Cin%5CPi">, let <img src="https://latex.codecogs.com/png.latex?%0A%5Cnu_t(%5Cpi):=%5Cmathbb%7BE%7D_%5Cpi%5BR_t%20%7C%20%5Cmathcal%20H_%7Bt-1%7D%5D,%0A"> and assume that there exists a constant value <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)%5Cin%5B0,1%5D"> such that <img src="https://latex.codecogs.com/png.latex?%5Cnu_t(%5Cpi)=%5Cnu(%5Cpi)"> for all <img src="https://latex.codecogs.com/png.latex?t%5Cge1">. Let <img src="https://latex.codecogs.com/png.latex?%0A%5Cpi%5E%5Cstar%20%5Cin%20%5Carg%5Cmax_%7B%5Cpi%5Cin%5CPi%7D%20%5Cnu(%5Cpi)%0A"> denote an optimal policy.</p>
+<p>With this notation in hand, we can now define a key component for estimating our target estimands: <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)%20%5C%20%5Cforall%20%5Cpi%20%5Cin%20%5CPi">.</p>
+<section id="doubly-robust-pseudo-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="doubly-robust-pseudo-outcomes">Doubly-robust pseudo-outcomes</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We use the term doubly-robust in the sense of constructing regression-adjusted, inverse-weighted pseudo-outcomes that enjoy variance reduction without compromising their validity. Doubly-robust here does NOT imply that the statistical guarantees of our method rely on the regression model being unbiased/consistent. In fact, the guarantees hold even when the regression model is bad (e.g.&nbsp;misspecified, inconsistent, etc).</p>
+</div>
+</div>
+<p>For a candidate policy <img src="https://latex.codecogs.com/png.latex?%5Cpi%5Cin%5CPi">, define the importance weight at unit <img src="https://latex.codecogs.com/png.latex?t"> as <img src="https://latex.codecogs.com/png.latex?%0Aw_t(%5Cpi):=%5Cfrac%7B%5Cpi(A_t%5Cmid%20X_t)%7D%7Bh_t(A_t%5Cmid%20X_t)%7D.%0A"> Let <img src="https://latex.codecogs.com/png.latex?%5Cwidehat%20r_t(x,a)"> denote any <img src="https://latex.codecogs.com/png.latex?%5B0,%201%5D">-valued predictor of <img src="https://latex.codecogs.com/png.latex?R_t"> constructed from the history <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%20H_%7Bt-1%7D">. Define the lower and upper doubly-robust pseudo-outcomes</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%5Cphi_t%5E%7B%5Cmathrm%7BDRL%7D%7D(%5Cpi)%0A&amp;:=%20w_t(%5Cpi)%5C!%5Cleft(R_t-%5CBig%5B%5Cwidehat%20r_t(X_t,A_t)%5Cwedge%20%5Ctfrac%7Bk_t%7D%7Bw_t(%5Cpi)%7D%5CBig%5D%5Cright)%20%5Cnotag%5C%5C%0A&amp;%5Cquad%20+%20%5Cmathbb%7BE%7D_%7Ba%5Csim%5Cpi(%5Ccdot%5Cmid%20X_t)%7D%0A%5C!%5Cleft(%5Cwidehat%20r_t(X_t,a)%5Cwedge%20%5Ctfrac%7Bk_t%7D%7Bw_t(%5Cpi)%7D%5Cright),%20%5C%5C%0A%5Cphi_t%5E%7B%5Cmathrm%7BDRU%7D%7D(%5Cpi)%0A&amp;:=%20w_t(%5Cpi)%5C!%5Cleft((1-R_t)-%5CBig%5B(1-%5Cwidehat%20r_t(X_t,A_t))%5Cwedge%20%5Ctfrac%7Bk_t%7D%7Bw_t(%5Cpi)%7D%5CBig%5D%5Cright)%20%5Cnotag%5C%5C%0A&amp;%5Cquad%20+%20%5Cmathbb%7BE%7D_%7Ba%5Csim%5Cpi(%5Ccdot%5Cmid%20X_t)%7D%0A%5C!%5Cleft((1-%5Cwidehat%20r_t(X_t,a))%5Cwedge%20%5Ctfrac%7Bk_t%7D%7Bw_t(%5Cpi)%7D%5Cright).%0A%5Cend%7Balign%7D%0A"></p>
+<p>Next, we will demonstrate how to use these doubly-robust pseudo-outcomes to construct valid confidence sequences (CSs) for <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)">.</p>
+</section>
+<section id="cs-construction" class="level3">
+<h3 class="anchored" data-anchor-id="cs-construction">CS construction</h3>
+<p>Let <img src="https://latex.codecogs.com/png.latex?k_1=k_2=%5Ccdots%20=%20k%20%5Cge%200"> be a fixed constant and let <img src="https://latex.codecogs.com/png.latex?%5Cxi_0%20%5Cin%20%5B0,(1+k)%5E%7B-1%7D%5D">. For <img src="https://latex.codecogs.com/png.latex?t%20%5Cge%201">, define the scaled doubly robust pseudo-outcomes <img src="https://latex.codecogs.com/png.latex?%0A%5Cxi_t%20:=%20%5Cfrac%7B%5Cphi_t%7D%7B1+k%7D,%0A"> where <img src="https://latex.codecogs.com/png.latex?%5Cphi_t%20:=%20%5Cphi_t%5E%7B%5Cmathrm%7BDRL%7D%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cphi_t%5E%7B%5Cmathrm%7BDRU%7D%7D">, depending on which bound is being constructed. Then define <img src="https://latex.codecogs.com/png.latex?%0A%5Chat%7B%5Cxi%7D_0%20:=%20%5Cxi_0%20%5C%20;%20%5C%20%5Chat%7B%5Cxi%7D_t%20:=%20%5Cleft(%5Cfrac%7B1%7D%7Bt%7D%5Csum_%7Bi=1%7D%5Et%20%5Cxi_i%5Cright)%5Cwedge%20%5Cfrac%7B1%7D%7B1+k%7D,%0A"> the variance process <img src="https://latex.codecogs.com/png.latex?%0AV_t%20:=%20%5Csum_%7Bi=1%7D%5Et%20(%5Cxi_i%20-%20%5Chat%7B%5Cxi%7D_%7Bi-1%7D)%5E2,%0A"> and the stabilized version <img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%20V_t%20:=%20V_t%20%5Cvee%201.%0A"></p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?%5Calpha%20%5Cin%20(0,1)"> denote a significance level and define <img src="https://latex.codecogs.com/png.latex?%0A%5Cell_t(%5Calpha)%20:=%202%5Clog(%5Clog%20%5Cbar%20V_t%20+%201)%20+%20%5Clog%5Cleft(%5Cfrac%7B1.65%7D%7B%5Calpha%7D%5Cright).%0A"></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Proposition 3 of <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (2024)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Using these quantities, we can construct a valid <img src="https://latex.codecogs.com/png.latex?1-%5Calpha"> lower CS for <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)"> as follows: <img src="https://latex.codecogs.com/png.latex?%0AL_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%20%5Calpha)%0A:=%20(k+1)%5Cleft(%0A%5Cfrac%7B1%7D%7Bt%7D%5Csum_%7Bi=1%7D%5Et%20%5Cxi_i%0A-%0A%5Cfrac%7B%5Csqrt%7B2.13%5C,%5Cell_t(%5Calpha)%5C,%5Cbar%20V_t%20+%201.76%5C,%5Cell_t(%5Calpha)%5E2%7D%7D%7Bt%7D%0A-%0A%5Cfrac%7B1.33%5C,%5Cell_t(%5Calpha)%5E2%7D%7Bt%7D%0A%5Cright)%5Clor%200.%0A"></p>
+<p>Analogously, <img src="https://latex.codecogs.com/png.latex?U_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%5Calpha)"> denotes a <img src="https://latex.codecogs.com/png.latex?1-%5Calpha"> upper CS for <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)"> obtained by replacing <img src="https://latex.codecogs.com/png.latex?%5Cphi_t%5E%7B%5Cmathrm%7BDRL%7D%7D"> with <img src="https://latex.codecogs.com/png.latex?%5Cphi_t%5E%7B%5Cmathrm%7BDRU%7D%7D"> in all prior quantities: <img src="https://latex.codecogs.com/png.latex?%0AU_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%20%5Calpha)%0A:=%201%20-%20(k+1)%5Cleft(%0A%5Cfrac%7B1%7D%7Bt%7D%5Csum_%7Bi=1%7D%5Et%20%5Cxi_i%0A-%0A%5Cfrac%7B%5Csqrt%7B2.13%5C,%5Cell_t(%5Calpha)%5C,%5Cbar%20V_t%20+%201.76%5C,%5Cell_t(%5Calpha)%5E2%7D%7D%7Bt%7D%0A-%0A%5Cfrac%7B1.33%5C,%5Cell_t(%5Calpha)%5E2%7D%7Bt%7D%0A%5Cright)%5Clor%200.%0A"></p>
+</div>
+</div>
+<p>From here on, <img src="https://latex.codecogs.com/png.latex?%5Cleft%5BL_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%5Calpha),%20%5C%20U_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%5Calpha)%5Cright%5D"> will denote a valid two-sided <img src="https://latex.codecogs.com/png.latex?(1-%5Calpha)"> CS constructed by a union bound over the lower and upper one-sided CSs, <img src="https://latex.codecogs.com/png.latex?L_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%5Calpha/2)"> and <img src="https://latex.codecogs.com/png.latex?U_t%5E%7B%5Cmathrm%7BLIL%7D%7D(%5Cpi;%5Calpha/2)">.</p>
+</section>
+</section>
+<section id="finding-the-optimal-policy" class="level2">
+<h2 class="anchored" data-anchor-id="finding-the-optimal-policy">Finding the optimal policy</h2>
+<p>With this CS machinery in place, we can pivot to the challenge of identifying the optimal policy in <img src="https://latex.codecogs.com/png.latex?%5CPi">. With a fixed, overall significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha">, set the policy-level significance level to <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B%5Calpha%7D%7Bm%7D"> for each <img src="https://latex.codecogs.com/png.latex?%5Cpi%5Cin%5CPi">. It follows by a union bound over <img src="https://latex.codecogs.com/png.latex?%5Cpi%20%5Cin%20%5CPi"> that <img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bequation%7D%0A%5Cmathbb%7BP%7D%5Cleft(%5Cnu(%5Cpi)%20%5Cin%20%5Cleft%5BL_t%5E%5Cmathrm%7BLIL%7D%5Cleft(%5Cpi;%20%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright),%20U_t%5E%5Cmathrm%7BLIL%7D%5Cleft(%5Cpi;%20%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright)%5Cright%5D:%20%5Cforall%20t%20%5Cge%201,%20%5Cforall%20%5Cpi%20%5Cin%20%5CPi%20%5Cright)%20%5Cge%201%20-%20%5Calpha.%0A%5Clabel%7Beq:simultaneous_coverage%7D%0A%5Cend%7Bequation%7D%0A"></p>
+<p>Now, we state our first main result:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Lemma 1 — Optimal policy set <img src="https://latex.codecogs.com/png.latex?S_t">
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Define the set <img src="https://latex.codecogs.com/png.latex?%0AS_t:=%5Cleft%5C%7B%5Cpi%5Cin%5CPi:%5C%20U_t%5E%7B%5Cmathrm%7BLIL%7D%7D%5Cleft(%5Cpi;%20%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright)%5C%20%5Cge%5C%20%5Cmax_%7B%5Cpi'%5Cin%5CPi%7D%20L_t%5E%7B%5Cmathrm%7BLIL%7D%7D%5Cleft(%5Cpi';%20%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright)%5Cright%5C%7D%0A"> and the set of optimal policies <img src="https://latex.codecogs.com/png.latex?%0A%5CPi%5E*%20:=%20%5Cleft%5C%7B%5Cpi%20%5Cin%20%5CPi%20:%20%5Cnu(%5Cpi)%20=%20%5Cunderset%7B%5Cpi'%5Cin%5CPi%7D%7B%5Cmax%7D%5C%20%5Cnu(%5Cpi')%20%5Cright%5C%7D.%0A"> Then, <img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbb%7BP%7D%5Cleft(%5CPi%5E*%20%5Csubseteq%20S_t%20:%20%5Cforall%20t%20%5Cge%201%5Cright)%20%5Cge%201%20-%20%5Calpha.%0A"></p>
+</div>
+</div>
+<p><img src="https://latex.codecogs.com/png.latex?S_t"> utilizes a simple elimination strategy that trims clearly-sub-optimal policies until the optimal policy set is identified with probability <img src="https://latex.codecogs.com/png.latex?%5Cge%201-%5Calpha">. This guarantee holds uniformly across all sample sizes <img src="https://latex.codecogs.com/png.latex?t"> and thus is anytime-valid .</p>
+<section id="stoppingidentification-time-and-sample-complexity" class="level3">
+<h3 class="anchored" data-anchor-id="stoppingidentification-time-and-sample-complexity">Stopping/Identification time and sample complexity</h3>
+<p>Suppose that there is a unique optimal policy <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*">. Define the suboptimality gap for each <img src="https://latex.codecogs.com/png.latex?%5Cpi%20%5Cneq%20%5Cpi%5E*"> by <img src="https://latex.codecogs.com/png.latex?%0A%5CDelta_%5Cpi%20:=%20%5Cnu(%5Cpi%5E*)%20-%20%5Cnu(%5Cpi),%0A"> and define <img src="https://latex.codecogs.com/png.latex?%0A%5CDelta_%7B%5Cmin%7D%20:=%20%5Cmin_%7B%5Cpi%20%5Cneq%20%5Cpi%5E*%7D%5CDelta_%5Cpi%20%3E%200.%0A"></p>
+<p>Under minimal assumptions, this leads to the following natural stopping time definition and corresponding sample complexity result:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Theorem 1 — Stopping time and sample complexity rate
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Define the stopping time <img src="https://latex.codecogs.com/png.latex?%0A%5Ctau:=%5Cinf%5Cleft%5C%7Bt%5Cge1:%5C%20%5Cexists%20%5Cpi'%5Cin%5CPi%5C%20%5Ctext%7Bs.t.%7D%5C%20L_t%5E%7B%5Cmathrm%7BLIL%7D%7D%5Cleft(%5Cpi';%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright)%5C%20%3E%5C%20%5Cmax_%7B%5Cpi%20%5Cneq%20%5Cpi'%7D%20U_t%5E%7B%5Cmathrm%7BLIL%7D%7D%5Cleft(%5Cpi;%5Cfrac%7B%5Calpha%7D%7Bm%7D%5Cright)%5Cright%5C%7D.%0A"> Then, with probability at least <img src="https://latex.codecogs.com/png.latex?1-%5Calpha">, the following holds: <img src="https://latex.codecogs.com/png.latex?%5Ctau%20%3C%20%5Cinfty">, <img src="https://latex.codecogs.com/png.latex?S_%5Ctau%20=%20%5C%7B%5Cpi%5E*%5C%7D">, and there exist constants <img src="https://latex.codecogs.com/png.latex?N%3E0">, <img src="https://latex.codecogs.com/png.latex?m_0%20%5Cge%201">, and <img src="https://latex.codecogs.com/png.latex?%5CDelta_0%20%5Cin%20(0,1)"> such that for all <img src="https://latex.codecogs.com/png.latex?m%20%5Cge%20m_0"> and all <img src="https://latex.codecogs.com/png.latex?0%3C%5CDelta_%7B%5Cmin%7D%5Cle%20%5CDelta_0">, <img src="https://latex.codecogs.com/png.latex?%0A%5Ctau%20%5Cle%20N%5C,%5Cfrac%7B%5Clog%20m%20+%20%5Clog%5Clog(1/%5CDelta_%7B%5Cmin%7D)%7D%7B%5CDelta_%7B%5Cmin%7D%5E2%7D.%0A"> Equivalently, <img src="https://latex.codecogs.com/png.latex?%0A%5Ctau%20=%20O%5C!%5Cleft(%5Cfrac%7B%5Clog%20m%20+%20%5Clog%5Clog(1/%5CDelta_%7B%5Cmin%7D)%7D%7B%5CDelta_%7B%5Cmin%7D%5E2%7D%5Cright)%20%5Cqquad%20%5Ctext%7Bas%20%7D%20m%5Cto%5Cinfty%20%5Ctext%7B%20and%20%7D%20%5CDelta_%7B%5Cmin%7D%5Cdownarrow%200.%0A"></p>
+</div>
+</div>
+<p>This sample complexity bound provides intuition on how we should expect the sample size required to identify <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> to grow as a function of <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D"> and <img src="https://latex.codecogs.com/png.latex?m">: while increasing the number of candidate policies <img src="https://latex.codecogs.com/png.latex?%5Cleft(m%5Cright)"> increases the required sample, it does so slowly (basically a log rate); in contrast, as the suboptimality gap <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D"> gets smaller, the required sample grows at a rapid rate <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Cfrac%7B1%7D%7B%5CDelta_%7B%5Cmin%7D%5E2%7D%5Cright)"> which quickly dominates the increase caused by <img src="https://latex.codecogs.com/png.latex?m">. In short, the sample required to identify <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> relies <em>heavily</em> on how big/small <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D"> is.</p>
+</section>
+</section>
+<section id="empirical-demonstrations" class="level2">
+<h2 class="anchored" data-anchor-id="empirical-demonstrations">Empirical demonstrations</h2>
+<p>Now for the fun part! We can demonstrate the utility of these methods via some simulations.</p>
+<section id="data-generating-process" class="level3">
+<h3 class="anchored" data-anchor-id="data-generating-process">Data-Generating Process</h3>
+<p>All of the following demos (except Demo 4) share the same DGP. Contexts include three variables sampled independently <img src="https://latex.codecogs.com/png.latex?X_t%20=%20(X_1,%20X_2,%20X_3)_t%20%5Csim%20%5Ctext%7BUniform%7D(0,%201)%5E3">, binary treatment <img src="https://latex.codecogs.com/png.latex?A_t%20%5Cin%20%5C%7B0,%201%5C%7D">, and the following reward model: <img src="https://latex.codecogs.com/png.latex?%0AR_t%20%5Csim%20%5Ctext%7BBeta%7D(%5Cmu(X_t,%20A_t)*%5Ckappa,%20%5C%20(1-%5Cmu(X_t,%20A_t))*%5Ckappa),%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Ckappa%20=%203"> and <img src="https://latex.codecogs.com/png.latex?%5Cmu(X_t,%20A_t)%20=%20%5Cbeta_%7BA_t,%200%7D%20+%200.1%5Cleft(X_1%20+%20X_2%20+%20X_3%20%5Cright)">.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Action</th>
+<th>Intercept <img src="https://latex.codecogs.com/png.latex?%5Cbeta_%7BA_t,%200%7D"></th>
+<th><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5BR%20%7C%20A%5D"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="https://latex.codecogs.com/png.latex?A_t"> = 0</td>
+<td>0.25</td>
+<td>0.40</td>
+</tr>
+<tr class="even">
+<td><img src="https://latex.codecogs.com/png.latex?A_t"> = 1</td>
+<td>0.55</td>
+<td>0.70</td>
+</tr>
+</tbody>
+</table>
+<p>Since both actions share the same covariate slopes, the optimal action does not depend on context. The logging policy is <img src="https://latex.codecogs.com/png.latex?h(A_t=1%7CX)%20=%200.5"> (uniform randomization). All competing policies <img src="https://latex.codecogs.com/png.latex?%5Cpi%20%5Cin%20%5CPi"> assign <img src="https://latex.codecogs.com/png.latex?%5Cpi(A_t=1%7CX)=p"> for some <img src="https://latex.codecogs.com/png.latex?p%5Cin%20%5B0,%201%5D"> independently of context, resulting in policy value <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)=0.7p%20+%200.4(1-p)">. The logging policy value is <img src="https://latex.codecogs.com/png.latex?%5Cnu(h)%20=%200.55">. The overall significance level is <img src="https://latex.codecogs.com/png.latex?%5Calpha=0.1">. Finally, our reward predictor <img src="https://latex.codecogs.com/png.latex?%5Chat%7Br%7D_t"> is an OLS estimator fitted on <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Cleft(X_1,%20X_2,%20X_3%5Cright)_i,%20A_i%20%5Cright)_%7Bi=1%7D%5E%7Bt-1%7D">. Our stopping rule stops at the first <img src="https://latex.codecogs.com/png.latex?t"> when <img src="https://latex.codecogs.com/png.latex?S_t"> collapses to a single policy (the identified optimal policy).</p>
+</section>
+<section id="demos" class="level3">
+<h3 class="anchored" data-anchor-id="demos">Demos</h3>
+<section id="demo-1-simultaneous-inference-on-pi-and-nupi" class="level4">
+<h4 class="anchored" data-anchor-id="demo-1-simultaneous-inference-on-pi-and-nupi">Demo 1 — Simultaneous inference on <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> and <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)"></h4>
+<p><strong>What it shows:</strong> These plots combine to demonstrate how, as we collect data, we can perform simultaneous inference on the optimal policy <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> and the true policy values <img src="https://latex.codecogs.com/png.latex?%5Cnu(%5Cpi)"> for all <img src="https://latex.codecogs.com/png.latex?%5Cpi%20%5Cin%20%5CPi">. In the top panel we see the progression of <img src="https://latex.codecogs.com/png.latex?S_t"> and how sub-optimal policies are progressively eliminated until uniquely identifying <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> at approximately <img src="https://latex.codecogs.com/png.latex?t=1,300">. In the bottom panel, we see the CSs for each policy converging towards the true underyling policy value (denoted by the black, dashed horizontal line).</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>We simulate a single experiment with a maximum sample horizon of <img src="https://latex.codecogs.com/png.latex?T="> 15,0000.</li>
+</ul>
+<p><img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/elimination-progression.png" class="img-fluid"> <img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/cs-progression.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-2-stopping-time-vs.-sub-optimality-gap-and-policy-class-size" class="level4">
+<h4 class="anchored" data-anchor-id="demo-2-stopping-time-vs.-sub-optimality-gap-and-policy-class-size">Demo 2 — Stopping time vs.&nbsp;sub-optimality gap and policy-class size</h4>
+<p><strong>What it shows:</strong> How the stopping time <img src="https://latex.codecogs.com/png.latex?%5Ctau"> scales with the suboptimality gap <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D"> and the size of our policy class <img src="https://latex.codecogs.com/png.latex?m">. As expected, we see that the sample size required to uniquely identify <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> decreases across both <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D"> and <img src="https://latex.codecogs.com/png.latex?m">.</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>We simulate an experiment with a maximum sample horizon of <img src="https://latex.codecogs.com/png.latex?T=15,0000">.</li>
+<li>We evaluate the following grid <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D%20%5Cin%20%5C%7B0.05,%200.10,%200.15,%200.20,%200.25%5C%7D;%20%5C%20m%20%5Cin%20%5C%7B2,%205,%2010,%2020%5C%7D">.</li>
+<li>We run N = 50 trials per <img src="https://latex.codecogs.com/png.latex?(%5CDelta_%7B%5Cmin%7D,%20m)"> pair.</li>
+<li>For this and all remaining demos, we display results with two different types of CSs: LIL CSs (the CSs defined above), and Betting CSs (an alternative CS introduced by <span class="citation" data-cites="waudby-smith_anytime-valid_2024">Waudby-Smith et al. (2024)</span>). We will see that the Betting CSs uniformly outperform the LIL CSs.</li>
+</ul>
+<p><img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/stopping-time.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-3-optimal-policy-identification-probability-curve" class="level4">
+<h4 class="anchored" data-anchor-id="demo-3-optimal-policy-identification-probability-curve">Demo 3 — Optimal policy identification probability curve</h4>
+<p><strong>What it shows:</strong> The probability of uniquely identifying <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> as a function of sample size <img src="https://latex.codecogs.com/png.latex?t"> — the “detection power curve” of the method. Intuitively, we can uniquely identify <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> with high probability far more quickly for larger values of <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D">.</p>
+<p><strong>Setup:</strong> Basically a re-formulation of what we show in Demo 2. We plot the optimal policy identification probability across a grid of <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D%20%5Cin%20%5C%7B0.05,%200.10,%200.15,%200.20,%200.25%5C%7D"> but for a fixed policy class size, <img src="https://latex.codecogs.com/png.latex?m=2">.</p>
+<p><img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/identification-probability.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-4-stopping-time-under-weak-oerlap" class="level4">
+<h4 class="anchored" data-anchor-id="demo-4-stopping-time-under-weak-oerlap">Demo 4 — Stopping time under weak oerlap</h4>
+<p>Suppose that in our population of subjects there exists a high-risk subgroup. For safety reasons, amongst this high-risk subgroup our logging policy can only assign the treatment condition with very low probability, e.g.&nbsp;<img src="https://latex.codecogs.com/png.latex?h(A_t=1%20%7C%20X_%7B%5Ctext%7Bhigh-risk%7D%7D)%20=%200.005">. However, we may still be interested in understanding what our expected reward would be under a target policy <img src="https://latex.codecogs.com/png.latex?%5Cpi"> that assigns the high-risk subgroup to the treatment condition with high probability, e.g. <img src="https://latex.codecogs.com/png.latex?%5Cpi(A_t=1%20%7C%20X_%7B%5Ctext%7Bhigh-risk%7D%7D)%20=%200.9">. In this scenario, which we will refer to as weak overlap, the individual importance weights are <img src="https://latex.codecogs.com/png.latex?w_t%20=%20%5Cfrac%7B0.9%7D%7B0.001%7D%20=%20900">. In this demo we want to explore how sample requirements for optimal policy identification change under weak overlap.</p>
+<p><strong>What it shows:</strong> How weak overlap between the logging policy <img src="https://latex.codecogs.com/png.latex?h"> and a target policy <img src="https://latex.codecogs.com/png.latex?%5Cpi"> in a subset of the covariate space can inflate the stopping time. We plot the empirical distribution of stopping time under both types of CSs across a grid of increasing weak overlap severity. As expected, we see that the sample requirements for identifying <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> increase tremendously under significant weak overlap.</p>
+<p><strong>Setup:</strong></p>
+<p>In this demo, we stray slightly from our standard DGP:</p>
+<ul>
+<li><p><strong>Context:</strong> We draw a single covariate <img src="https://latex.codecogs.com/png.latex?X%20%5Csim%20%5Ctext%7BUniform%7D(0,%201)">.</p></li>
+<li><p><strong>Reward:</strong> The reward model remains the same as before, but with a single covariate.</p></li>
+<li><p><strong>Logging policy:</strong> We will define the high-risk subgroup as all individuals whose covariate <img src="https://latex.codecogs.com/png.latex?X_t%20%3C%20%5Ctext%7Bfraction%7D_%5Ctext%7Bhr%7D"> where <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bfraction%7D_%5Ctext%7Bhr%7D%20%5Cin%20%5B0,%201%5D"> determines the proportion of the population that fall in the high-risk subgroup. For example, <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bfraction%7D_%5Ctext%7Bhr%7D%20=%200.1"> determines that 10% of the population falls in the high-risk subgroup. We then define the logging policy as <img src="https://latex.codecogs.com/png.latex?%0Ah(A_t%20=%201%20%5Cmid%20X_t)%0A=%0A%5Cbegin%7Bcases%7D%0Ap_%7B%5Cmathrm%7Bhr%7D%7D,%20&amp;%20%5Ctext%7Bif%20%7D%20X_t%20%3C%20%5Cmathrm%7Bfraction%7D_%7B%5Cmathrm%7Bhr%7D%7D,%5C%5C%5B6pt%5D%0A0.50,%20&amp;%20%5Ctext%7Botherwise.%7D%0A%5Cend%7Bcases%7D%0A"> where <img src="https://latex.codecogs.com/png.latex?p_%5Ctext%7Bhr%7D"> is some very small value.</p></li>
+<li><p><strong>Weak overlap severity:</strong> We set the optimal policy in <img src="https://latex.codecogs.com/png.latex?%5CPi"> as <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*(A_t%20=%201%20%7C%20X_t)%20=%201"> (always assign to treatment). The resulting max importance weight in the high-risk subgroup is <img src="https://latex.codecogs.com/png.latex?w_%7B%5Cmax%7D%20=%201%20/%20p_%5Ctext%7Bhr%7D">. The table below delineates the levels of weak overlap severity we will investigate.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Severity</th>
+<th><img src="https://latex.codecogs.com/png.latex?p_%5Ctext%7Bhr%7D"></th>
+<th><img src="https://latex.codecogs.com/png.latex?w_%7B%5Cmax%7D"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mild</td>
+<td>1/3</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Moderate</td>
+<td>0.10</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>High</td>
+<td>0.01</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<p><!-- | Severe    | 1/300   | 300     | --></p></li>
+<li><p><strong>High-risk subgroup sizes:</strong> We will also evaluate weak overlap over the following grid of high-risk subgroup sizes: <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bfraction%7D_%5Ctext%7Bhr%7D%20%5Cin%20%5C%7B0.05,%200.10,%200.20%5C%7D"> (5%, 10%, 20% of contexts).</p></li>
+<li><p><strong>Policies:</strong> We have one optimal policy and two sub-optimal policies for a total of <img src="https://latex.codecogs.com/png.latex?m=3"> and we run N = 50 trials for each <img src="https://latex.codecogs.com/png.latex?%5Cleft(p_%5Ctext%7Bhr%7D,%20%5C%20%5Ctext%7Bfraction%7D_%5Ctext%7Bhr%7D%5Cright)"> pair.</p></li>
+</ul>
+<p><img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/weak-overlap.png" class="img-fluid"></p>
+<hr>
+</section>
+<section id="demo-5-stopping-time-vs.-policy-class-size-m" class="level4">
+<h4 class="anchored" data-anchor-id="demo-5-stopping-time-vs.-policy-class-size-m">Demo 5 — Stopping time vs.&nbsp;policy class size <img src="https://latex.codecogs.com/png.latex?m"></h4>
+<p><strong>What it shows:</strong> How sample size needed to identify <img src="https://latex.codecogs.com/png.latex?%5Cpi%5E*"> scales with the policy class size <img src="https://latex.codecogs.com/png.latex?m">. We plot the mean sample size across a grid of <img src="https://latex.codecogs.com/png.latex?m"> values. As implied by the sample complexity bound in Theorem 1, we see that sample size increases in <img src="https://latex.codecogs.com/png.latex?m">, but at a rapidly decreasing rate.</p>
+<p><strong>Setup:</strong></p>
+<ul>
+<li>Fix <img src="https://latex.codecogs.com/png.latex?%5CDelta_%7B%5Cmin%7D%20=%200.10">. Then evaluate mean stopping size across the following grid: <img src="https://latex.codecogs.com/png.latex?m%20%5Cin%20%5C%7B2,%205,%2010,%2020,%2050,%20100%5C%7D">.</li>
+<li>Calculate the mean sample size across N = 30 trials per <img src="https://latex.codecogs.com/png.latex?m"> value.</li>
+</ul>
+<p><img src="https://dmolitor.com/blog/posts/optimal_policy_id/figures/m-scaling.png" class="img-fluid"></p>
+</section>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this post we have explored the setting where we have an existing (“status-quo”) intervention assignment policy and would like to test a handful of new policies to find which one maximizes the outcomes of our subjects. In particular, we have demonstrated how we can minimize risk by continuing to collect data with the status-quo policy while concurrently evaluating the full set of new policies on the collected data until we have identified which is the optimal policy. In addition, we can simultaneously do inference on the true expected outcomes under each of our new policies.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-waudby-smith_anytime-valid_2024" class="csl-entry">
+Waudby-Smith, Ian, Lili Wu, Aaditya Ramdas, Nikos Karampatziakis, and Paul Mineiro. 2024. <em>Anytime-Valid Off-Policy Inference for Contextual Bandits</em>. arXiv. <a href="https://doi.org/10.48550/arXiv.2210.10768">https://doi.org/10.48550/arXiv.2210.10768</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>Off-policy Inference</category>
+  <category>Optimal Policy Identification</category>
+  <category>Anytime-valid Inference</category>
+  <category>Bandits</category>
+  <guid>https://dmolitor.com/blog/posts/optimal_policy_id/</guid>
+  <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://dmolitor.com/blog/posts/optimal_policy_id/thumbnail.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>My Top Albums of 2025</title>
   <link>https://dmolitor.com/blog/posts/top_albums_2025/</link>
