@@ -10,7 +10,7 @@
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Tue, 24 Mar 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 27 Mar 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Optimal Policy Identification: an Anytime-Valid Approach</title>
   <link>https://dmolitor.com/blog/posts/optimal_policy_id/</link>
@@ -259,7 +259,7 @@ Waudby-Smith, Ian, Lili Wu, Aaditya Ramdas, Nikos Karampatziakis, and Paul Minei
   <category>Anytime-valid Inference</category>
   <category>Bandits</category>
   <guid>https://dmolitor.com/blog/posts/optimal_policy_id/</guid>
-  <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
+  <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
   <media:content url="https://dmolitor.com/blog/posts/optimal_policy_id/thumbnail.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
