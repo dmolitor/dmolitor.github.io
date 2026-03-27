@@ -1,7 +1,7 @@
 ---
 title: "Optimal Policy Identification: an Anytime-Valid Approach"
 description: |
-  Developing an approach for anytime-valid optimal policy identification.
+  Developing an anytime-valid approach for optimal policy identification: an extension of <a href="https://arxiv.org/abs/2210.10768">Anytime-valid off-policy inference for contextual bandits by Waudby-Smith, et al.</a>
 date: "3/24/2026"
 format:
   html:
@@ -14,7 +14,7 @@ execute:
   message: false
 jupyter: python3
 page-layout: article
-categories: [Off-policy Inference, Optimal Policy Identification, Anytime-valid Inference, Bandits]
+categories: [Optimal Policy Identification, Anytime-valid Inference, Bandits]
 image: "./thumbnail.jpg"
 bibliography: references.bib
 ---
