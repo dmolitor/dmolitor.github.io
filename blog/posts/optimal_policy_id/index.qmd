@@ -20,7 +20,7 @@ bibliography: references.bib
 ---
 
 Suppose we work at a tech firm and are part of a team that is in charge of a personalization
-algorithm. In particular, the existing personalization algorithm probabilistically assigns users to
+algorithm that probabilistically assigns users to
 certain interventions (treatments) based on their individual characteristics. Perhaps the team
 would like to test a handful of cutting-edge personalization algorithms but are concerned
 that replacing the current version would risk downgrading user satisfaction and incurring
