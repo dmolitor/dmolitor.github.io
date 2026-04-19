@@ -9,7 +9,7 @@ include-after-body:
 
 ## Publications
 
-<a href="https://doi.org/10.31235/osf.io/69y2j_v4" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2026). Forthcoming, <i>Political Analysis</i>.
+<a href="https://doi.org/10.1017/pan.2026.10040" style="text-decoration: none;"><b>Adaptive Randomization in Conjoint Survey Experiments</b></a>. Jennah Gosciak, Daniel Molitor, Ian Lundberg (2026). <i>Political Analysis</i>.
 <details>
   <summary>Abstract</summary>
   <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
