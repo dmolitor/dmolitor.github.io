@@ -41,7 +41,3 @@ inference methods. I love open source software and enjoy building tools and lear
 | April 2023 | Awarded an <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/ style="text-decoration: none;">NSF Graduate Research Fellowship</a>.|
 
 <br>
-
-An LLM-generated summary of my research:
-
-> I develop empirical methods for applied social scientists running online or adaptive experiments such as multi-armed bandits and conjoint experiments. My work bridges causal inference, experimental design, and machine learning to create methods that enable robust causal inference in dynamic experimental settings. Broadly, I aim to make modern experimentation frameworks both practically useful and statistically rigorous for studying real-world behavior and decision-making.
