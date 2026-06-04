@@ -94,3 +94,20 @@ details[open] summary::before {
   width: 25%;
   min-width: 250px;
 }
+
+body,
+p,
+li,
+td,
+th,
+.navbar,
+.navbar-title,
+.navbar-nav,
+.nav-link,
+.sidebar,
+.sidebar-navigation,
+.quarto-title,
+.quarto-title h1,
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Trebuchet MS", sans-serif !important;
+}

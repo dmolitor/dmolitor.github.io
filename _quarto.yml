@@ -9,12 +9,12 @@ website:
   google-analytics: "UA-154890377-1"
   favicon: "media/_favicon.png"
   navbar:
-    background: light
+    # background: light
     title: "**Daniel Molitor**"
     search: false
     pinned: true
     collapse-below: md
-    foreground: secondary
+    # foreground: secondary
     left: 
       - text: "**Research**"
         href: research/index.qmd
@@ -40,12 +40,12 @@ website:
 
 format:
   html:
-    theme: 
-      dark: superhero
-      light: sandstone
+    theme: journal
+      # dark: superhero
+      # light: journal
     highlight-style: atom-one
     css: styles.css
     toc: true
     page-layout: full
-    mainfont: "Trebuchet MS"
+    # mainfont: "Trebuchet MS" # to modify, see bottom of styles.css
     
