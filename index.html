@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -36,12 +36,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-4e5466e430b1db38349d513585fd1d59.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-43b2d995d73a1754bd3a6f5d899fe64b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-6d40f8af7092f34acea1908532066003.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d91dc8230ebbb453542c041f845551f9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-82a9e8c3f037b4db13438394ac6720b1.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-bb0052d43e19c05d1bf6150b443a8225.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -76,167 +74,7 @@ ga('send', {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
-    const toggleBodyColorMode = (bsSheetEl) => {
-      const mode = bsSheetEl.getAttribute("data-mode");
-      const bodyEl = window.document.querySelector("body");
-      if (mode === "dark") {
-        bodyEl.classList.add("quarto-dark");
-        bodyEl.classList.remove("quarto-light");
-      } else {
-        bodyEl.classList.add("quarto-light");
-        bodyEl.classList.remove("quarto-dark");
-      }
-    }
-    const toggleBodyColorPrimary = () => {
-      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
-      if (bsSheetEl) {
-        toggleBodyColorMode(bsSheetEl);
-      }
-    }
-    const setColorSchemeToggle = (alternate) => {
-      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-      for (let i=0; i < toggles.length; i++) {
-        const toggle = toggles[i];
-        if (toggle) {
-          if (alternate) {
-            toggle.classList.add("alternate");
-          } else {
-            toggle.classList.remove("alternate");
-          }
-        }
-      }
-    };
-    const toggleColorMode = (alternate) => {
-      // Switch the stylesheets
-      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
-      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-      manageTransitions('#quarto-margin-sidebar .nav-link', false);
-      if (alternate) {
-        // note: dark is layered on light, we don't disable primary!
-        enableStylesheet(alternateStylesheets);
-        for (const sheetNode of alternateStylesheets) {
-          if (sheetNode.id === "quarto-bootstrap") {
-            toggleBodyColorMode(sheetNode);
-          }
-        }
-      } else {
-        disableStylesheet(alternateStylesheets);
-        enableStylesheet(primaryStylesheets)
-        toggleBodyColorPrimary();
-      }
-      manageTransitions('#quarto-margin-sidebar .nav-link', true);
-      // Switch the toggles
-      setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
-      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-        manageTransitions("body", false);
-        window.scrollTo(0, 1);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          manageTransitions("body", true);
-        }, 40);
-      }
-    }
-    const disableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        stylesheet.rel = 'disabled-stylesheet';
-      }
-    }
-    const enableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
-          stylesheet.rel = 'stylesheet';
-        }
-      }
-    }
-    const manageTransitions = (selector, allowTransitions) => {
-      const els = window.document.querySelectorAll(selector);
-      for (let i=0; i < els.length; i++) {
-        const el = els[i];
-        if (allowTransitions) {
-          el.classList.remove('notransition');
-        } else {
-          el.classList.add('notransition');
-        }
-      }
-    }
-    const isFileUrl = () => {
-      return window.location.protocol === 'file:';
-    }
-    const hasAlternateSentinel = () => {
-      let styleSentinel = getColorSchemeSentinel();
-      if (styleSentinel !== null) {
-        return styleSentinel === "alternate";
-      } else {
-        return false;
-      }
-    }
-    const setStyleSentinel = (alternate) => {
-      const value = alternate ? "alternate" : "default";
-      if (!isFileUrl()) {
-        window.localStorage.setItem("quarto-color-scheme", value);
-      } else {
-        localAlternateSentinel = value;
-      }
-    }
-    const getColorSchemeSentinel = () => {
-      if (!isFileUrl()) {
-        const storageValue = window.localStorage.getItem("quarto-color-scheme");
-        return storageValue != null ? storageValue : localAlternateSentinel;
-      } else {
-        return localAlternateSentinel;
-      }
-    }
-    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-      let newTheme = '';
-      if(authorPrefersDark) {
-        newTheme = isAlternate ? baseTheme : alternateTheme;
-      } else {
-        newTheme = isAlternate ? alternateTheme : baseTheme;
-      }
-      const changeGiscusTheme = () => {
-        // From: https://github.com/giscus/giscus/issues/336
-        const sendMessage = (message) => {
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (!iframe) return;
-          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-        }
-        sendMessage({
-          setConfig: {
-            theme: newTheme
-          }
-        });
-      }
-      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-      if (isGiscussLoaded) {
-        changeGiscusTheme();
-      }
-    };
-    const authorPrefersDark = true;
-    const darkModeDefault = authorPrefersDark;
-    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-    // Dark / light mode switch
-    window.quartoToggleColorScheme = () => {
-      // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
-      toggleColorMode(toAlternate);
-      setStyleSentinel(toAlternate);
-      toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
-    };
-    // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
-      toggleColorMode(true);
-    } else {
-      toggleColorMode(false);
-    }
-  </script>
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -270,7 +108,6 @@ ga('send', {
     <a href="https://github.com/dmolitor" title="Daniel's GitHub" class="quarto-navigation-tool px-1" aria-label="Daniel's GitHub"><i class="bi bi-github"></i></a>
     <a href="https://x.com/danieljmolitor" title="Daniel's Twitter" class="quarto-navigation-tool px-1" aria-label="Daniel's Twitter"><i class="bi bi-twitter-x"></i></a>
     <a href="mailto:molitdj97@gmail.com" title="Daniel's Email" class="quarto-navigation-tool px-1" aria-label="Daniel's Email"><i class="bi bi-envelope-fill"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -286,9 +123,8 @@ ga('send', {
 
 
 
-
 <div class="icon-box">
-<p><img class="icon-img" src="media/_profile2.jpg" alt="profile pic" style="width:70%;"></p>
+<p><img class="icon-img" src="media/_profile.png" alt="profile pic" style="width:60%;"></p>
 </div>
 <p><br></p>
 <div class="about-text">
@@ -296,7 +132,7 @@ ga('send', {
 Hello there! I’m a fourth-year PhD candidate at Cornell’s School of Information Science. My research interests center primarily on policy-relevant applications of adaptive/online experimentation and causal inference methods. I love open source software and enjoy building tools and learning new technologies whenever I can. I’m very thankful to have my work <a href="https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor" style="text-decoration: none;">supported by an NSF Graduate Research Fellowship</a>!
 </p>
 </div>
-<p><br></p>
+<!-- <br> -->
 <h4 id="news" class="anchored">News</h4>
 <table class="caption-top table">
 <colgroup>
@@ -305,67 +141,57 @@ Hello there! I’m a fourth-year PhD candidate at Cornell’s School of Informat
 </colgroup>
 <tbody>
 <tr class="odd">
+<td>May 2026</td>
+<td>I’m working as a Quant UX Research Intern at Google this summer!</td>
+</tr>
+<tr class="even">
 <td>April 2026</td>
 <td><a href="https://doi.org/10.1017/pan.2026.10040" style="text-decoration: none;">Adaptive Randomization in Conjoint Survey Experiments</a> with Jennah Gosciak and Ian Lundberg is out in <a href="https://www.cambridge.org/core/journals/political-analysis" style="text-decoration: none;">Political Analysis</a>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>June 2025</td>
 <td><a href="https://doi.org/10.1177/00491241251338412" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Ian Lundberg and Jennie Brand is out in <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods &amp; Research</a>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>May 2025</td>
 <td>Passed my A exam — I’m officially a PhD Candidate!</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>May 2025</td>
 <td>Jointly presented on <a href="https://www.dmolitor.com/blog/posts/robust_adaptive_exp/" style="text-decoration: none;">Anytime-valid Inference in Adaptive Experiments: Covariate Adjustment and Balanced Power</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2025</a>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>October 2024</td>
 <td>Presented <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://ide.mit.edu/events/code24/" style="text-decoration: none;">CODE@MIT 2024</a>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>August 2024</td>
 <td><a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> was accepted for a presentation at <a href="https://www.asanet.org/2024-annual-meeting/" style="text-decoration: none;">ASA 2024</a>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>July 2024</td>
 <td>Awarded an <a href="https://datasciencecenter.cornell.edu/aws/" style="text-decoration: none;">AWS Cloud Computing Grant</a> (“Data-Adaptive Experiments to Discover Discrimination in Context”).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>May 2024</td>
 <td>Received Outstanding PhD TA Award for <a href="https://info3370.github.io/" style="text-decoration: none;">Studying Social Inequality with Data Science</a> taught by Ian Lundberg.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>May 2024</td>
 <td>Jointly presented <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2024</a>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>April 2023</td>
 <td>Awarded an <a href="https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/" style="text-decoration: none;">NSF Graduate Research Fellowship</a>.</td>
 </tr>
 </tbody>
 </table>
-<p><br></p>
 
 
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
-    // Ensure there is a toggle, if there isn't float one in the top right
-    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-      const i = window.document.createElement("i");
-      i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
-    }
-    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
