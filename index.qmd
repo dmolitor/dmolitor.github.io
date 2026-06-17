@@ -29,7 +29,7 @@ inference methods. I love open source software and enjoy building tools and lear
 
 |    |                 |
 |----|-----------------|
-| June 2026 | New paper on <a href="research/media/av-optimal-policy-arxiv-1.pdf" style="text-decoration: none;">Anytime-valid Optimal Policy Identification</a> out as a pre-print! |
+| June 2026 | New paper on <a href="https://arxiv.org/abs/2606.17515" style="text-decoration: none;">Anytime-valid Optimal Policy Identification</a> out as a pre-print! |
 | May 2026 | I'm working as a Quant UX Research Intern at Google this summer! |
 | April 2026 | <a href="https://doi.org/10.1017/pan.2026.10040" style="text-decoration: none;">Adaptive Randomization in Conjoint Survey Experiments</a> with Jennah Gosciak and Ian Lundberg is out in <a href="https://www.cambridge.org/core/journals/political-analysis" style="text-decoration: none;">Political Analysis</a>. |
 | June 2025 | <a href="https://doi.org/10.1177/00491241251338412" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Ian Lundberg and Jennie Brand is out in <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods & Research</a>. |
