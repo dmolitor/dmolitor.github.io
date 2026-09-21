@@ -40,9 +40,9 @@ website:
 
 format:
   html:
-    theme: journal
-      # dark: superhero
-      # light: journal
+    theme:
+      dark: superhero
+      light: journal
     highlight-style: atom-one
     css: styles.css
     toc: true
