@@ -95,6 +95,58 @@ details[open] summary::before {
   min-width: 250px;
 }
 
+.news-section {
+  margin-top: 0.5rem;
+}
+
+.news-section table {
+  border-collapse: collapse !important;
+  width: 100%;
+  margin: 0 !important;
+}
+
+.news-section table,
+.news-section thead,
+.news-section tbody,
+.news-section tfoot,
+.news-section tr,
+.news-section td,
+.news-section th {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.news-scroll {
+  max-height: 18rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(235, 104, 100, 0.06);
+  border-left: 4px solid rgba(235, 104, 100, 0.7);
+  border-radius: 4px;
+}
+
+.news-section table td {
+  padding: 0.55rem 0.75rem;
+  vertical-align: top;
+}
+
+.news-section table td:first-child {
+  white-space: nowrap;
+  color: #888;
+  font-size: 0.9em;
+  padding-right: 1.25rem;
+}
+
+.news-section thead {
+  display: none;
+}
+
+.news-section tbody,
+.news-section tr {
+  border: none !important;
+}
+
 body,
 p,
 li,

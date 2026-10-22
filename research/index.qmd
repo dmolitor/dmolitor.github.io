@@ -9,6 +9,23 @@ include-after-body:
 
 ## Papers
 
+<a href="https://arxiv.org/abs/2610.28979" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>.<br>Daniel Molitor, Jennah Gosciak, Michael Lindon (2026). <i>ArXiv</i>.
+<details>
+  <summary>
+    Abstract
+    <a
+      href="https://github.com/dmolitor/anytime-valid-conjoint"
+      style="margin-left: 1em; text-decoration: none; font-weight: 600;"
+    >
+      &#x1F517; Replication package
+    </a>
+  </summary>
+
+  <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
+    Choosing an appropriate sample size is a fundamental challenge in experimental design. This challenge is particularly salient in conjoint experiments, where researchers simultaneously target many estimands whose inferential goals may be reached at different sample sizes. Conventional sample-size calculations address this challenge in an <i>ex ante</i> manner. In large online studies, including many conjoint experiments, data often arrive continuously, allowing researchers to dynamically stop data collection. In such settings, the relevant practical question is not "what sample size should I choose in advance?" but rather, as data accumulate, "have I learned enough yet?" A naive response is to repeatedly inspect conventional confidence intervals and $p$-values, but doing so invalidates their inferential guarantees. We address this challenge by developing a general anytime-valid framework for conjoint experiments that allows continuous monitoring and data-dependent stopping. This framework equips many common conjoint estimands with asymptotic $e$-processes, confidence sequences, and anytime-valid $p$-values, and provides a general recipe for any estimand that can be expressed as a linear contrast of population OLS coefficients. Across common conjoint settings, we demonstrate that anytime-valid inference can yield substantial sample savings relative to fixed-sample designs. The probability of early stopping frequently exceeds 50%, with mean sample savings often surpassing 25%.
+  </p>
+</details>
+
 <a href="https://arxiv.org/abs/2606.17515" style="text-decoration: none;"><b>Anytime-valid Optimal Policy Identification</b></a>.<br>Daniel Molitor (2026). <i>ArXiv</i>.
 <details>
   <summary>
@@ -130,11 +147,3 @@ include-after-body:
 </details>
 
 ## Works in Progress
-
-<a href="https://www.dmolitor.com/blog/posts/conjoint_analysis/" style="text-decoration: none;"><b>Anytime-Valid Inference in Conjoint Experiments</b></a>.<br>Daniel Molitor, Jennah Gosciak, Michael Lindon.
-<details>
-  <summary>Abstract</summary>
-  <p class="dynamic-text" style="background-color: #f0f0f0; padding: 1em;">
-    Choosing an appropriate sample size is a fundamental experimental design challenge. Conventional sample-size calculations address this challenge <i>ex ante</i>. In large online studies, however, data often arrive continuously, allowing researchers to dynamically stop data collection. In such settings, the relevant practical question is not "what sample size should I choose in advance?" but rather, as data accumulate, "have I learned enough yet?" A natural response is to repeatedly inspect conventional confidence intervals and $p$-values, but doing so invalidates their inferential guarantees. Additionally, online experiments often produce clustered data---e.g., through repeated measurement or group-level randomization---requiring cluster-robust inference. We address both challenges via an <i>anytime-valid framework</i> for linear regression with \emph{clustered data}, allowing continuous monitoring and data-dependent stopping. We derive cluster-robust asymptotic $e$-processes, confidence sequences, and anytime-valid $p$-values for linear contrasts of population least-squares coefficients. Conjoint experiments are ideal applications: researchers target many estimands whose inferential goals may be reached at different sample sizes; respondents contribute multiple correlated outcomes; and many estimands can be represented as linear contrasts. Across common conjoint settings, we demonstrate that anytime-valid inference can yield substantial sample savings relative to fixed-sample designs. The probability of early stopping frequently exceeds 50\%, with mean savings often surpassing 25\%.
-  </p>
-</details>

@@ -18,6 +18,11 @@ categories: [Conjoints, Anytime-valid Inference]
 image: "./thumbnail.jpg"
 ---
 
+::: {.callout-tip}
+## Note
+This post was based on a brainstorming session and, as such, is quite limited (and not 100% correct in every way). To see an expanded, paper-length treatment of this idea, check out [Anytime-Valid Inference in Conjoint Experiments](https://arxiv.org/abs/2610.28979) with myself, Jennah Gosciak, and Michael Lindon 👀.
+:::
+
 In this post, I demonstrate how to estimate Average Marginal Component Effects (AMCE)
 in a conjoint experiment using both a fixed‑n approach and a sequential, anytime‑valid
 approach.

@@ -17,7 +17,7 @@ hide-description: true
 
 <div class="about-text">
 <p>
-Hello there! I'm a fourth-year PhD candidate at Cornell's School of Information Science. My research
+Hello! I'm a fifth-year PhD candidate at Cornell's School of Information Science. My research
 interests center primarily on policy-relevant applications of adaptive/online experimentation and causal
 inference methods. I love open source software and enjoy building tools and learning new technologies whenever I can. I'm very thankful to have my work <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor style="text-decoration: none;">supported by an NSF Graduate Research Fellowship</a>!
 </p>
@@ -25,11 +25,16 @@ inference methods. I love open source software and enjoy building tools and lear
 
 <!-- <br> -->
 
+<div class="news-section">
+
 #### News
+
+<div class="news-scroll">
 
 |    |                 |
 |----|-----------------|
-| June 2026 | New paper on <a href="https://arxiv.org/abs/2606.17515" style="text-decoration: none;">Anytime-valid Optimal Policy Identification</a> out as a pre-print! |
+| October 2026 | <a href="https://arxiv.org/abs/2610.28979" style="text-decoration: none;">Anytime-Valid Inference in Conjoint Experiments</a> with Jennah Gosciak and Michael Lindon is out as a pre-print! |
+| June 2026 | New paper on <a href="https://arxiv.org/abs/2606.17515" style="text-decoration: none;">Anytime-valid Optimal Policy Identification</a> out as a pre-print. |
 | May 2026 | I'm working as a Quant UX Research Intern at Google this summer! |
 | April 2026 | <a href="https://doi.org/10.1017/pan.2026.10040" style="text-decoration: none;">Adaptive Randomization in Conjoint Survey Experiments</a> with Jennah Gosciak and Ian Lundberg is out in <a href="https://www.cambridge.org/core/journals/political-analysis" style="text-decoration: none;">Political Analysis</a>. |
 | June 2025 | <a href="https://doi.org/10.1177/00491241251338412" style="text-decoration: none;">The Causal Effect of Parent Occupation on Child Occupation</a> with Ian Lundberg and Jennie Brand is out in <a href="https://journals.sagepub.com/home/smr" style="text-decoration: none;">Sociological Methods & Research</a>. |
@@ -41,3 +46,7 @@ inference methods. I love open source software and enjoy building tools and lear
 | May 2024 | Received Outstanding PhD TA Award for <a href="https://info3370.github.io/" style="text-decoration: none;">Studying Social Inequality with Data Science</a> taught by Ian Lundberg.|
 | May 2024 | Jointly presented <a href="https://osf.io/pa65k/" style="text-decoration: none;">Data-Adaptive Experimentation to Find Contexts with the Most and Least Discrimination</a> at <a href="https://sci-info.org/annual-meeting/" style="text-decoration: none;">ACIC 2024</a>.|
 | April 2023 | Awarded an <a href=https://gradschool.cornell.edu/spotlights/student-spotlight-daniel-molitor/ style="text-decoration: none;">NSF Graduate Research Fellowship</a>.|
+
+</div>
+
+</div>
