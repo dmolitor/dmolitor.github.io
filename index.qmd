@@ -10,7 +10,7 @@ hide-description: true
 ---
 
 <div class="icon-box">
-<img class="icon-img" src="media/_profile.png" alt="profile pic" style="width:60%;">
+<img class="icon-img" src="media/_profile.webp" alt="profile pic" style="width:70%;">
 </div>
 
 <br>
