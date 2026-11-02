@@ -9,7 +9,7 @@
 <link>https://dmolitor.com/blog/</link>
 <atom:link href="https://dmolitor.com/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.10.19</generator>
+<generator>quarto-1.11.9</generator>
 <lastBuildDate>Fri, 27 Mar 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Optimal Policy Identification: an Anytime-Valid Approach</title>
@@ -259,7 +259,7 @@ Waudby-Smith, Ian, Lili Wu, Aaditya Ramdas, Nikos Karampatziakis, and Paul Minei
   <category>Bandits</category>
   <guid>https://dmolitor.com/blog/posts/optimal_policy_id/</guid>
   <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/optimal_policy_id/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/optimal_policy_id/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>My Top Albums of 2025</title>
@@ -567,7 +567,7 @@ Waudby-Smith, Ian, Lili Wu, Aaditya Ramdas, Nikos Karampatziakis, and Paul Minei
   <category>Music</category>
   <guid>https://dmolitor.com/blog/posts/top_albums_2025/</guid>
   <pubDate>Fri, 16 Jan 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/top_albums_2025/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/top_albums_2025/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Anytime-valid Inference on the AMCE in Conjoint Experiments</title>
@@ -2082,7 +2082,7 @@ font-style: inherit;">200</span></span>
   <category>Anytime-valid Inference</category>
   <guid>https://dmolitor.com/blog/posts/conjoint_analysis/</guid>
   <pubDate>Mon, 10 Mar 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/conjoint_analysis/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/conjoint_analysis/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Anytime-Valid Regression Adjusted Causal Inference</title>
@@ -3382,7 +3382,7 @@ font-style: inherit;">mean</span>(any_error))</span>
   <category>Anytime-valid Inference</category>
   <guid>https://dmolitor.com/blog/posts/anytime_valid_linear_models/</guid>
   <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/anytime_valid_linear_models/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/anytime_valid_linear_models/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Robust Adaptive Experiments</title>
@@ -5352,7 +5352,7 @@ font-style: inherit;">"Cumulative reward"</span>)</span>
   <category>Bandits</category>
   <guid>https://dmolitor.com/blog/posts/robust_adaptive_exp/</guid>
   <pubDate>Tue, 11 Feb 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/robust_adaptive_exp/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/robust_adaptive_exp/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Conformal Prediction Beyond Exchangeability</title>
@@ -7524,7 +7524,7 @@ font-style: inherit;">"Width"</span></span>
   <category>Conformal Prediction</category>
   <guid>https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/</guid>
   <pubDate>Thu, 25 Jul 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/conformal-beyond-exchangeability/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Building and Deploying Adaptive Experiments with Shiny</title>
@@ -7908,7 +7908,7 @@ font-style: inherit;">--workers</span> 20</span></code></pre></div></div>
   <category>Shiny</category>
   <guid>https://dmolitor.com/blog/posts/dynamic_surveys/</guid>
   <pubDate>Wed, 17 Jul 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://dmolitor.com/blog/posts/dynamic_surveys/thumbnail.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://dmolitor.com/blog/posts/dynamic_surveys/thumbnail.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 </channel>
 </rss>
